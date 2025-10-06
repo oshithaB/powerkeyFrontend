@@ -47,7 +47,7 @@ export default function EditCheques() {
 
       try {
         setLoading(true);
-        const response = await axiosInstance.get(`/api/getChequeByID/${id}/${selectedCompany.company_id}`);
+        const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getChequeByID/${id}/${selectedCompany.company_id}`);
         const cheque = response.data;
         console.log('Fetched cheque:', cheque);
 
@@ -119,7 +119,7 @@ export default function EditCheques() {
         amount: parseFloat(formData.amount)
       };
 
-      const response = await axiosInstance.put(`/api/updateCheque/${id}`, payload);
+      const response = await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateCheque/${id}`, payload);
       console.log('Update response:', response.data);
 
       setSuccess('Cheque updated successfully!');

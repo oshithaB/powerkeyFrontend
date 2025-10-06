@@ -50,7 +50,7 @@ export default function ExpensesPage() {
   const fetchExpenses = async () => {
     try {
       console.log('Fetching expenses for company:', selectedCompany?.company_id);
-      const response = await axiosInstance.get(`/api/getExpenses/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getExpenses/${selectedCompany?.company_id}`);
       console.log('Fetched expenses:', response.data);
       setExpenses(response.data);
     } catch (error) {
@@ -62,7 +62,7 @@ export default function ExpensesPage() {
 
   const fetchPayees = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getPayees/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPayees/${selectedCompany?.company_id}`);
       setPayees(response.data);
     } catch (error) {
       console.error('Error fetching payees:', error);
@@ -77,7 +77,7 @@ export default function ExpensesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this expense?')) {
       try {
-        await axiosInstance.delete(`/api/deleteExpense/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/deleteExpense/${selectedCompany?.company_id}/${id}`);
         fetchExpenses();
       } catch (error) {
         console.error('Error deleting expense:', error);

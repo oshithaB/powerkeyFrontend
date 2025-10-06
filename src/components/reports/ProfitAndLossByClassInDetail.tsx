@@ -111,7 +111,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/profit-and-loss-by-emp/${selectedCompany?.company_id}/${employeeId}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/profit-and-loss-by-emp/${selectedCompany?.company_id}/${employeeId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       setData(response.data.data);
@@ -125,7 +125,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
 
   const fetchInvoicesByEmployee = async (employeeId: string, startDate?: string, endDate?: string) => {
     try {
-      const response = await axiosInstance.get(`/api/invoices-by-employee/${selectedCompany?.company_id}/${employeeId}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/invoices-by-employee/${selectedCompany?.company_id}/${employeeId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       setSalesData(response.data.data);

@@ -88,7 +88,7 @@ const TransactionDetailsByTaxCode: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/transaction-detail-by-tax-code/${selectedCompany.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/transaction-detail-by-tax-code/${selectedCompany.company_id}`, {
         params: { start_date: startDate, end_date: endDate, tax_code: taxCode },
       });
       console.log('API Response:', response.data);

@@ -89,7 +89,7 @@ const SupplierBalanceDetails: React.FC = () => {
     setError(null);
     try {
       const response = await axiosInstance.get(
-        `/api/supplier-balance-detail/${selectedCompany.company_id}/${vendor_id}`,
+        `https://powerkeybackend-production.up.railway.app/api/supplier-balance-detail/${selectedCompany.company_id}/${vendor_id}`,
         {
           params: { start_date: startDate, end_date: endDate }
         }

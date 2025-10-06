@@ -54,7 +54,7 @@ const APAgingDetailReport: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/ap-aging-summary-details/${vendorId}/${selectedCompany?.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/ap-aging-summary-details/${vendorId}/${selectedCompany?.company_id}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       setData(response.data.data);

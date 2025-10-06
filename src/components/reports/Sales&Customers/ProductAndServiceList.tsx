@@ -49,7 +49,7 @@ const ProductList: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/getProducts/${selectedCompany.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany.company_id}`);
       
       if (Array.isArray(response.data)) {
         setData(response.data);

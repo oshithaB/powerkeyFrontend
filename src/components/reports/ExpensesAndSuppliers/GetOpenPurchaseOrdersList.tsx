@@ -49,7 +49,7 @@ const GetOpenPurchaseOrdersList: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/open-purchase-orders-list/${selectedCompany.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/open-purchase-orders-list/${selectedCompany.company_id}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       

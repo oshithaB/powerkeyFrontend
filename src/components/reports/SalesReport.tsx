@@ -39,7 +39,7 @@ const SalesReport: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get('/api/sales-report', {
+      const response = await axiosInstance.get('https://powerkeybackend-production.up.railway.app/api/sales-report', {
         params: { start_date: startDate, end_date: endDate }
       });
       console.log(response.data);

@@ -105,7 +105,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     if (selectedCompany) {
       const fetchTaxRates = async () => {
         try {
-          const response = await axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`);
+          const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`);
           const taxRatesData = Array.isArray(response.data) && Array.isArray(response.data[0]) 
             ? response.data[0] 
             : Array.isArray(response.data) 
@@ -140,8 +140,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     if (!orderId) return;
     try {
       const [orderRes, itemsRes] = await Promise.all([
-        axiosInstance.get(`/api/getOrders/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/order-items/${selectedCompany?.company_id}/${orderId}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getOrders/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/order-items/${selectedCompany?.company_id}/${orderId}`)
       ]);
 
       const order = orderRes.data.find((e: any) => e.id === parseInt(orderId));
@@ -177,7 +177,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getVendors/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getVendors/${selectedCompany?.company_id}`);
       setVendors(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -187,7 +187,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`);
       setProducts(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -197,7 +197,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchPaymentMethods = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getPaymentMethods`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPaymentMethods`);
       setPaymentMethods(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching payment methods:', error);
@@ -208,7 +208,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get(`/api/employees`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees`);
       setEmployees(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -371,9 +371,9 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       };
   
       if (expense) {
-        await axiosInstance.put(`/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
       } else {
-        await axiosInstance.post(`/api/createBill/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createBill/${selectedCompany?.company_id}`, submitData);
       }
   
       setFormData(initialFormData);
@@ -396,7 +396,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const handleCreatePaymentMethod = async (name: string) => {
     try {
-      const response = await axiosInstance.post('/api/createPaymentMethod', {
+      const response = await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/createPaymentMethod', {
         name,
       });
       const newMethod = response.data;
@@ -541,7 +541,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           asOfDate: vendorFormData.as_of_date
         };
 
-        await axiosInstance.post(`/api/createVendors/${selectedCompany?.company_id}`, payload);
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createVendors/${selectedCompany?.company_id}`, payload);
 
         setIsCreateVendorModalOpen(false);
         fetchVendors();
@@ -889,7 +889,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           newEmployeePayload.role_id = parseInt(employeeFormData.role_id);
         }
         
-        await axiosInstance.post('/api/employees', newEmployeePayload);
+        await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/employees', newEmployeePayload);
         fetchEmployees();
         setIsCreateEmployeeModalOpen(false);
         resetEmployeeForm();
@@ -905,7 +905,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
     const fetchRoles = async () => {
       try {
-        const response = await axiosInstance.get('/api/roles');
+        const response = await axiosInstance.get('https://powerkeybackend-production.up.railway.app/api/roles');
         setRoles(response.data);
       } catch (error) {
         console.error('Error fetching roles:', error);

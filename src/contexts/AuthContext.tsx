@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/api/login', { email, password });
+      const response = await axios.post('https://powerkeybackend-production.up.railway.app/api/login', { email, password });
       const { token, user: userData } = response.data;
 
       if (!userData.fullname) {
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
-      await axios.post('/api/signup', {
+      await axios.post('https://powerkeybackend-production.up.railway.app/api/signup', {
         username: email.split('@')[0],
         fullname: `${firstName} ${lastName}`,
         email,
@@ -121,7 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const requestPasswordReset = async (email: string) => {
     try {
-      const response = await axios.post('/api/userVerification', { email });
+      const response = await axios.post('https://powerkeybackend-production.up.railway.app/api/userVerification', { email });
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to send verification code');
@@ -130,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const verifyOtp = async (email: string, otp: string) => {
     try {
-      const response = await axios.post('/api/OTPVerification', { email, otp });
+      const response = await axios.post('https://powerkeybackend-production.up.railway.app/api/OTPVerification', { email, otp });
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Invalid or expired verification code');
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const resetPassword = async (email: string, newPassword: string) => {
     try {
-      const response = await axios.post('/api/resetPassword', { email, newPassword });
+      const response = await axios.post('https://powerkeybackend-production.up.railway.app/api/resetPassword', { email, newPassword });
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to reset password');

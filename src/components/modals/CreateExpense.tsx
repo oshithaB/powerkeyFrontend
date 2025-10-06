@@ -101,7 +101,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
   const fetchCategories = async () => {
     try {
       console.log('Fetching expense categories for company:', selectedCompany?.company_id);
-      const response = await axiosInstance.get(`/api/getExpenseCategories/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getExpenseCategories/${selectedCompany?.company_id}`);
       setCategories(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -111,7 +111,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const fetchPaymentAccounts = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getPaymentAccounts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPaymentAccounts/${selectedCompany?.company_id}`);
       setPaymentAccounts(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching payment accounts:', error);
@@ -121,7 +121,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const fetchPaymentMethods = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getPaymentMethods`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPaymentMethods`);
       console.log('Fetched payment methods:', response.data);
       setPaymentMethods(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -133,7 +133,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const fetchPayees = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getPayees/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPayees/${selectedCompany?.company_id}`);
       setPayees(response.data);
     } catch (error) {
       console.error('Error fetching payees:', error);
@@ -142,7 +142,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const handleCreateCategory = async (name: string) => {
     try {
-      const response = await axiosInstance.post(`/api/addCategory/${selectedCompany?.company_id}`, {
+      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/addCategory/${selectedCompany?.company_id}`, {
         name,
       });
       const newCategory = response.data;
@@ -157,7 +157,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const  handleCreatePaymentAccount = async (name: string, accountType?: string, detailType?: string, description?: string) => {
     try {
-      const response = await axiosInstance.post(`/api/addPaymentAccount/${selectedCompany?.company_id}`, {
+      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/addPaymentAccount/${selectedCompany?.company_id}`, {
         name,
         account_type: accountType,
         detail_type: detailType,
@@ -178,7 +178,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const handleCreatePaymentMethod = async (name: string) => {
     try {
-      const response = await axiosInstance.post('/api/createPaymentMethod', {
+      const response = await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/createPaymentMethod', {
         name,
       });
       const newMethod = response.data.name;
@@ -194,7 +194,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
     const handleCreatePayeeMethod = async (name: string) => {
     try {
-      const response = await axiosInstance.post('/api/addPayee', {
+      const response = await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/addPayee', {
         name,
         company_id: selectedCompany?.company_id,
       });
@@ -212,7 +212,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const handleCreatePaymentAccountType = async (accountType: string, details: string[]) => {
     try {
-      await axiosInstance.post(`/api/addPaymentAccountType/${selectedCompany?.company_id}`, {
+      await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/addPaymentAccountType/${selectedCompany?.company_id}`, {
         account_type: accountType,
         details,
       });
@@ -345,9 +345,9 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       console.log('Submitting expense data:', submitData);
       
       if (expense) {
-        await axiosInstance.put(`/api/expenses/${selectedCompany?.company_id}/${expense.id}`, submitData);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/expenses/${selectedCompany?.company_id}/${expense.id}`, submitData);
       } else {
-        await axiosInstance.post(`/api/createExpense/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createExpense/${selectedCompany?.company_id}`, submitData);
       }
   
       setFormData(initialFormData);
@@ -565,7 +565,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     useEffect(() => {
       const fetchAccountTypes = async () => {
         try {
-          const response = await axiosInstance.get(`/api/getPaymentAccountTypes/${selectedCompany?.company_id}`);
+          const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPaymentAccountTypes/${selectedCompany?.company_id}`);
           setAccountTypes(response.data);
         } catch (error) {
           console.error('Error fetching account types:', error);
@@ -594,7 +594,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
     const fetchDetailTypes = async(id: string) => {
       try {
-        const detailTypes = await axiosInstance.get(`/api/getPaymentAccountTypeDetails/${id}`);
+        const detailTypes = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getPaymentAccountTypeDetails/${id}`);
         setDetailTypes(detailTypes.data || []);
       } catch (error) {
         console.error('Error fetching detail types:', error);

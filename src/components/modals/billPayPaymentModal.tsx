@@ -155,7 +155,7 @@ const BillReceivePaymentModal: React.FC = () => {
 
             try {
                 const response = await axiosInstance.get(
-                `/api/getBillsByVendor/${selectedCompany.company_id}/${vendorId}`
+                `https://powerkeybackend-production.up.railway.app/api/getBillsByVendor/${selectedCompany.company_id}/${vendorId}`
                 );
                 setBills(response.data);
             } catch (error: any) {
@@ -173,7 +173,7 @@ const BillReceivePaymentModal: React.FC = () => {
             if (!selectedCompany?.company_id) return;
             setPaymentMethodsLoading(true);
             try {
-                const response = await axiosInstance.get('/api/getPaymentMethods');
+                const response = await axiosInstance.get('https://powerkeybackend-production.up.railway.app/api/getPaymentMethods');
                 const methods = response.data.map((method: { name: string }) => method.name);
                 setPaymentMethods(methods);
                 if (methods.length > 0 && !payment.payment_method) {
@@ -258,7 +258,7 @@ const BillReceivePaymentModal: React.FC = () => {
 
   const handleCreatePaymentMethod = async (name: string) => {
     try {
-      const response = await axiosInstance.post('/api/createPaymentMethod', {
+      const response = await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/createPaymentMethod', {
         name,
       });
       const { name: newMethod } = response.data;
@@ -315,7 +315,7 @@ const BillReceivePaymentModal: React.FC = () => {
   
     try {
       await axiosInstance.post(
-        `/api/recordBillPayment/${selectedCompany.company_id}/${vendor_id}`,
+        `https://powerkeybackend-production.up.railway.app/api/recordBillPayment/${selectedCompany.company_id}/${vendor_id}`,
         {
           payment_amount: payment.payment_amount,
           payment_date: payment.payment_date,

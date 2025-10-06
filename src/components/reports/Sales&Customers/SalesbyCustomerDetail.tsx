@@ -45,7 +45,7 @@ const SalesbyCustomerDetail: React.FC = () => {
     setError(null);
     try {
       const response = await axiosInstance.get(
-        `/api/sales-by-customerid-detail/${selectedCompany.company_id}/${customerId}`,
+        `https://powerkeybackend-production.up.railway.app/api/sales-by-customerid-detail/${selectedCompany.company_id}/${customerId}`,
         {
           params: { 
             start_date: startDate, 

@@ -102,7 +102,7 @@ export default function CreateCompany() {
         submitData.append('taxRates', JSON.stringify(taxRates.filter(tax => tax.name && tax.rate > 0)));
       }
 
-      const response = await axiosInstance.post('/api/createCompany', submitData, {
+      const response = await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/createCompany', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

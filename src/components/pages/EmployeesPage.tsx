@@ -50,7 +50,7 @@ export default function EmployeesPage() {
 
   const fetchUserData = async (id: number): Promise<User | null> => {
     try {
-      const response = await axiosInstance.get(`/api/users/by-employee/${id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/users/by-employee/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -60,7 +60,7 @@ export default function EmployeesPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get('/api/employees');
+      const response = await axiosInstance.get('https://powerkeybackend-production.up.railway.app/api/employees');
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -71,7 +71,7 @@ export default function EmployeesPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await axiosInstance.get('/api/roles');
+      const response = await axiosInstance.get('https://powerkeybackend-production.up.railway.app/api/roles');
       setRoles(response.data);
     } catch (error) {
       console.error('Error fetching roles:', error);
@@ -117,10 +117,10 @@ export default function EmployeesPage() {
     try {
       if (editingEmployee) {
         // Update employee with all relevant data in a single request
-        await axiosInstance.put(`/api/employees/${editingEmployee.id}`, employeePayload);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/employees/${editingEmployee.id}`, employeePayload);
       } else {
         // Create new employee with all relevant data
-        await axiosInstance.post('/api/employees', employeePayload);
+        await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/employees', employeePayload);
       }
   
       fetchEmployees();
@@ -155,7 +155,7 @@ export default function EmployeesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        await axiosInstance.delete(`/api/employees/${id}`);
+        await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/employees/${id}`);
         fetchEmployees();
       } catch (error) {
         console.error('Error deleting employee:', error);

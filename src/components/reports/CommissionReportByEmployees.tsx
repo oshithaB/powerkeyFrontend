@@ -59,7 +59,7 @@ const CommissionReportByEmployees: React.FC = () => {
     setError(null);
     try {
       console.log('Fetching with params:', { start_date: startDate, end_date: endDate, employeeId });
-      const response = await axiosInstance.get(`/api/commission-report/${employeeId}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/commission-report/${employeeId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);

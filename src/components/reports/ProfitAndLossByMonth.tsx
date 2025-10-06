@@ -57,7 +57,7 @@ const ProfitAndLossByMonth: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/monthly-profit-and-loss/${selectedCompany.company_id}/${year}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/monthly-profit-and-loss/${selectedCompany.company_id}/${year}`);
       
       if (response.data?.data) {
         setData(response.data.data);

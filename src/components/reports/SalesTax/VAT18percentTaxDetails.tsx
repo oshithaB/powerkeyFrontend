@@ -59,7 +59,7 @@ const VAT18percentTaxDetails: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/vat-18percent-tax-detail/${selectedCompany.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/vat-18percent-tax-detail/${selectedCompany.company_id}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);

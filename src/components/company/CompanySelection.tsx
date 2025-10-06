@@ -56,7 +56,7 @@ export default function CompanySelection() {
 
   const fetchCompanies = async () => {
     try {
-      const response = await axiosInstance.get('/api/companies');
+      const response = await axiosInstance.get('https://powerkeybackend-production.up.railway.app/api/companies');
       console.log('Companies response:', response.data);
       setCompanies(response.data);
     } catch (error) {
@@ -68,7 +68,7 @@ export default function CompanySelection() {
 
   const fetchTaxRates = async (companyId: number) => {
     try {
-      const response = await axiosInstance.get(`/api/tax-rates/${companyId}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${companyId}`);
       console.log('Tax rates response:', response.data);
       return response.data[0] || [];
     } catch (error) {
@@ -81,7 +81,7 @@ export default function CompanySelection() {
     try {
       console.log('Selecting company:', company);
       
-      const response = await axiosInstance.get(`/api/selectCompany/${company.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/selectCompany/${company.company_id}`);
       
       if (response.data.success) {
         const mappedCompany: Company = {
@@ -129,7 +129,7 @@ export default function CompanySelection() {
   const handleDeleteCompany = async (companyId: number) => {
     if (window.confirm('Are you sure you want to delete this company? This action cannot be undone.')) {
       try {
-        await axiosInstance.delete(`/api/companies/${companyId}`);
+        await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/companies/${companyId}`);
         fetchCompanies();
         alert('Company deleted successfully');
       } catch (error: any) {
@@ -156,7 +156,7 @@ export default function CompanySelection() {
         submitData.append('logo', logo);
       }
 
-      await axiosInstance.put(`/api/companies/${editingCompany.company_id}`, submitData, {
+      await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/companies/${editingCompany.company_id}`, submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

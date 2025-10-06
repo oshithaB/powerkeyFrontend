@@ -56,7 +56,7 @@ const SalesReportByEmployees: React.FC = () => {
     setError(null);
     try {
       console.log('Fetching with params:', { start_date: startDate, end_date: endDate, employeeId });
-      const response = await axiosInstance.get(`/api/sales-report/${employeeId}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/sales-report/${employeeId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);

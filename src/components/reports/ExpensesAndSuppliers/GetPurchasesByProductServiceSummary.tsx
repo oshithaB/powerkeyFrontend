@@ -50,7 +50,7 @@ const GetPurchasesByProductServiceSummary: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/purchases-by-product-service-summary/${selectedCompany.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/purchases-by-product-service-summary/${selectedCompany.company_id}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       

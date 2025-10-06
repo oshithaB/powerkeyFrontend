@@ -68,7 +68,7 @@ export default function SalesPage() {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await axiosInstance.get(`/api/getSalesPageData/${selectedCompany?.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getSalesPageData/${selectedCompany?.company_id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -71,10 +71,10 @@ const ProfitAndLossByCustomer: React.FC = () => {
     setError(null);
     try {
       const [profitResponse, shrinkageResponse] = await Promise.all([
-        axiosInstance.get(`/api/profit-and-loss-all-customers/${selectedCompany.company_id}`, {
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/profit-and-loss-all-customers/${selectedCompany.company_id}`, {
           params: { start_date: startDate, end_date: endDate }
         }),
-        axiosInstance.get(`/api/inventory-shrinkage/${selectedCompany.company_id}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/inventory-shrinkage/${selectedCompany.company_id}`)
       ]);
       
       // Validate response structure

@@ -71,7 +71,7 @@ export default function VendorsPage() {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getVendors/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getVendors/${selectedCompany?.company_id}`);
       setVendors(response.data);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -99,9 +99,9 @@ export default function VendorsPage() {
       };
 
       if (editingVendor) {
-        await axiosInstance.put(`/api/updateVendors/${selectedCompany?.company_id}/${editingVendor.vendor_id}`, payload);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateVendors/${selectedCompany?.company_id}/${editingVendor.vendor_id}`, payload);
       } else {
-        await axiosInstance.post(`/api/createVendors/${selectedCompany?.company_id}`, payload);
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createVendors/${selectedCompany?.company_id}`, payload);
       }
       setShowModal(false);
       resetForm();
@@ -143,7 +143,7 @@ export default function VendorsPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this vendor?')) {
       try {
-        await axiosInstance.put(`/api/deleteVendors/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/deleteVendors/${selectedCompany?.company_id}/${id}`);
         fetchVendors();
         setError(null);
       } catch (error: any) {

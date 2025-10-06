@@ -65,7 +65,7 @@ const GetExpenseBySupplierDetail: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/expense-by-supplier-detail/${selectedCompany.company_id}/${payee_id}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/expense-by-supplier-detail/${selectedCompany.company_id}/${payee_id}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       

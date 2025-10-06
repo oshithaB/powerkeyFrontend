@@ -37,7 +37,7 @@ const CustomerContactDetails: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/customer-contacts/${selectedCompany.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/customer-contacts/${selectedCompany.company_id}`);
       
       if (response.data?.data && Array.isArray(response.data.data)) {
         setData(response.data.data);

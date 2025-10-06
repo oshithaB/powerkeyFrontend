@@ -147,10 +147,10 @@ export default function EditInvoice() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/employees/`),
-        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees/`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -380,7 +380,7 @@ export default function EditInvoice() {
 
       try {
           if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
-            const eligibilityRes = await axiosInstance.post(`/api/checkCustomerEligibility`, {
+            const eligibilityRes = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/checkCustomerEligibility`, {
               company_id: selectedCompany?.company_id, 
               customer_id: parseInt(formData.customer_id),
               invoice_total: total,
@@ -398,7 +398,7 @@ export default function EditInvoice() {
 
           console.log('Submitting invoice data:', submitData);
 
-          await axiosInstance.put(`/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+          await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
 
           console.log('Invoice updated:');
 

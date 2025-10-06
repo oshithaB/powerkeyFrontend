@@ -135,10 +135,10 @@ export default function EditEstimate() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/employees/`),
-        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees/`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -382,7 +382,7 @@ useEffect(() => {
         }))
       };
 
-      await axiosInstance.put(`/api/editEstimate/${selectedCompany?.company_id}/${estimate.id}`, submitData);
+      await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/editEstimate/${selectedCompany?.company_id}/${estimate.id}`, submitData);
 
       setFormData(initialFormData);
       setItems([

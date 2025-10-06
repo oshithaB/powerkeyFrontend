@@ -77,7 +77,7 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`);
       setCustomers(response.data);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -101,9 +101,9 @@ export default function CustomersPage() {
       if (editingCustomer) {
         console.log('Updating customer:', editingCustomer.id);
         console.log('Updated data:', submitData);
-        await axiosInstance.put(`/api/updateCustomers/${selectedCompany?.company_id}/${editingCustomer.id}`, submitData);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateCustomers/${selectedCompany?.company_id}/${editingCustomer.id}`, submitData);
       } else {
-        await axiosInstance.post(`/api/createCustomers/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       }
       fetchCustomers();
       setShowModal(false);
@@ -149,7 +149,7 @@ export default function CustomersPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
-        await axiosInstance.put(`/api/deleteCustomers/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/deleteCustomers/${selectedCompany?.company_id}/${id}`);
         fetchCustomers();
       } catch (error) {
         console.error('Error deleting customer:', error);

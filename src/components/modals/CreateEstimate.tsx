@@ -127,10 +127,10 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/employees/`),
-        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees/`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -308,9 +308,9 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       console.log("Submitting data:", submitData);
 
       if (estimate) {
-        await axiosInstance.put(`/api/estimates/${selectedCompany?.company_id}/${estimate.id}`, submitData);
+        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/estimates/${selectedCompany?.company_id}/${estimate.id}`, submitData);
       } else {
-        await axiosInstance.post(`/api/createEstimates/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createEstimates/${selectedCompany?.company_id}`, submitData);
       }
 
       // Reset form and items after successful save
@@ -354,7 +354,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       };
   
       console.log('Submitting customer data:', submitData);
-      const response = await axiosInstance.post(`/api/createCustomers/${selectedCompany?.company_id}`, submitData);
+      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       console.log('API response:', response.data);
   
       const newCustomer = response.data.customer;

@@ -138,10 +138,10 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/employees/`),
-        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees/`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -171,7 +171,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
   const fetchCustomerEstimates = async (customerId: string) => {
     if (!customerId) return;
     try {
-      const response = await axiosInstance.get(`/api/getEstimatesByCustomer/${selectedCompany?.company_id}/${customerId}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getEstimatesByCustomer/${selectedCompany?.company_id}/${customerId}`);
       const pendingEstimates = Array.isArray(response.data)
         ? response.data.filter((estimate: any) => estimate.status === 'pending')
         : [];
@@ -207,8 +207,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     if (!estimateId) return;
     try {
       const [estimateRes, itemsRes] = await Promise.all([
-        axiosInstance.get(`/api/getEstimates/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`)
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getEstimates/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`)
       ]);
 
       const estimate = estimateRes.data.find((e: any) => e.id === parseInt(estimateId));
@@ -425,7 +425,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       let response;
 
       if (invoice) {
-        response = await axiosInstance.put(`/api/invoices/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+        response = await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/invoices/${selectedCompany?.company_id}/${invoice.id}`, submitData);
       } else {
         const userRole = JSON.parse(localStorage.getItem('user') || '{}')?.role;
         console.log('User role:', userRole);
@@ -433,7 +433,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         try {
           // If not admin and not proforma, run eligibility check
           if (userRole !== 'admin' && submitData.status !== 'proforma') {
-            const eligibilityRes = await axiosInstance.post(`/api/checkCustomerEligibility`, {
+            const eligibilityRes = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/checkCustomerEligibility`, {
               company_id: selectedCompany?.company_id,
               customer_id: parseInt(formData.customer_id),
               invoice_total: total,
@@ -452,14 +452,14 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
           console.log('Submitting invoice data:', submitData);
 
           const response = await axiosInstance.post(
-            `/api/createInvoice/${selectedCompany?.company_id}`,
+            `https://powerkeybackend-production.up.railway.app/api/createInvoice/${selectedCompany?.company_id}`,
             submitData
           );
 
           console.log('Create invoice response:', response.data);
 
           if (formData.estimate_id) {
-            await axiosInstance.post(`/api/updateEstimateAfterInvoice/${selectedCompany?.company_id}/${formData.estimate_id}`, {
+            await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/updateEstimateAfterInvoice/${selectedCompany?.company_id}/${formData.estimate_id}`, {
               invoice_id: response.data.id,
             });
           }
@@ -514,7 +514,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       };
   
       console.log('Submitting customer data:', submitData);
-      const response = await axiosInstance.post(`/api/createCustomers/${selectedCompany?.company_id}`, submitData);
+      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       console.log('API response:', response.data);
   
       const newCustomer = response.data.customer;

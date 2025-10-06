@@ -182,7 +182,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`);
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -191,7 +191,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`/api/getVendors/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getVendors/${selectedCompany?.company_id}`);
       setVendors(response.data);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -200,7 +200,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get(`/api/employees`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees`);
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -209,7 +209,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchOrderCount = async () => {
     try {
-      const response = await axiosInstance.get(`/api/orders/count/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/orders/count/${selectedCompany?.company_id}`);
       const count = response.data.count + 1;
       setOrderCount(count);
       setOrder((prev) => ({
@@ -317,7 +317,7 @@ export default function PurchaseOrdersPage() {
         asOfDate: vendorFormData.as_of_date
       };
 
-      const response = await axiosInstance.post(`/api/createVendors/${selectedCompany?.company_id}`, payload);
+      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createVendors/${selectedCompany?.company_id}`, payload);
       
       // Refresh vendors list
       await fetchVendors();
@@ -402,11 +402,11 @@ export default function PurchaseOrdersPage() {
         total_amount: calculateTotal(),
         company_id: selectedCompany?.company_id,
       };
-      const response = await axiosInstance.post(`/api/orders/${selectedCompany?.company_id}`, orderData);
+      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/orders/${selectedCompany?.company_id}`, orderData);
       const orderId = response.data.id;
 
       for (const item of orderItems) {
-        await axiosInstance.post(`/api/order-items/${selectedCompany?.company_id}`, {
+        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/order-items/${selectedCompany?.company_id}`, {
           ...item,
           order_id: orderId,
         });

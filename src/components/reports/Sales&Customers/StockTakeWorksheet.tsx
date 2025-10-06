@@ -43,7 +43,7 @@ const StockTakeWorksheet: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`/api/stock-take-worksheet/${selectedCompany.company_id}`);
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/stock-take-worksheet/${selectedCompany.company_id}`);
       console.log('API Response:', response.data);
       
       if (response.data?.data && Array.isArray(response.data.data)) {
@@ -69,7 +69,7 @@ const StockTakeWorksheet: React.FC = () => {
 
   const updateManualCount = async (productId: number, newManualCount: number) => {
     try {
-      const response = await axiosInstance.put(`/api/update-product-manual-count/${selectedCompany?.company_id}/${productId}`, {
+      const response = await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/update-product-manual-count/${selectedCompany?.company_id}/${productId}`, {
         manual_count: newManualCount
       });
   

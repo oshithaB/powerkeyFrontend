@@ -60,7 +60,7 @@ const CustomerBalanceDetail: React.FC = () => {
     setError(null);
     try {
       console.log('Fetching with params:', { start_date: startDate, end_date: endDate, customerId });
-      const response = await axiosInstance.get(`/api/customer-balance-detail/${selectedCompany.company_id}/${customerId}`, {
+      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/customer-balance-detail/${selectedCompany.company_id}/${customerId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);
