@@ -251,7 +251,7 @@ export default function EstimatesPage() {
     try {
       if (printRef.current) {
         // Preload the logo image to ensure it’s available
-        const logoUrl = selectedCompany?.company_logo ? `http://localhost:3000${selectedCompany.company_logo}` : null;
+        const logoUrl = selectedCompany?.company_logo ? `https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}` : null;
         let logoImage: HTMLImageElement | null = null;
         if (logoUrl) {
           logoImage = new Image();
@@ -670,7 +670,7 @@ export default function EstimatesPage() {
                   </div>
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`http://localhost:3000${selectedCompany.company_logo}`}
+                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-16 w-auto max-w-[150px] object-contain"
                     />

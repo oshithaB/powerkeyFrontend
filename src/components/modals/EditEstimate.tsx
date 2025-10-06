@@ -716,7 +716,7 @@ useEffect(() => {
                                 >
                                   {product.image && (
                                     <img
-                                      src={`http://localhost:3000${product.image}`}
+                                      src={`https://powerkeybackend-production.up.railway.app${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />

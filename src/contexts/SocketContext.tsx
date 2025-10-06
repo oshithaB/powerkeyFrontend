@@ -16,7 +16,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    socketRef.current = io('http://localhost:3000', {
+    socketRef.current = io('https://powerkeybackend-production.up.railway.app', {
       autoConnect: false,
     });
 

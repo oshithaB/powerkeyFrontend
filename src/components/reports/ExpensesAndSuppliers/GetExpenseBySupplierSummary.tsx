@@ -484,7 +484,7 @@ const GetExpenseBySupplierSummary: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`http://localhost:3000${selectedCompany.company_logo}`}
+                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

@@ -47,7 +47,7 @@ export default function SettingsPage() {
           <div className="flex items-center space-x-4">
             {selectedCompany?.company_logo ? (
               <img
-                src={`http://localhost:3000${selectedCompany.company_logo}`}
+                src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
                 alt={selectedCompany.name}
                 className="h-16 w-16 rounded-lg object-cover"
               />

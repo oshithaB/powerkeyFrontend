@@ -157,7 +157,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                 <p style="font-size: 12px; color: #666;">Year: ${data.year}</p>
               </div>
               ${selectedCompany?.company_logo ? `
-                <img src="http://localhost:3000${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
+                <img src="https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
                      style="height: 100px; width: auto; max-width: 500px; object-fit: contain;" />
               ` : ''}
             </div>
@@ -652,7 +652,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                     </div>
                     {selectedCompany?.company_logo && (
                       <img 
-                        src={`http://localhost:3000${selectedCompany.company_logo}`}
+                        src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
                         alt={`${selectedCompany.name} Logo`}
                         className="h-20 w-auto max-w-xs object-contain"
                       />

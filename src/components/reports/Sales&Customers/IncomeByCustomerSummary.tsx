@@ -146,7 +146,7 @@ const IncomeByCustomerSummary: React.FC = () => {
                 </p>
               </div>
               ${selectedCompany?.company_logo ? `
-                <img src="http://localhost:3000${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
+                <img src="https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
                      style="height: 100px; width: auto; max-width: 500px; object-fit: contain;" />
               ` : ''}
             </div>
@@ -448,7 +448,7 @@ const IncomeByCustomerSummary: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`http://localhost:3000${selectedCompany.company_logo}`}
+                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

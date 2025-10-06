@@ -574,7 +574,7 @@ export default function ProductsPage() {
                       <div className="flex-shrink-0 h-10 w-10">
                         {product.image ? (
                           <img
-                            src={`http://localhost:3000${product.image}`}
+                            src={`https://powerkeybackend-production.up.railway.app${product.image}`}
                             alt={product.name}
                             className="h-10 w-10 rounded-lg object-cover"
                           />
@@ -705,7 +705,7 @@ export default function ProductsPage() {
                   />
                   {productFormData.image && (
                     <div className="mt-2">
-                      <img src={`http://localhost:3000${productFormData.image}`} alt="Product preview" className="h-20 w-20 object-cover rounded" />
+                      <img src={`https://powerkeybackend-production.up.railway.app${productFormData.image}`} alt="Product preview" className="h-20 w-20 object-cover rounded" />
                     </div>
                   )}
                 </div>

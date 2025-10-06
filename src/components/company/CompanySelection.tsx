@@ -122,7 +122,7 @@ export default function CompanySelection() {
       terms_and_conditions: company.terms_and_conditions || '',
       tax_rates: taxRates
     });
-    setLogoPreview(company.company_logo ? `http://localhost:3000${company.company_logo}` : '');
+    setLogoPreview(company.company_logo ? `https://powerkeybackend-production.up.railway.app${company.company_logo}` : '');
     setShowEditModal(true);
   };
 
@@ -309,7 +309,7 @@ export default function CompanySelection() {
                   <div className="flex items-center">
                     {company.company_logo ? (
                       <img
-                        src={`http://localhost:3000${company.company_logo}`}
+                        src={`https://powerkeybackend-production.up.railway.app${company.company_logo}`}
                         alt={company.name}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
