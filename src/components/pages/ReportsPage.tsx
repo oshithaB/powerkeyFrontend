@@ -93,34 +93,14 @@ export default function ReportsPage() {
       path: '/reports/invoices-and-payments'
     },
     {
-      name: 'Collection Report',
-      description: 'Overview of collections made',
-      path: '/reports/collection'
-    },
-    {
       name: 'Open Invoices',
       description: 'List of all open invoices',
       path: '/reports/open-invoices'
     },
     {
-      name: 'Statement List',
-      description: 'List of all customer statements',
-      path: '/reports/statement-list'
-    },
-    {
       name: 'Invoice List',
       description: 'List of all invoices',
       path: '/reports/invoice-list'
-    },
-    {
-      name: 'Unbilled Charges',
-      description: 'List of all unbilled charges',
-      path: '/reports/unbilled-charges'
-    },
-    {
-      name: 'Unbilled Time',
-      description: 'List of all unbilled time entries',
-      path: '/reports/unbilled-time'
     }
   ];
 
@@ -166,30 +146,10 @@ export default function ReportsPage() {
       path: '/reports/estimates-by-customer'
     },
     {
-      name: 'Inventory Valuation Summary',
-      description: 'Summary of inventory valuation',
-      path: '/reports/inventory-valuation-summary'
-    },
-    {
-      name: 'Inventory Valuation Detail',
-      description: 'Detailed inventory valuation report',
-      path: '/reports/inventory-valuation-detail'
-    },
-    {
       name: 'Stock Take Worksheet',
       description: 'Worksheet for stock taking',
       path: '/reports/stock-take-worksheet'
-    },
-    {
-      name: 'Time Activities by Customer Detail',
-      description: 'Detailed time activities by customer',
-      path: '/reports/time-activities-by-customer-detail'
-    },
-    // {
-    //   name: 'Transaction List by Customer',
-    //   description: 'List of transactions by customer',
-    //   path: '/reports/transaction-list-by-customer'
-    // }
+    }
 
   ];
 
@@ -266,8 +226,13 @@ export default function ReportsPage() {
 
   const salesTax = [
     {
+      name: 'SSCL(50%) - Tax Detail Report',
+      description: 'Detailed report of SSCL tax collected at 50%',
+      path: '/reports/sscl-50-tax-detail'
+    },
+    {
       name: 'SSCL(100%) - Tax Detail Report',
-      description: 'Detailed report of SSCL tax collected',
+      description: 'Detailed report of SSCL tax collected at 100%',
       path: '/reports/sscl-tax-detail'
     },
     {
@@ -275,31 +240,31 @@ export default function ReportsPage() {
       description: 'Detailed report of VAT 18% tax collected',
       path: '/reports/vat-18-tax-detail'
     },
-    {
-      name: 'SSCL (100%) - Tax Exception Report',
-      description: 'Exceptions in SSCL tax collection',
-      path: '/reports/sscl-tax-exception'
-    },
-    {
-      name: 'VAT 18% - Tax Exception Report',
-      description: 'Exceptions in VAT 18% tax collection',
-      path: '/reports/vat-18-tax-exception'
-    },
-    {
-      name: 'SSCL (100%) - Tax Summary Report',
-      description: 'Summary of SSCL tax collected',
-      path: '/reports/sscl-tax-summary'
-    },
-    {
-      name: 'VAT 18% - Tax Summary Report',
-      description: 'Summary of VAT 18% tax collected',
-      path: '/reports/vat-18-tax-summary'
-    },
-    {
-      name: 'Tax Liability Report',
-      description: 'Overview of tax liabilities',
-      path: '/reports/tax-liability'
-    },
+    // {
+    //   name: 'SSCL (100%) - Tax Exception Report',
+    //   description: 'Exceptions in SSCL tax collection',
+    //   path: '/reports/sscl-tax-exception'
+    // },
+    // {
+    //   name: 'VAT 18% - Tax Exception Report',
+    //   description: 'Exceptions in VAT 18% tax collection',
+    //   path: '/reports/vat-18-tax-exception'
+    // },
+    // {
+    //   name: 'SSCL (100%) - Tax Summary Report',
+    //   description: 'Summary of SSCL tax collected',
+    //   path: '/reports/sscl-tax-summary'
+    // },
+    // {
+    //   name: 'VAT 18% - Tax Summary Report',
+    //   description: 'Summary of VAT 18% tax collected',
+    //   path: '/reports/vat-18-tax-summary'
+    // },
+    // {
+    //   name: 'Tax Liability Report',
+    //   description: 'Overview of tax liabilities',
+    //   path: '/reports/tax-liability'
+    // },
     {
       name: 'Transaction Detail by Tax Code',
       description: 'Detailed transactions categorized by tax code',
@@ -312,16 +277,6 @@ export default function ReportsPage() {
       name: 'Employee Contact List',
       description: 'List of employee contacts details',
       path: '/reports/employee-contact-list'
-    },
-    {
-      name: 'Recent/Edited Time Activities',
-      description: 'Recently added or edited time activities',
-      path: '/reports/recent-edited-time-activities'
-    },
-    {
-      name: 'Time Activities by Employee Detail',
-      description: 'Detailed time activities by employee',
-      path: '/reports/time-activities-by-employee-detail'
     }
   ];
 
