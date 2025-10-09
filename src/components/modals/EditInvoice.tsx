@@ -12,7 +12,7 @@ interface InvoiceItem {
   product_id: number;
   product_name: string;
   description: string;
-  quantity: number;
+  quantity: number | '';
   unit_price: number;
   actual_unit_price: number;
   tax_rate: number;
@@ -124,16 +124,13 @@ export default function EditInvoice() {
         : 'invoice',
   };
 
-  console.log('Initial form data:', initialFormData);
-
   const [formData, setFormData] = useState(initialFormData);
   const [items, setItems] = useState<InvoiceItem[]>(initialItems || [
     {
-      id: 0,
       product_id: 0,
       product_name: '',
       description: '',
-      quantity: 0,
+      quantity: '',
       unit_price: 0,
       actual_unit_price: 0,
       tax_rate: 0,
@@ -142,15 +139,13 @@ export default function EditInvoice() {
     }
   ]);
 
-  console.log('Initial items:', initialItems);
-
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees/`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/api/employees/`),
+        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -258,9 +253,9 @@ export default function EditInvoice() {
 
     if (field === 'quantity' || field === 'unit_price' || field === 'tax_rate') {
       const item = updatedItems[index];
-      const subtotal = item.quantity * item.unit_price;
+      const subtotal = Number(item.quantity) * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
-      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100 * item.quantity).toFixed(2));
+      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100 * Number(item.quantity)).toFixed(2));
       item.total_price = Number(subtotal.toFixed(2));
     }
 
@@ -273,7 +268,7 @@ export default function EditInvoice() {
       product_id: 0,
       product_name: '',
       description: '',
-      quantity: 0,
+      quantity: '',
       unit_price: 0,
       actual_unit_price: 0,
       tax_rate: defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0,
@@ -288,7 +283,7 @@ export default function EditInvoice() {
   };
 
   const calculateTotals = () => {
-    const subtotal = Number(items.reduce((sum, item) => sum + (item.quantity * item.actual_unit_price), 0).toFixed(2));
+    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(items.reduce((sum, item) => sum + item.tax_amount, 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
     
@@ -359,7 +354,6 @@ export default function EditInvoice() {
         shipping_date: formData.shipping_date || null,
         tracking_number: formData.tracking_number || null,
         items: items.map(item => ({
-          id: item.id || 0,
           product_id: parseInt(item.product_id as any) || null,
           product_name: item.product_name || null,
           description: item.description,
@@ -380,7 +374,7 @@ export default function EditInvoice() {
 
       try {
           if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
-            const eligibilityRes = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/checkCustomerEligibility`, {
+            const eligibilityRes = await axiosInstance.post(`/api/checkCustomerEligibility`, {
               company_id: selectedCompany?.company_id, 
               customer_id: parseInt(formData.customer_id),
               invoice_total: total,
@@ -398,7 +392,7 @@ export default function EditInvoice() {
 
           console.log('Submitting invoice data:', submitData);
 
-          await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+          await axiosInstance.put(`/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
 
           console.log('Invoice updated:');
 
@@ -652,7 +646,7 @@ export default function EditInvoice() {
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   disabled={formData.invoice_type === 'cancelled' || formData.invoice_type === 'paid' || formData.invoice_type === 'partially_paid'}
                 >
-                  <option value="formData.status">{formData.status}</option>
+                  <option value="">Select Status</option>
                   {formData.invoice_type === 'proforma' ? (
                     <>
                       <option value="opened">Opened</option>
@@ -752,7 +746,7 @@ export default function EditInvoice() {
                                     const defaultTaxRate = taxRates.find(tax => tax.is_default === 1);
                                     const taxRate = updatedItems[index].tax_rate || (defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0);
                                     updatedItems[index].tax_rate = taxRate;
-                                    const subtotal = updatedItems[index].quantity * updatedItems[index].unit_price;
+                                    const subtotal = Number(updatedItems[index].quantity) * updatedItems[index].unit_price;
                                     updatedItems[index].tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
                                     updatedItems[index].actual_unit_price = Number(((updatedItems[index].unit_price * 100) / (100 + taxRate)).toFixed(2));
                                     updatedItems[index].total_price = Number(subtotal.toFixed(2));
@@ -763,7 +757,7 @@ export default function EditInvoice() {
                                 >
                                   {product.image && (
                                     <img
-                                      src={`https://powerkeybackend-production.up.railway.app${product.image}`}
+                                      src={`http://localhost:3000${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />
@@ -791,7 +785,8 @@ export default function EditInvoice() {
                             min="0"
                             className="input w-20"
                             value={item.quantity}
-                            onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || '')}
+                            placeholder='QTY'
                             required
                           />
                         </td>
