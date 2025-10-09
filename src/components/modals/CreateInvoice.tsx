@@ -14,7 +14,7 @@ interface InvoiceItem {
   product_id: number;
   product_name: string;
   description: string;
-  quantity: number;
+  quantity: number | '';
   unit_price: number;
   actual_unit_price: number;
   tax_rate: number;
@@ -113,11 +113,11 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     as_of_date: ''
   });
 
-  const initialItems = [{
+  const initialItems: InvoiceItem[] = [{
     product_id: 0,
     product_name: '',
     description: '',
-    quantity: 0,
+    quantity: '',
     unit_price: 0,
     actual_unit_price: 0,
     tax_rate: 0,
@@ -138,10 +138,10 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees/`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/api/employees/`),
+        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -171,7 +171,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
   const fetchCustomerEstimates = async (customerId: string) => {
     if (!customerId) return;
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getEstimatesByCustomer/${selectedCompany?.company_id}/${customerId}`);
+      const response = await axiosInstance.get(`/api/getEstimatesByCustomer/${selectedCompany?.company_id}/${customerId}`);
       const pendingEstimates = Array.isArray(response.data)
         ? response.data.filter((estimate: any) => estimate.status === 'pending')
         : [];
@@ -188,7 +188,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
   useEffect(() => {
     if (selectedCompany) {
       setCompany(selectedCompany);
-      setFormData((prev: typeof initialFormData) => ({
+      setFormData(prev => ({
         ...prev,
         notes: invoice?.notes || selectedCompany.notes || '',
         terms: invoice?.terms || selectedCompany.terms_and_conditions || ''
@@ -207,8 +207,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     if (!estimateId) return;
     try {
       const [estimateRes, itemsRes] = await Promise.all([
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getEstimates/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`)
+        axiosInstance.get(`/api/getEstimates/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`)
       ]);
 
       const estimate = estimateRes.data.find((e: any) => e.id === parseInt(estimateId));
@@ -259,7 +259,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
   useEffect(() => {
     const selectedCustomer = customers.find(customer => customer.id === parseInt(formData.customer_id));
     if (selectedCustomer) {
-      setFormData((prev: typeof initialFormData) => ({
+      setFormData(prev => ({
         ...prev,
         shipping_address: selectedCustomer.shipping_address || '',
         billing_address: selectedCustomer.billing_address || selectedCustomer.shipping_address || '',
@@ -317,7 +317,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     if (field === 'quantity' || field === 'unit_price' || field === 'tax_rate') {
       const item = updatedItems[index];
       const shippingCost = Number(formData.shipping_cost);
-      const subtotal = item.quantity * item.unit_price;
+      const subtotal = Number(item.quantity || 0) * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
       item.tax_amount = Number((item.actual_unit_price + shippingCost) * item.tax_rate / 100);
       item.total_price = Number((subtotal).toFixed(2));
@@ -332,7 +332,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       product_id: 0,
       product_name: '',
       description: '',
-      quantity: 0,
+      quantity: '',
       unit_price: 0,
       actual_unit_price: 0,
       tax_rate: defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0,
@@ -352,8 +352,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     const shippingTaxAmount = Number((shippingCost * shippingTaxRate / 100).toFixed(2));
     const totalShippingWithTax = Number((shippingCost + shippingTaxAmount).toFixed(2));
     
-    const subtotal = Number(items.reduce((sum, item) => sum + (item.quantity * item.actual_unit_price), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + (item.quantity * item.tax_amount), 0).toFixed(2));
+    const subtotal = Number(items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.actual_unit_price), 0).toFixed(2));
+    const totalTax = Number(items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.tax_amount), 0).toFixed(2));
     
     let discountAmount = 0;
     if (formData.discount_type === 'percentage') {
@@ -425,7 +425,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       let response;
 
       if (invoice) {
-        response = await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/invoices/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+        response = await axiosInstance.put(`/api/invoices/${selectedCompany?.company_id}/${invoice.id}`, submitData);
       } else {
         const userRole = JSON.parse(localStorage.getItem('user') || '{}')?.role;
         console.log('User role:', userRole);
@@ -433,7 +433,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         try {
           // If not admin and not proforma, run eligibility check
           if (userRole !== 'admin' && submitData.status !== 'proforma') {
-            const eligibilityRes = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/checkCustomerEligibility`, {
+            const eligibilityRes = await axiosInstance.post(`/api/checkCustomerEligibility`, {
               company_id: selectedCompany?.company_id,
               customer_id: parseInt(formData.customer_id),
               invoice_total: total,
@@ -452,14 +452,14 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
           console.log('Submitting invoice data:', submitData);
 
           const response = await axiosInstance.post(
-            `https://powerkeybackend-production.up.railway.app/api/createInvoice/${selectedCompany?.company_id}`,
+            `/api/createInvoice/${selectedCompany?.company_id}`,
             submitData
           );
 
           console.log('Create invoice response:', response.data);
 
           if (formData.estimate_id) {
-            await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/updateEstimateAfterInvoice/${selectedCompany?.company_id}/${formData.estimate_id}`, {
+            await axiosInstance.post(`/api/updateEstimateAfterInvoice/${selectedCompany?.company_id}/${formData.estimate_id}`, {
               invoice_id: response.data.id,
             });
           }
@@ -514,7 +514,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       };
   
       console.log('Submitting customer data:', submitData);
-      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createCustomers/${selectedCompany?.company_id}`, submitData);
+      const response = await axiosInstance.post(`/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       console.log('API response:', response.data);
   
       const newCustomer = response.data.customer;
@@ -947,7 +947,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                                     const defaultTaxRate = taxRates.find(tax => tax.is_default === 1);
                                     const taxRate = updatedItems[index].tax_rate || (defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0);
                                     updatedItems[index].tax_rate = taxRate;
-                                    const subtotal = updatedItems[index].quantity * updatedItems[index].unit_price;
+                                    const subtotal = (Number(updatedItems[index].quantity) || 0) * updatedItems[index].unit_price;
                                     updatedItems[index].tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
                                     updatedItems[index].actual_unit_price = Number(((updatedItems[index].unit_price * 100) / (100 + updatedItems[index].tax_rate)).toFixed(2));
                                     updatedItems[index].total_price = Number(subtotal.toFixed(2));
@@ -958,7 +958,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                                 >
                                   {product.image && (
                                     <img
-                                      src={`https://powerkeybackend-production.up.railway.app${product.image}`}
+                                      src={`http://localhost:3000${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />
@@ -985,7 +985,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                             min="0"
                             className="input w-20"
                             value={item.quantity}
-                            onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                            onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || '')}
+                            placeholder="Qty"
                             required
                           />
                         </td>
