@@ -18,11 +18,11 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useSocket } from '../../contexts/SocketContext';
 import pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfFonts from "pdfmake/build/vfs_fonts";
 
-// Initialize vfs fonts
-const vfs = (pdfFonts as any).pdfMake?.vfs || pdfFonts;
-(pdfMake as any).vfs = vfs;
+// Set vfs with proper type handling
+(pdfMake as any).vfs = pdfFonts;
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 interface Invoice {
@@ -188,7 +188,6 @@ export default function InvoicesPage() {
         }
       });
 
-      // Check if anything actually changed
       const changed = updatedInvoices.some((inv, index) => {
         const prev = prevInvoices[index];
         return (
@@ -275,223 +274,363 @@ export default function InvoicesPage() {
   const handleDownloadPDF = async () => {
     if (!printingInvoice || !printItems) return;
 
-    const itemsPerPage = 20;
-    const itemGroups = [];
-    for (let i = 0; i < printItems.length; i += itemsPerPage) {
-      itemGroups.push(printItems.slice(i, i + itemsPerPage));
+    const ITEMS_PER_PAGE = 20;
+    
+    // Convert logo to base64 if exists
+    let logoDataUrl = '';
+    if (selectedCompany?.company_logo) {
+      try {
+        const response = await fetch(`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`);
+        const blob = await response.blob();
+        logoDataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+      } catch (error) {
+        console.error('Error loading logo:', error);
+      }
     }
 
-    const tableBody = [
-      [
-        { text: '#', style: 'tableHeader' },
-        { text: 'Product', style: 'tableHeader' },
-        { text: 'Description', style: 'tableHeader' },
-        { text: 'Qty', style: 'tableHeader', alignment: 'right' },
-        { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
-        { text: 'Tax %', style: 'tableHeader', alignment: 'right' },
-        { text: 'Total', style: 'tableHeader', alignment: 'right' }
-      ]
-    ];
+    // Split items into pages
+    const itemPages: InvoiceItem[][] = [];
+    for (let i = 0; i < printItems.length; i += ITEMS_PER_PAGE) {
+      itemPages.push(printItems.slice(i, i + ITEMS_PER_PAGE));
+    }
 
-    printItems.forEach((item, index) => {
-      tableBody.push([
-        { text: (index + 1).toString(), style: 'tableCell' },
-        { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', style: 'tableCell' },
-        { text: item.description || 'N/A', style: 'tableCell' },
-        { text: item.quantity.toString(), style: 'tableCell', alignment: 'right' },
-        { text: `Rs. ${Number(item.actual_unit_price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right' },
-        { text: `${item.tax_rate}%`, style: 'tableCell', alignment: 'right' },
-        { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right' }
-      ]);
+    const content: any[] = [];
+
+    itemPages.forEach((pageItems, pageIndex) => {
+      // Header section (only on first page)
+      if (pageIndex === 0) {
+        content.push({
+          columns: [
+            {
+              width: '*',
+              stack: [
+                { 
+                  text: 'INVOICE', 
+                  style: 'invoiceTitle',
+                  color: '#2563eb'
+                },
+                { 
+                  text: `${printingInvoice.invoice_number}`, 
+                  style: 'invoiceNumber',
+                  margin: [0, 5, 0, 0]
+                }
+              ]
+            },
+            logoDataUrl ? {
+              width: 120,
+              image: logoDataUrl,
+              fit: [120, 80],
+              alignment: 'right'
+            } : { text: '', width: 120 }
+          ],
+          margin: [0, 0, 0, 20]
+        });
+
+        // Company and customer info
+        content.push({
+          columns: [
+            {
+              width: '50%',
+              stack: [
+                { text: 'BILL TO', style: 'sectionHeader', color: '#1f2937' },
+                { 
+                  text: printingInvoice.customer_name || 'Unknown Customer', 
+                  bold: true, 
+                  fontSize: 11,
+                  margin: [0, 5, 0, 3]
+                },
+                { text: printingInvoice.customer_billing_address || 'N/A', fontSize: 9, margin: [0, 2, 0, 2] },
+                { text: `Phone: ${printingInvoice.customer_phone || 'N/A'}`, fontSize: 9, margin: [0, 2, 0, 2] },
+                { text: `Email: ${printingInvoice.customer_email || 'N/A'}`, fontSize: 9, margin: [0, 2, 0, 2] },
+                { text: `VAT No: ${printingInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, margin: [0, 2, 0, 0] }
+              ]
+            },
+            {
+              width: '50%',
+              stack: [
+                { text: 'INVOICE DETAILS', style: 'sectionHeader', color: '#1f2937', alignment: 'right' },
+                {
+                  table: {
+                    widths: ['auto', '*'],
+                    body: [
+                      [
+                        { text: 'Invoice Date:', bold: true, fontSize: 9, border: [false, false, false, false] },
+                        { text: formatDate(printingInvoice.invoice_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                      ],
+                      [
+                        { text: 'Due Date:', bold: true, fontSize: 9, border: [false, false, false, false] },
+                        { text: formatDate(printingInvoice.due_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                      ],
+                      [
+                        { text: 'Status:', bold: true, fontSize: 9, border: [false, false, false, false] },
+                        { 
+                          text: printingInvoice.status.toUpperCase().replace('_', ' '), 
+                          fontSize: 9, 
+                          alignment: 'right',
+                          color: printingInvoice.status === 'paid' ? '#059669' : printingInvoice.status === 'overdue' ? '#dc2626' : '#6b7280',
+                          bold: true,
+                          border: [false, false, false, false]
+                        }
+                      ],
+                      [
+                        { text: 'Company VAT:', bold: true, fontSize: 9, border: [false, false, false, false] },
+                        { text: selectedCompany?.tax_number || 'N/A', fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                      ]
+                    ]
+                  },
+                  margin: [0, 5, 0, 0]
+                },
+                selectedCompany?.is_taxable ? {
+                  text: 'TAX INVOICE',
+                  color: '#dc2626',
+                  fontSize: 12,
+                  bold: true,
+                  alignment: 'right',
+                  margin: [0, 10, 0, 0]
+                } : { text: '' }
+              ]
+            }
+          ],
+          margin: [0, 0, 0, 20]
+        });
+
+        // Head note
+        if (printingInvoice.head_note) {
+          content.push({
+            text: printingInvoice.head_note,
+            fontSize: 10,
+            italics: true,
+            fillColor: '#f3f4f6',
+            margin: [0, 0, 0, 15],
+            border: [false, false, false, true],
+            borderColor: ['#e5e7eb'],
+            color: '#4b5563'
+          });
+        }
+      } else {
+        // Continuation header for subsequent pages
+        content.push({
+          text: `Invoice ${printingInvoice.invoice_number} (Continued)`,
+          style: 'continuationHeader',
+          margin: [0, 0, 0, 15]
+        });
+      }
+
+      // Items table
+      const tableBody = [
+        [
+          { text: '#', style: 'tableHeader', fillColor: '#1f2937', color: '#ffffff' },
+          { text: 'Product', style: 'tableHeader', fillColor: '#1f2937', color: '#ffffff' },
+          { text: 'Description', style: 'tableHeader', fillColor: '#1f2937', color: '#ffffff' },
+          { text: 'Qty', style: 'tableHeader', alignment: 'center', fillColor: '#1f2937', color: '#ffffff' },
+          { text: 'Unit Price', style: 'tableHeader', alignment: 'right', fillColor: '#1f2937', color: '#ffffff' },
+          { text: 'Tax %', style: 'tableHeader', alignment: 'center', fillColor: '#1f2937', color: '#ffffff' },
+          { text: 'Total', style: 'tableHeader', alignment: 'right', fillColor: '#1f2937', color: '#ffffff' }
+        ]
+      ];
+
+      const startIndex = pageIndex * ITEMS_PER_PAGE;
+      pageItems.forEach((item, index) => {
+        tableBody.push([
+          { text: (startIndex + index + 1).toString(), style: 'tableCell', alignment: 'center' },
+          { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', style: 'tableCell' },
+          { text: item.description || '-', style: 'tableCell', fontSize: 8 },
+          { text: item.quantity.toString(), style: 'tableCell', alignment: 'center' },
+          { text: `Rs. ${Number(item.actual_unit_price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right' },
+          { text: `${item.tax_rate}%`, style: 'tableCell', alignment: 'center' },
+          { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right', bold: true }
+        ]);
+      });
+
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: [30, 'auto', '*', 40, 70, 40, 80],
+          body: tableBody
+        },
+        layout: {
+          hLineWidth: (i: number, node: any) => i === 0 || i === 1 || i === node.table.body.length ? 1 : 0.5,
+          vLineWidth: () => 0,
+          hLineColor: (i: number) => i === 0 || i === 1 ? '#1f2937' : '#e5e7eb',
+          paddingTop: () => 8,
+          paddingBottom: () => 8,
+          paddingLeft: () => 10,
+          paddingRight: () => 10
+        },
+        margin: [0, 0, 0, 15]
+      });
+
+      // Add page break if not last page
+      if (pageIndex < itemPages.length - 1) {
+        content.push({ text: '', pageBreak: 'after' });
+      }
     });
 
-    const docDefinition = {
+    // Summary section (only on last page)
+    content.push({
+      columns: [
+        {
+          width: '60%',
+          stack: [
+            printingInvoice.notes ? {
+              stack: [
+                { text: 'Notes', style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                { 
+                  text: printingInvoice.notes, 
+                  fontSize: 9,
+                  color: '#4b5563'
+                }
+              ]
+            } : {},
+            printingInvoice.terms ? {
+              stack: [
+                { text: 'Terms & Conditions', style: 'sectionHeader', margin: [0, 15, 0, 5] },
+                { 
+                  text: printingInvoice.terms, 
+                  fontSize: 9,
+                  color: '#4b5563'
+                }
+              ]
+            } : {}
+          ]
+        },
+        {
+          width: '40%',
+          table: {
+            widths: ['*', 'auto'],
+            body: [
+              [
+                { text: 'Subtotal:', alignment: 'right', fontSize: 10, border: [false, false, false, false] },
+                { text: `Rs. ${Number(printingInvoice.subtotal || 0).toFixed(2)}`, alignment: 'right', fontSize: 10, border: [false, false, false, false] }
+              ],
+              [
+                { text: 'Discount:', alignment: 'right', fontSize: 10, border: [false, false, false, false] },
+                { text: `Rs. ${Number(printingInvoice.discount_amount || 0).toFixed(2)}`, alignment: 'right', fontSize: 10, color: '#dc2626', border: [false, false, false, false] }
+              ],
+              [
+                { text: 'Shipping:', alignment: 'right', fontSize: 10, border: [false, false, false, false] },
+                { text: `Rs. ${Number(printingInvoice.shipping_cost || 0).toFixed(2)}`, alignment: 'right', fontSize: 10, border: [false, false, false, false] }
+              ],
+              [
+                { text: 'Tax:', alignment: 'right', fontSize: 10, border: [false, false, false, true], borderColor: ['#e5e7eb'] },
+                { text: `Rs. ${Number(printingInvoice.tax_amount || 0).toFixed(2)}`, alignment: 'right', fontSize: 10, border: [false, false, false, true], borderColor: ['#e5e7eb'] }
+              ],
+              [
+                { text: 'TOTAL:', alignment: 'right', bold: true, fontSize: 12, fillColor: '#1f2937', color: '#ffffff', margin: [0, 5, 0, 5] },
+                { text: `Rs. ${Number(printingInvoice.total_amount || 0).toFixed(2)}`, alignment: 'right', bold: true, fontSize: 12, fillColor: '#1f2937', color: '#ffffff', margin: [0, 5, 0, 5] }
+              ],
+              [
+                { text: 'Paid:', alignment: 'right', fontSize: 10, border: [false, false, false, false], color: '#059669' },
+                { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, alignment: 'right', fontSize: 10, border: [false, false, false, false], color: '#059669' }
+              ],
+              [
+                { text: 'BALANCE DUE:', alignment: 'right', bold: true, fontSize: 11, fillColor: '#fef3c7', color: '#92400e' },
+                { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, alignment: 'right', bold: true, fontSize: 11, fillColor: '#fef3c7', color: '#92400e' }
+              ]
+            ]
+          },
+          layout: {
+            paddingTop: () => 5,
+            paddingBottom: () => 5,
+            paddingLeft: () => 10,
+            paddingRight: () => 10
+          }
+        }
+      ],
+      margin: [0, 20, 0, 30]
+    });
+
+    // Signature section
+    content.push({
+      columns: [
+        {
+          width: '50%',
+          stack: [
+            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 1, lineColor: '#9ca3af' }] },
+            { text: 'Customer Signature', alignment: 'center', fontSize: 9, margin: [0, 5, 0, 0], color: '#6b7280' },
+            { text: 'Name:', fontSize: 8, margin: [0, 10, 0, 2], color: '#6b7280' },
+            { text: 'NIC:', fontSize: 8, margin: [0, 2, 0, 2], color: '#6b7280' },
+            { text: 'Contact:', fontSize: 8, margin: [0, 2, 0, 2], color: '#6b7280' },
+            { text: 'Vehicle No:', fontSize: 8, margin: [0, 2, 0, 0], color: '#6b7280' }
+          ]
+        },
+        {
+          width: '50%',
+          stack: [
+            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 1, lineColor: '#9ca3af' }] },
+            { text: 'Authorized Signature', alignment: 'center', fontSize: 9, margin: [0, 5, 0, 0], color: '#6b7280' },
+            { text: `Created by: ${printingInvoice.employee_name || 'N/A'}`, fontSize: 8, margin: [0, 10, 0, 2], color: '#6b7280' },
+            { text: 'Checked by: _______________', fontSize: 8, margin: [0, 2, 0, 0], color: '#6b7280' }
+          ]
+        }
+      ],
+      margin: [0, 30, 0, 0]
+    });
+
+    const docDefinition: any = {
       pageSize: 'A4',
       pageMargins: [40, 40, 40, 60],
-      footer: function(currentPage: number, pageCount: number) {
-        return {
-          text: `Page ${currentPage} of ${pageCount}`,
-          alignment: 'center',
-          margin: [0, 20],
-          style: 'footer'
-        };
-      },
+      footer: (currentPage: number, pageCount: number) => ({
+        columns: [
+          { 
+            text: selectedCompany?.name || 'Company Name', 
+            fontSize: 8, 
+            color: '#9ca3af',
+            margin: [40, 10, 0, 0]
+          },
+          { 
+            text: `Page ${currentPage} of ${pageCount}`, 
+            alignment: 'right',
+            fontSize: 8,
+            color: '#9ca3af',
+            margin: [0, 10, 40, 0]
+          }
+        ]
+      }),
       styles: {
-        header: {
-          fontSize: 24,
-          bold: true,
-          margin: [0, 0, 0, 10]
+        invoiceTitle: {
+          fontSize: 28,
+          bold: true
         },
-        subheader: {
+        invoiceNumber: {
           fontSize: 16,
           bold: true,
-          margin: [0, 10, 0, 5]
+          color: '#1f2937'
+        },
+        sectionHeader: {
+          fontSize: 11,
+          bold: true,
+          margin: [0, 0, 0, 5]
         },
         tableHeader: {
           bold: true,
-          fontSize: 10,
-          fillColor: '#f8f9fa',
-          color: '#212529'
+          fontSize: 10
         },
         tableCell: {
           fontSize: 9
         },
-        footer: {
-          fontSize: 9,
-          color: '#666'
+        continuationHeader: {
+          fontSize: 14,
+          bold: true,
+          color: '#6b7280'
         }
       },
-      content: [
-        {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                { text: 'INVOICE', style: 'header' },
-                { text: `#${printingInvoice.invoice_number}`, style: 'subheader' },
-                { text: `ID: ${printingInvoice.id}`, fontSize: 10, color: '#666' }
-              ]
-            },
-            {
-              width: 'auto',
-              image: 'logo.jpg',
-              fit: [100, 100]
-            }
-          ]
-        },
-        {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                '\n',
-                { text: 'BILL TO', style: 'subheader' },
-                { text: printingInvoice.customer_name || 'Unknown Customer', bold: true },
-                { text: printingInvoice.customer_billing_address || 'N/A' },
-                { text: `Phone: ${printingInvoice.customer_phone || 'N/A'}` },
-                { text: `Email: ${printingInvoice.customer_email || 'N/A'}` },
-                { text: `VAT No: ${printingInvoice.customer_tax_number || 'N/A'}` }
-              ]
-            },
-            {
-              width: '*',
-              stack: [
-                '\n',
-                { text: 'INVOICE DETAILS', style: 'subheader' },
-                { text: `Invoice Date: ${formatDate(printingInvoice.invoice_date)}` },
-                { text: `Due Date: ${formatDate(printingInvoice.due_date)}` },
-                { text: `Company VAT No: ${selectedCompany?.tax_number || 'N/A'}` },
-                selectedCompany?.is_taxable ? 
-                  { text: 'TAX INVOICE', color: 'red', fontSize: 14, bold: true } : 
-                  { text: '' }
-              ],
-              alignment: 'right'
-            }
-          ]
-        },
-        '\n',
-        printingInvoice.head_note ? {
-          text: printingInvoice.head_note,
-          fontSize: 11,
-          background: '#f8f9fa',
-          padding: 5,
-          margin: [0, 0, 0, 10]
-        } : '',
-        {
-          table: {
-            headerRows: 1,
-            widths: ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto'],
-            body: tableBody
-          },
-          layout: {
-            hLineWidth: function(i: number, node: any) {
-              return i === 0 || i === node.table.body.length ? 1 : 0.5;
-            },
-            vLineWidth: function(i: number, node: any) {
-              return 0;
-            },
-            hLineColor: function(i: number, node: any) {
-              return i === 0 || i === node.table.body.length ? '#aaa' : '#ddd';
-            },
-            paddingTop: function(i: number, node: any) { return 5; },
-            paddingBottom: function(i: number, node: any) { return 5; },
-          }
-        },
-        {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                '\n',
-                printingInvoice.notes ? {
-                  stack: [
-                    { text: 'Notes', style: 'subheader' },
-                    { text: printingInvoice.notes, fontSize: 10 }
-                  ]
-                } : '',
-                '\n',
-                printingInvoice.terms ? {
-                  stack: [
-                    { text: 'Terms & Conditions', style: 'subheader' },
-                    { text: printingInvoice.terms, fontSize: 10 }
-                  ]
-                } : ''
-              ]
-            },
-            {
-              width: 200,
-              stack: [
-                '\n',
-                {
-                  table: {
-                    widths: ['*', 'auto'],
-                    body: [
-                      [{ text: 'Subtotal:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.subtotal || 0).toFixed(2)}`, alignment: 'right' }],
-                      [{ text: 'Discount:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.discount_amount || 0).toFixed(2)}`, alignment: 'right' }],
-                      [{ text: 'Shipping:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.shipping_cost || 0).toFixed(2)}`, alignment: 'right' }],
-                      [{ text: 'Tax:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.tax_amount || 0).toFixed(2)}`, alignment: 'right' }],
-                      [{ text: 'Total:', alignment: 'right', bold: true }, { text: `Rs. ${Number(printingInvoice.total_amount || 0).toFixed(2)}`, alignment: 'right', bold: true }],
-                      [{ text: 'Paid:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, alignment: 'right' }],
-                      [{ text: 'Balance Due:', alignment: 'right', bold: true }, { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, alignment: 'right', bold: true }]
-                    ]
-                  },
-                  layout: 'noBorders'
-                }
-              ]
-            }
-          ]
-        },
-        '\n\n',
-        {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                { text: '_____________________', alignment: 'center' },
-                { text: 'Customer Signature', alignment: 'center', fontSize: 10, margin: [0, 5] }
-              ]
-            },
-            {
-              width: '*',
-              stack: [
-                { text: '_____________________', alignment: 'center' },
-                { text: 'Authorized Signature', alignment: 'center', fontSize: 10, margin: [0, 5] }
-              ]
-            }
-          ]
-        }
-      ]
+      content: content
     };
 
     try {
       const pdfDoc = pdfMake.createPdf(docDefinition);
-      pdfDoc.download(`invoice_${printingInvoice.invoice_number}.pdf`);
+      pdfDoc.download(`Invoice_${printingInvoice.invoice_number}_${formatDate(printingInvoice.invoice_date)}.pdf`);
       setShowPrintPreview(false);
       setPrintingInvoice(null);
       setPrintItems([]);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF');
+      alert('Failed to generate PDF. Please try again.');
     }
   };
 
@@ -578,7 +717,6 @@ export default function InvoicesPage() {
   const paidData = invoices
     .filter(invoices => invoices.status === 'paid')
     .reduce((acc, invoice) => acc + (Number(invoice.paid_amount)), 0);
-    console.log('Paid Data Calculation:', invoices.filter(invoice => invoice.status === 'paid').map(inv => ({id: inv.id, paid_amount: inv.paid_amount})));
 
   const cancelledData = invoices
     .filter(invoice => invoice.status === 'cancelled')
@@ -895,105 +1033,102 @@ export default function InvoicesPage() {
                 ref={printRef}
                 className="p-8 bg-white w-[210mm] min-h-[297mm] text-gray-900"
               >
-                <div className="flex justify-between items-start border-b pb-4 mb-4">
-                <div>
-                  <h1 className="text-3xl font-bold">
-                    Invoice #{printingInvoice.invoice_number}
-                  </h1>
-                  <p className="text-sm text-gray-600">
-                    ID: {printingInvoice.id}
-                  </p>
-
-                  {/* Tax Info Row */}
-                  <div className="flex items-center gap-6 mt-2">
-                    {/* Taxed Invoice Badge */}
-                    {!!selectedCompany?.is_taxable && (
-                      <span
-                        className="px-3 py-1 text-2xl font-semibold text-red-600"
-                      >
-                        Tax Invoice
-                      </span>
-                    )}
-
-                    {/* Customer Tax Number */}
-                    <p className="text-sm text-gray-700">
-                      Customer VAT No: {printingInvoice.customer_tax_number || 'N/A'}
+                <div className="flex justify-between items-start border-b-2 border-blue-600 pb-4 mb-6">
+                  <div>
+                    <h1 className="text-4xl font-bold text-blue-600">
+                      INVOICE
+                    </h1>
+                    <p className="text-xl font-semibold text-gray-800 mt-2">
+                      {printingInvoice.invoice_number}
                     </p>
-
-                    {/* Company Tax Number */}
-                    <p className="text-sm text-gray-700">
-                      Company VAT No: {selectedCompany?.tax_number || 'N/A'}
+                    <p className="text-sm text-gray-500 mt-1">
+                      Invoice ID: #{printingInvoice.id}
                     </p>
                   </div>
-                </div>
                   {selectedCompany?.company_logo && (
                     <img
                       src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
-                      className="h-16 w-auto max-w-[150px] object-contain"
+                      className="h-20 w-auto max-w-[180px] object-contain"
                     />
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-20 mb-6">
-                  <div>
-                    <h3 className="text-lg font-semibold">Bill To</h3>
-                    <p>Customer: {printingInvoice.customer_name || 'Unknown Customer'}</p>
-                    <p>Address: {printingInvoice.customer_billing_address || 'N/A'}</p>
-                    <p>Phone: {printingInvoice.customer_phone || 'N/A'}</p>
-                    <p>Email: {printingInvoice.customer_email || 'N/A'}</p>
-
+                <div className="grid grid-cols-2 gap-8 mb-8">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-bold text-gray-700 uppercase mb-3 border-b pb-2">Bill To</h3>
+                    <p className="font-semibold text-gray-900 text-base mb-2">{printingInvoice.customer_name || 'Unknown Customer'}</p>
+                    <p className="text-sm text-gray-600 mb-1">{printingInvoice.customer_billing_address || 'N/A'}</p>
+                    <p className="text-sm text-gray-600 mb-1">Phone: {printingInvoice.customer_phone || 'N/A'}</p>
+                    <p className="text-sm text-gray-600 mb-1">Email: {printingInvoice.customer_email || 'N/A'}</p>
+                    <p className="text-sm text-gray-600">VAT No: {printingInvoice.customer_tax_number || 'N/A'}</p>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">Details</h3>
-                    <p>
-                      Invoice Date: {formatDate(printingInvoice.invoice_date) || 'N/A'}
-                    </p>
-                    <p>
-                      Due Date: {formatDate(printingInvoice.due_date) || 'N/A'}
-                    </p>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h3 className="text-sm font-bold text-gray-700 uppercase mb-3 border-b pb-2">Invoice Details</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium text-gray-600">Invoice Date:</span>
+                        <span className="text-sm text-gray-900">{formatDate(printingInvoice.invoice_date)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium text-gray-600">Due Date:</span>
+                        <span className="text-sm text-gray-900">{formatDate(printingInvoice.due_date)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium text-gray-600">Status:</span>
+                        <span className={`text-sm font-semibold ${printingInvoice.status === 'paid' ? 'text-green-600' : printingInvoice.status === 'overdue' ? 'text-red-600' : 'text-gray-600'}`}>
+                          {printingInvoice.status.toUpperCase().replace('_', ' ')}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium text-gray-600">Company VAT:</span>
+                        <span className="text-sm text-gray-900">{selectedCompany?.tax_number || 'N/A'}</span>
+                      </div>
+                      {selectedCompany?.is_taxable && (
+                        <div className="mt-3 pt-3 border-t">
+                          <span className="px-3 py-1 bg-red-100 text-red-700 font-bold text-sm rounded">
+                            TAX INVOICE
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
-                <div>
                 {printingInvoice.head_note && (
-                  <p className="text-lg mb-5 bg-gray-100 p-4 rounded">
-                    {printingInvoice.head_note}
-                  </p>
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                    <p className="text-sm text-gray-700 italic">{printingInvoice.head_note}</p>
+                  </div>
                 )}
 
-                </div>
-
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Items</h3>
-                  <table className="w-full border">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="px-4 py-2 text-left">Item #</th>
-                        <th className="px-4 py-2 text-left">Product</th>
-                        <th className="px-4 py-2 text-left">Description</th>
-                        <th className="px-4 py-2 text-right">Qty</th>
-                        <th className="px-4 py-2 text-right">Unit Price</th>
-                        <th className="px-4 py-2 text-right">Tax %</th>
-                        <th className="px-4 py-2 text-right">Total</th>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-800">Items</h3>
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-gray-800 text-white">
+                        <th className="px-3 py-3 text-left text-xs font-semibold">#</th>
+                        <th className="px-3 py-3 text-left text-xs font-semibold">Product</th>
+                        <th className="px-3 py-3 text-left text-xs font-semibold">Description</th>
+                        <th className="px-3 py-3 text-center text-xs font-semibold">Qty</th>
+                        <th className="px-3 py-3 text-right text-xs font-semibold">Unit Price</th>
+                        <th className="px-3 py-3 text-center text-xs font-semibold">Tax %</th>
+                        <th className="px-3 py-3 text-right text-xs font-semibold">Total</th>
                       </tr>
                     </thead>
                     <tbody>
                       {printItems.map((item, index) => (
-                        <tr key={index} className="border-t">
-                          <td className="px-4 py-2">{index + 1}</td>
-                          <td className="px-4 py-2">
-                            {item.product_id
-                              ? products.find((p) => p.id === item.product_id)?.name || 'N/A'
-                              : 'N/A'}
+                        <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                          <td className="px-3 py-2 text-sm border-b">{index + 1}</td>
+                          <td className="px-3 py-2 text-sm border-b font-medium">
+                            {products.find((p) => p.id === item.product_id)?.name || 'N/A'}
                           </td>
-                          <td className="px-4 py-2">{item.description || 'N/A'}</td>
-                          <td className="px-4 py-2 text-right">{item.quantity}</td>
-                          <td className="px-4 py-2 text-right">
+                          <td className="px-3 py-2 text-sm border-b text-gray-600">{item.description || '-'}</td>
+                          <td className="px-3 py-2 text-sm border-b text-center">{item.quantity}</td>
+                          <td className="px-3 py-2 text-sm border-b text-right">
                             Rs. {Number(item.actual_unit_price || 0).toFixed(2)}
                           </td>
-                          <td className="px-4 py-2 text-right">{item.tax_rate}%</td>
-                          <td className="px-4 py-2 text-right">
+                          <td className="px-3 py-2 text-sm border-b text-center">{item.tax_rate}%</td>
+                          <td className="px-3 py-2 text-sm border-b text-right font-semibold">
                             Rs. {Number(item.total_price || 0).toFixed(2)}
                           </td>
                         </tr>
@@ -1002,50 +1137,50 @@ export default function InvoicesPage() {
                   </table>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-2 gap-6 mb-8">
                   <div>
                     {printingInvoice.notes && (
-                      <div>
-                        <h3 className="text-lg font-semibold">Notes</h3>
-                        <p className="text-sm">{printingInvoice.notes}</p>
+                      <div className="mb-4">
+                        <h3 className="text-sm font-bold text-gray-700 uppercase mb-2">Notes</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">{printingInvoice.notes}</p>
                       </div>
                     )}
                     {printingInvoice.terms && (
-                      <div className="mt-4">
-                        <h3 className="text-lg font-semibold">Terms & Conditions</h3>
-                        <p className="text-sm">{printingInvoice.terms}</p>
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-700 uppercase mb-2">Terms & Conditions</h3>
+                        <p className="text-sm text-gray-600 leading-relaxed">{printingInvoice.terms}</p>
                       </div>
                     )}
                   </div>
                   <div>
-                    <div className="bg-gray-50 p-4 rounded">
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                       <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>Subtotal:</span>
-                          <span>Rs. {Number(printingInvoice.subtotal || 0).toFixed(2)}</span>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Subtotal:</span>
+                          <span className="font-medium">Rs. {Number(printingInvoice.subtotal || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Discount ({printingInvoice.discount_type === 'percentage' ? '%' : 'Rs.'}):</span>
-                          <span>Rs. {Number(printingInvoice.discount_amount || 0).toFixed(2)}</span>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Discount:</span>
+                          <span className="font-medium text-red-600">- Rs. {Number(printingInvoice.discount_amount || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Shipping Cost</span>
-                          <span>Rs. {Number(printingInvoice.shipping_cost || 0).toFixed(2)}</span>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Shipping:</span>
+                          <span className="font-medium">Rs. {Number(printingInvoice.shipping_cost || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Tax:</span>
-                          <span>Rs. {Number(printingInvoice.tax_amount || 0).toFixed(2)}</span>
+                        <div className="flex justify-between text-sm border-b pb-2">
+                          <span className="text-gray-600">Tax:</span>
+                          <span className="font-medium">Rs. {Number(printingInvoice.tax_amount || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between font-bold text-lg border-t pt-2">
-                          <span>Total:</span>
+                        <div className="flex justify-between text-base font-bold bg-gray-800 text-white p-3 rounded">
+                          <span>TOTAL:</span>
                           <span>Rs. {Number(printingInvoice.total_amount || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-sm text-green-600">
                           <span>Paid:</span>
-                          <span>Rs. {Number(printingInvoice.paid_amount || 0).toFixed(2)}</span>
+                          <span className="font-semibold">Rs. {Number(printingInvoice.paid_amount || 0).toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between font-bold">
-                          <span>Balance Due:</span>
+                        <div className="flex justify-between text-base font-bold bg-yellow-100 text-yellow-900 p-3 rounded">
+                          <span>BALANCE DUE:</span>
                           <span>Rs. {Number(printingInvoice.balance_due || 0).toFixed(2)}</span>
                         </div>
                       </div>
@@ -1053,49 +1188,32 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white rounded-lg shadow-md p-6">
-
-                  {/* Left side */}
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex">
-                      <span className="w-28 text-sm font-medium text-gray-600">Name:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400"></span>
-                    </div>
-                    <div className="flex">
-                      <span className="w-28 text-sm font-medium text-gray-600">NIC:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400"></span>
-                    </div>
-                    <div className="flex">
-                      <span className="w-28 text-sm font-medium text-gray-600">Contact No:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400"></span>
-                    </div>
-                    <div className="flex">
-                      <span className="w-28 text-sm font-medium text-gray-600">Vehicle No:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400"></span>
-                    </div>
-                    <div className="flex">
-                      <span className="w-28 text-sm font-medium text-gray-600">Signature:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400"></span>
+                <div className="grid grid-cols-2 gap-8 border-t-2 pt-6 mt-8">
+                  <div>
+                    <div className="border-b border-gray-300 pb-1 mb-2"></div>
+                    <p className="text-center text-sm font-medium text-gray-600 mb-4">Customer Signature</p>
+                    <div className="space-y-1 text-xs text-gray-500">
+                      <p>Name: _________________________</p>
+                      <p>NIC: _________________________</p>
+                      <p>Contact: _________________________</p>
+                      <p>Vehicle No: _________________________</p>
                     </div>
                   </div>
-
-                  {/* Right side */}
-                  <div className="flex flex-col space-y-2 items-end text-right">
-                    <div className="flex w-full justify-end">
-                      <span className="w-40 text-sm font-medium text-gray-600">Order Created by:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400 ml-2"></span>
-                    </div>
-                    <div className="flex w-full justify-end">
-                      <span className="w-40 text-sm font-medium text-gray-600">Order Checked by:</span>
-                      <span className="flex-1 border-b border-dotted border-gray-400 ml-2"></span>
+                  <div>
+                    <div className="border-b border-gray-300 pb-1 mb-2"></div>
+                    <p className="text-center text-sm font-medium text-gray-600 mb-4">Authorized Signature</p>
+                    <div className="space-y-1 text-xs text-gray-500">
+                      <p>Created by: {printingInvoice.employee_name || 'N/A'}</p>
+                      <p>Checked by: _________________________</p>
                     </div>
                   </div>
-
                 </div>
 
-
+                <div className="mt-8 pt-4 border-t text-center text-xs text-gray-400">
+                  <p>Thank you for your business!</p>
+                  <p className="mt-1">{selectedCompany?.name || 'Company Name'}</p>
+                </div>
               </div>
-                
             </div>
 
             <div className="flex justify-end space-x-3 pt-4">
@@ -1113,6 +1231,7 @@ export default function InvoicesPage() {
                 onClick={handleDownloadPDF}
                 className="btn btn-primary btn-md"
               >
+                <Printer className="h-4 w-4 mr-2" />
                 Download PDF
               </button>
             </div>
