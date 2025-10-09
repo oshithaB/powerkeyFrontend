@@ -70,10 +70,10 @@ const ProfitAndLossByClass: React.FC = () => {
     setError(null);
     try {
       const [profitResponse, shrinkageResponse] = await Promise.all([
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/profit-and-loss-all-employees/${selectedCompany.company_id}`, {
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/profit-and-loss-all-employees/${selectedCompany.company_id}`, {
           params: { start_date: startDate, end_date: endDate }
         }),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/inventory-shrinkage/${selectedCompany.company_id}`)
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/inventory-shrinkage/${selectedCompany.company_id}`)
       ]);
       
       // Validate response structure
@@ -201,7 +201,7 @@ const ProfitAndLossByClass: React.FC = () => {
                 </p>
               </div>
               ${selectedCompany?.company_logo ? `
-                <img src="https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
+                <img src="https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
                      style="height: 100px; width: auto; max-width: 500px; object-fit: contain;" />
               ` : ''}
             </div>
@@ -782,7 +782,7 @@ const ProfitAndLossByClass: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

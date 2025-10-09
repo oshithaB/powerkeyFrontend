@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://powerkeybackend-production.up.railway.app',
+        target: 'https://powerkey-backend-1.onrender.com',
         changeOrigin: true
       }
     }

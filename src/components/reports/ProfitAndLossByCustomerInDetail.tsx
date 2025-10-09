@@ -106,7 +106,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/profit-and-loss-by-cust/${selectedCompany?.company_id}/${customerId}`, {
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/profit-and-loss-by-cust/${selectedCompany?.company_id}/${customerId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       setData(response.data.data);
@@ -120,7 +120,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
 
   const fetchInvoicesByCustomer = async (customerId: string, startDate?: string, endDate?: string) => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/customer-invoices/${selectedCompany?.company_id}/${customerId}`, {
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/customer-invoices/${selectedCompany?.company_id}/${customerId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       setSalesData(response.data.data);
@@ -556,7 +556,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

@@ -85,7 +85,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
           <div className="flex items-center gap-x-3">
             {selectedCompany?.company_logo ? (
               <img
-                src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                 alt={selectedCompany.name}
                 className="h-8 w-8 rounded-lg object-cover"
               />

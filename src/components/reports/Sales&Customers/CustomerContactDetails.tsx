@@ -37,7 +37,7 @@ const CustomerContactDetails: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/customer-contacts/${selectedCompany.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/customer-contacts/${selectedCompany.company_id}`);
       
       if (response.data?.data && Array.isArray(response.data.data)) {
         setData(response.data.data);
@@ -359,7 +359,7 @@ const CustomerContactDetails: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

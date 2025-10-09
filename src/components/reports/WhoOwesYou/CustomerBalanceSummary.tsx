@@ -45,7 +45,7 @@ const CustomerBalanceSummary: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/customer-balance-summary/${selectedCompany.company_id}`, {
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/customer-balance-summary/${selectedCompany.company_id}`, {
         params: { start_date: startDate, end_date: endDate }
       });
       console.log(response.data);
@@ -387,7 +387,7 @@ const CustomerBalanceSummary: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

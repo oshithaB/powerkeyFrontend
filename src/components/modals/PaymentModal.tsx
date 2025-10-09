@@ -25,7 +25,7 @@ export default function PaymentModal({ invoice, onClose, onSave }: PaymentModalP
     setLoading(true);
 
     try {
-      await axios.post(`https://powerkeybackend-production.up.railway.app/api/invoices/${selectedCompany?.company_id}/${invoice.id}/payments`, formData);
+      await axios.post(`https://powerkey-backend-1.onrender.com/api/invoices/${selectedCompany?.company_id}/${invoice.id}/payments`, formData);
       onSave();
     } catch (error) {
       console.error('Error adding payment:', error);
