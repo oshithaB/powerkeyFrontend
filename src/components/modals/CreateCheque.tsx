@@ -57,7 +57,7 @@ export default function CreateCheque() {
                 amount: parseFloat(formData.amount)
             };
 
-            const response = await axiosInstance.post('https://powerkeybackend-production.up.railway.app/api/addCheque', payload);
+            const response = await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/addCheque', payload);
 
             setSuccess('Cheque created successfully!');
             

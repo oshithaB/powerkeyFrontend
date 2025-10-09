@@ -115,7 +115,7 @@ export default function InvoicesPage() {
 
   const fetchInvoices = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getInvoice/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getInvoice/${selectedCompany?.company_id}`);
       setInvoices(response.data);
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -127,10 +127,10 @@ export default function InvoicesPage() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees`),
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
       setCustomers(customersRes.data);
       setEmployees(employeesRes.data);
@@ -205,7 +205,7 @@ export default function InvoicesPage() {
 
   const fetchInvoiceItems = async (invoiceId: number) => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getInvoiceItems/${selectedCompany?.company_id}/${invoiceId}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getInvoiceItems/${selectedCompany?.company_id}/${invoiceId}`);
       const items = Array.isArray(response.data) ? response.data : [];
       return items.map(item => ({
         id: item.id,
@@ -238,7 +238,7 @@ export default function InvoicesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this invoice?')) {
       try {
-        await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/deleteInvoice/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/deleteInvoice/${selectedCompany?.company_id}/${id}`);
         fetchInvoices();
       } catch (error) {
         console.error('Error deleting invoice:', error);
@@ -926,7 +926,7 @@ export default function InvoicesPage() {
                 </div>
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-16 w-auto max-w-[150px] object-contain"
                     />

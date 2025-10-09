@@ -69,7 +69,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
         return;
       }
 
-      let url = `https://powerkeybackend-production.up.railway.app/api/moneyInDrawer/${selectedCompany.company_id}`;
+      let url = `https://powerkey-backend-1.onrender.com/api/moneyInDrawer/${selectedCompany.company_id}`;
       const params = new URLSearchParams();
       
       if (startDate) params.append('start_date', startDate);

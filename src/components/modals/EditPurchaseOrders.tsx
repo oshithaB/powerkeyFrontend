@@ -146,7 +146,7 @@ export default function EditOrdersPage() {
       if (!selectedCompany) {
         throw new Error('Selected company is not available');
       }
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/orders/${selectedCompany.company_id}/${orderId}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/orders/${selectedCompany.company_id}/${orderId}`);
       const orderData = response.data;
       setOrder({
         ...orderData,
@@ -168,7 +168,7 @@ export default function EditOrdersPage() {
     if (!selectedCompany) {
       throw new Error('Selected company is not available');
     }
-    const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/order-items/${selectedCompany.company_id}`);
+    const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/order-items/${selectedCompany.company_id}`);
     const allOrderItems = response.data;
     const currentOrderItems = allOrderItems.filter((item: OrderItem) => item.order_id === parseInt(orderId ?? '0'));
     setOrderItems(currentOrderItems);
@@ -180,7 +180,7 @@ export default function EditOrdersPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`);
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -189,7 +189,7 @@ export default function EditOrdersPage() {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getVendors/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getVendors/${selectedCompany?.company_id}`);
       setVendors(response.data);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -198,7 +198,7 @@ export default function EditOrdersPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees`);
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -285,13 +285,13 @@ export default function EditOrdersPage() {
       };
 
       // Update the order
-      await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/orders/${selectedCompany?.company_id}/${orderId}`, orderData);
+      await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/orders/${selectedCompany?.company_id}/${orderId}`, orderData);
 
       // Delete existing order items and create new ones
-      // await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/order-items/${selectedCompany?.company_id}/${orderId}`);
+      // await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/order-items/${selectedCompany?.company_id}/${orderId}`);
       
       // for (const item of orderItems) {
-      //   await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/order-items/${selectedCompany?.company_id}`, {
+      //   await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/order-items/${selectedCompany?.company_id}`, {
       //     ...item,
       //     order_id: parseInt(orderId!),
       //   });
@@ -559,7 +559,7 @@ export default function EditOrdersPage() {
                                       >
                                         {product.image && (
                                           <img
-                                            src={`https://powerkeybackend-production.up.railway.app${product.image}`}
+                                            src={`https://powerkey-backend-1.onrender.com${product.image}`}
                                             alt={product.name}
                                             className="w-8 h-8 object-cover mr-2 rounded"
                                           />
