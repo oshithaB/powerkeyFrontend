@@ -17,6 +17,9 @@ import {
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useSocket } from '../../contexts/SocketContext';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -268,72 +271,225 @@ export default function InvoicesPage() {
   };
 
   const handleDownloadPDF = async () => {
+    if (!printingInvoice || !printItems) return;
+
+    const itemsPerPage = 20;
+    const itemGroups = [];
+    for (let i = 0; i < printItems.length; i += itemsPerPage) {
+      itemGroups.push(printItems.slice(i, i + itemsPerPage));
+    }
+
+    const tableBody = [
+      [
+        { text: '#', style: 'tableHeader' },
+        { text: 'Product', style: 'tableHeader' },
+        { text: 'Description', style: 'tableHeader' },
+        { text: 'Qty', style: 'tableHeader', alignment: 'right' },
+        { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
+        { text: 'Tax %', style: 'tableHeader', alignment: 'right' },
+        { text: 'Total', style: 'tableHeader', alignment: 'right' }
+      ]
+    ];
+
+    printItems.forEach((item, index) => {
+      tableBody.push([
+        { text: (index + 1).toString(), style: 'tableCell' },
+        { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', style: 'tableCell' },
+        { text: item.description || 'N/A', style: 'tableCell' },
+        { text: item.quantity.toString(), style: 'tableCell', alignment: 'right' },
+        { text: `Rs. ${Number(item.actual_unit_price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right' },
+        { text: `${item.tax_rate}%`, style: 'tableCell', alignment: 'right' },
+        { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, style: 'tableCell', alignment: 'right' }
+      ]);
+    });
+
+    const docDefinition = {
+      pageSize: 'A4',
+      pageMargins: [40, 40, 40, 60],
+      footer: function(currentPage: number, pageCount: number) {
+        return {
+          text: `Page ${currentPage} of ${pageCount}`,
+          alignment: 'center',
+          margin: [0, 20],
+          style: 'footer'
+        };
+      },
+      styles: {
+        header: {
+          fontSize: 24,
+          bold: true,
+          margin: [0, 0, 0, 10]
+        },
+        subheader: {
+          fontSize: 16,
+          bold: true,
+          margin: [0, 10, 0, 5]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 10,
+          fillColor: '#f8f9fa',
+          color: '#212529'
+        },
+        tableCell: {
+          fontSize: 9
+        },
+        footer: {
+          fontSize: 9,
+          color: '#666'
+        }
+      },
+      content: [
+        {
+          columns: [
+            {
+              width: '*',
+              stack: [
+                { text: 'INVOICE', style: 'header' },
+                { text: `#${printingInvoice.invoice_number}`, style: 'subheader' },
+                { text: `ID: ${printingInvoice.id}`, fontSize: 10, color: '#666' }
+              ]
+            },
+            {
+              width: 'auto',
+              image: 'logo.jpg',
+              fit: [100, 100]
+            }
+          ]
+        },
+        {
+          columns: [
+            {
+              width: '*',
+              stack: [
+                '\n',
+                { text: 'BILL TO', style: 'subheader' },
+                { text: printingInvoice.customer_name || 'Unknown Customer', bold: true },
+                { text: printingInvoice.customer_billing_address || 'N/A' },
+                { text: `Phone: ${printingInvoice.customer_phone || 'N/A'}` },
+                { text: `Email: ${printingInvoice.customer_email || 'N/A'}` },
+                { text: `VAT No: ${printingInvoice.customer_tax_number || 'N/A'}` }
+              ]
+            },
+            {
+              width: '*',
+              stack: [
+                '\n',
+                { text: 'INVOICE DETAILS', style: 'subheader' },
+                { text: `Invoice Date: ${formatDate(printingInvoice.invoice_date)}` },
+                { text: `Due Date: ${formatDate(printingInvoice.due_date)}` },
+                { text: `Company VAT No: ${selectedCompany?.tax_number || 'N/A'}` },
+                selectedCompany?.is_taxable ? 
+                  { text: 'TAX INVOICE', color: 'red', fontSize: 14, bold: true } : 
+                  { text: '' }
+              ],
+              alignment: 'right'
+            }
+          ]
+        },
+        '\n',
+        printingInvoice.head_note ? {
+          text: printingInvoice.head_note,
+          fontSize: 11,
+          background: '#f8f9fa',
+          padding: 5,
+          margin: [0, 0, 0, 10]
+        } : '',
+        {
+          table: {
+            headerRows: 1,
+            widths: ['auto', '*', '*', 'auto', 'auto', 'auto', 'auto'],
+            body: tableBody
+          },
+          layout: {
+            hLineWidth: function(i: number, node: any) {
+              return i === 0 || i === node.table.body.length ? 1 : 0.5;
+            },
+            vLineWidth: function(i: number, node: any) {
+              return 0;
+            },
+            hLineColor: function(i: number, node: any) {
+              return i === 0 || i === node.table.body.length ? '#aaa' : '#ddd';
+            },
+            paddingTop: function(i: number, node: any) { return 5; },
+            paddingBottom: function(i: number, node: any) { return 5; },
+          }
+        },
+        {
+          columns: [
+            {
+              width: '*',
+              stack: [
+                '\n',
+                printingInvoice.notes ? {
+                  stack: [
+                    { text: 'Notes', style: 'subheader' },
+                    { text: printingInvoice.notes, fontSize: 10 }
+                  ]
+                } : '',
+                '\n',
+                printingInvoice.terms ? {
+                  stack: [
+                    { text: 'Terms & Conditions', style: 'subheader' },
+                    { text: printingInvoice.terms, fontSize: 10 }
+                  ]
+                } : ''
+              ]
+            },
+            {
+              width: 200,
+              stack: [
+                '\n',
+                {
+                  table: {
+                    widths: ['*', 'auto'],
+                    body: [
+                      [{ text: 'Subtotal:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.subtotal || 0).toFixed(2)}`, alignment: 'right' }],
+                      [{ text: 'Discount:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.discount_amount || 0).toFixed(2)}`, alignment: 'right' }],
+                      [{ text: 'Shipping:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.shipping_cost || 0).toFixed(2)}`, alignment: 'right' }],
+                      [{ text: 'Tax:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.tax_amount || 0).toFixed(2)}`, alignment: 'right' }],
+                      [{ text: 'Total:', alignment: 'right', bold: true }, { text: `Rs. ${Number(printingInvoice.total_amount || 0).toFixed(2)}`, alignment: 'right', bold: true }],
+                      [{ text: 'Paid:', alignment: 'right' }, { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, alignment: 'right' }],
+                      [{ text: 'Balance Due:', alignment: 'right', bold: true }, { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, alignment: 'right', bold: true }]
+                    ]
+                  },
+                  layout: 'noBorders'
+                }
+              ]
+            }
+          ]
+        },
+        '\n\n',
+        {
+          columns: [
+            {
+              width: '*',
+              stack: [
+                { text: '_____________________', alignment: 'center' },
+                { text: 'Customer Signature', alignment: 'center', fontSize: 10, margin: [0, 5] }
+              ]
+            },
+            {
+              width: '*',
+              stack: [
+                { text: '_____________________', alignment: 'center' },
+                { text: 'Authorized Signature', alignment: 'center', fontSize: 10, margin: [0, 5] }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
     try {
-      if (printRef.current) {
-        const logoUrl = selectedCompany?.company_logo ? `https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}` : null;
-        let logoImage: HTMLImageElement | null = null;
-        if (logoUrl) {
-          logoImage = new Image();
-          logoImage.crossOrigin = 'Anonymous';
-          logoImage.src = logoUrl;
-          await new Promise((resolve, reject) => {
-            if (logoImage) {
-              logoImage.onload = resolve;
-            }
-            if (logoImage) {
-              logoImage.onerror = reject;
-            }
-          });
-        }
-
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const margin = 10;
-        const maxContentHeight = pageHeight - 2 * margin;
-
-        const scale = 3;
-        const canvas = await html2canvas(printRef.current, {
-          scale,
-          useCORS: true,
-          logging: false,
-          windowWidth: printRef.current.scrollWidth,
-          windowHeight: printRef.current.scrollHeight,
-        });
-        const imgData = canvas.toDataURL('image/png', 1.0);
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgWidth = pageWidth - 2 * margin;
-        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-        const totalPages = Math.ceil(imgHeight / maxContentHeight);
-
-        for (let i = 0; i < totalPages; i++) {
-          if (i > 0) {
-            pdf.addPage();
-          }
-          const srcY = i * maxContentHeight * (canvas.width / imgWidth);
-          const pageContentHeight = Math.min(canvas.height - srcY, maxContentHeight * (canvas.width / imgWidth));
-          const tempCanvas = document.createElement('canvas');
-          tempCanvas.width = canvas.width;
-          tempCanvas.height = pageContentHeight;
-          const tempCtx = tempCanvas.getContext('2d');
-          if (tempCtx) {
-            tempCtx.imageSmoothingEnabled = true;
-            tempCtx.imageSmoothingQuality = 'high';
-            tempCtx.drawImage(canvas, 0, srcY, canvas.width, pageContentHeight, 0, 0, canvas.width, pageContentHeight);
-            const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
-            pdf.addImage(pageImgData, 'PNG', margin, margin, imgWidth, Math.min(imgHeight - (i * maxContentHeight), maxContentHeight));
-          }
-        }
-
-        pdf.save(`invoice_${printingInvoice?.invoice_number}.pdf`);
-        setShowPrintPreview(false);
-        setPrintingInvoice(null);
-        setPrintItems([]);
-      }
+      const pdfDoc = pdfMake.createPdf(docDefinition);
+      pdfDoc.download(`invoice_${printingInvoice.invoice_number}.pdf`);
+      setShowPrintPreview(false);
+      setPrintingInvoice(null);
+      setPrintItems([]);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Ensure the logo image is accessible.');
+      alert('Failed to generate PDF');
     }
   };
 
