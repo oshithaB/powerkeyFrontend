@@ -127,7 +127,7 @@ function AppContent() {
     const fetchCheques = async () => {
       try {
         if (selectedCompany?.company_id) {
-          const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getChequesByCompanyId/${selectedCompany.company_id}`);
+          const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getChequesByCompanyId/${selectedCompany.company_id}`);
           const fetchedCheques: Cheque[] = response.data;
 
           // Check for near-due pending cheques

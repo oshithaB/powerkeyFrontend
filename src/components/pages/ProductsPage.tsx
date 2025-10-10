@@ -166,7 +166,7 @@ export default function ProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getProducts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`);
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -177,7 +177,7 @@ export default function ProductsPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCategories/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCategories/${selectedCompany?.company_id}`);
       setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -186,7 +186,7 @@ export default function ProductsPage() {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/products/${selectedCompany?.company_id}/vendors`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/products/${selectedCompany?.company_id}/vendors`);
       setVendors(response.data);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -195,7 +195,7 @@ export default function ProductsPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/employees`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees`);
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -219,7 +219,7 @@ export default function ProductsPage() {
         asOfDate: vendorFormData.as_of_date
       };
 
-      const response = await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createVendors/${selectedCompany?.company_id}`, payload);
+      const response = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createVendors/${selectedCompany?.company_id}`, payload);
       
       // Refresh vendors list
       await fetchVendors();
@@ -279,11 +279,11 @@ export default function ProductsPage() {
       data.append('commission_input', productFormData.commission.toString()); // Store original input for editing
   
       if (editingProduct) {
-        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/products/${selectedCompany?.company_id}/${editingProduct.id}`, data, {
+        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/products/${selectedCompany?.company_id}/${editingProduct.id}`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       } else {
-        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/products/${selectedCompany?.company_id}`, data, {
+        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/products/${selectedCompany?.company_id}`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
@@ -299,11 +299,11 @@ export default function ProductsPage() {
     e.preventDefault();
     try {
       if (editingCategory) {
-        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/categories/${selectedCompany?.company_id}/${editingCategory.id}`, {
+        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/categories/${selectedCompany?.company_id}/${editingCategory.id}`, {
           name: categoryFormData.name,
         });
       } else {
-        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createCategory/${selectedCompany?.company_id}`, {
+        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createCategory/${selectedCompany?.company_id}`, {
           name: categoryFormData.name,
         });
       }
@@ -389,7 +389,7 @@ export default function ProductsPage() {
   const handleDeleteProduct = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/products/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/products/${selectedCompany?.company_id}/${id}`);
         fetchProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -400,7 +400,7 @@ export default function ProductsPage() {
   const handleDeleteCategory = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
-        await axios.delete(`https://powerkeybackend-production.up.railway.app/api/categories/${selectedCompany?.company_id}/${id}`);
+        await axios.delete(`https://powerkey-backend-1.onrender.com/api/categories/${selectedCompany?.company_id}/${id}`);
         fetchCategories();
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -574,7 +574,7 @@ export default function ProductsPage() {
                       <div className="flex-shrink-0 h-10 w-10">
                         {product.image ? (
                           <img
-                            src={`https://powerkeybackend-production.up.railway.app${product.image}`}
+                            src={`https://powerkey-backend-1.onrender.com${product.image}`}
                             alt={product.name}
                             className="h-10 w-10 rounded-lg object-cover"
                           />
@@ -705,7 +705,7 @@ export default function ProductsPage() {
                   />
                   {productFormData.image && (
                     <div className="mt-2">
-                      <img src={`https://powerkeybackend-production.up.railway.app${productFormData.image}`} alt="Product preview" className="h-20 w-20 object-cover rounded" />
+                      <img src={`https://powerkey-backend-1.onrender.com${productFormData.image}`} alt="Product preview" className="h-20 w-20 object-cover rounded" />
                     </div>
                   )}
                 </div>

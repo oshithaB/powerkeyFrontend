@@ -47,7 +47,7 @@ export default function ChequesPage() {
   const fetchCheques = async () => {
     try {
       if (selectedCompany?.company_id) {
-        const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getChequesByCompanyId/${selectedCompany.company_id}`);
+        const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getChequesByCompanyId/${selectedCompany.company_id}`);
         const fetchedCheques = response.data;
         setCheques(fetchedCheques);
         updateNearDueCheques(fetchedCheques);
@@ -70,7 +70,7 @@ export default function ChequesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this cheque?')) {
       try {
-        await axiosInstance.delete(`https://powerkeybackend-production.up.railway.app/api/deleteCheque/${id}`);
+        await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/deleteCheque/${id}`);
         await fetchCheques();
       } catch (error) {
         console.error('Error deleting cheque:', error);
@@ -81,7 +81,7 @@ export default function ChequesPage() {
 
   const handleStatusChange = async (chequeId: number, newStatus: string) => {
     try {
-      await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateStatus/${chequeId}`, {
+      await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/updateStatus/${chequeId}`, {
         status: newStatus
       });
       await fetchCheques();
