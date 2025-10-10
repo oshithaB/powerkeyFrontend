@@ -282,133 +282,145 @@ export default function InvoicesPage() {
 
     const createHeader = (isFirstPage: boolean) => {
       if (isFirstPage) {
-        return {
-          columns: [
-            {
-              width: '*',
-              stack: [
-                { text: 'INVOICE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 5] },
-                { text: printingInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937' }
-              ]
-            },
-            logoDataUrl ? {
-              image: logoDataUrl,
-              width: 120,
-              alignment: 'right'
-            } : { text: '', width: 120 }
-          ],
-          margin: [0, 0, 0, 20]
-        };
-      } else {
-        return {
-          text: `Invoice ${printingInvoice.invoice_number} - Continued`,
-          fontSize: 14,
-          bold: true,
-          color: '#6b7280',
-          margin: [0, 0, 0, 15]
-        };
-      }
-    };
-
-    const createInfoSection = () => ({
-      columns: [
-        {
-          width: '48%',
-          stack: [
-            { text: 'BILL TO', fontSize: 11, bold: true, color: '#1f2937', margin: [0, 0, 0, 8] },
-            { text: printingInvoice.customer_name || 'Unknown Customer', fontSize: 11, bold: true, margin: [0, 0, 0, 4] },
-            { text: printingInvoice.customer_billing_address || 'N/A', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
-            { text: `Phone: ${printingInvoice.customer_phone || 'N/A'}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
-            { text: `Email: ${printingInvoice.customer_email || 'N/A'}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
-            { text: `VAT No: ${printingInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, color: '#4b5563' }
-          ]
-        },
-        {
-          width: '4%',
-          text: ''
-        },
-        {
-          width: '48%',
-          stack: [
-            { text: 'INVOICE DETAILS', fontSize: 11, bold: true, color: '#1f2937', alignment: 'right', margin: [0, 0, 0, 8] },
-            {
-              table: {
-                widths: ['*', 'auto'],
-                body: [
-                  [
-                    { text: 'Invoice Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
-                    { text: formatDate(printingInvoice.invoice_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
-                  ],
-                  [
-                    { text: 'Due Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
-                    { text: formatDate(printingInvoice.due_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
-                  ],
-                  [
-                    { text: 'Status:', fontSize: 9, bold: true, border: [false, false, false, false] },
-                    { 
-                      text: printingInvoice.status.toUpperCase().replace('_', ' '), 
-                      fontSize: 9, 
-                      bold: true,
-                      alignment: 'right',
-                      color: printingInvoice.status === 'paid' ? '#059669' : printingInvoice.status === 'overdue' ? '#dc2626' : '#6b7280',
-                      border: [false, false, false, false]
-                    }
-                  ],
-                  [
-                    { text: 'Company VAT:', fontSize: 9, bold: true, border: [false, false, false, false] },
-                    { text: selectedCompany?.tax_number || 'N/A', fontSize: 9, alignment: 'right', border: [false, false, false, false] }
-                  ]
+        return [
+          {
+            columns: [
+              {
+                width: '*',
+                stack: [
+                  { text: 'INVOICE', fontSize: 24, bold: true, color: '#2563eb', margin: [0, 0, 0, 3] },
+                  { text: printingInvoice.invoice_number, fontSize: 14, bold: true, color: '#1f2937' }
                 ]
               },
-              layout: 'noBorders'
-            },
-            selectedCompany?.is_taxable ? {
-              text: 'TAX INVOICE',
-              fontSize: 11,
-              bold: true,
-              color: '#dc2626',
-              alignment: 'right',
-              margin: [0, 8, 0, 0]
-            } : { text: '' }
-          ]
-        }
-      ],
-      margin: [0, 0, 0, 20]
-    });
+              logoDataUrl ? {
+                image: logoDataUrl,
+                width: 100,
+                alignment: 'right'
+              } : { text: '', width: 100 }
+            ],
+            margin: [0, 0, 0, 12]
+          },
+          {
+            columns: [
+              {
+                width: '48%',
+                stack: [
+                  { text: 'BILL TO', fontSize: 9, bold: true, color: '#1f2937', margin: [0, 0, 0, 5] },
+                  { text: printingInvoice.customer_name || 'Unknown Customer', fontSize: 9, bold: true, margin: [0, 0, 0, 2] },
+                  { text: printingInvoice.customer_billing_address || 'N/A', fontSize: 8, color: '#4b5563', margin: [0, 0, 0, 1] },
+                  { text: `Phone: ${printingInvoice.customer_phone || 'N/A'}`, fontSize: 8, color: '#4b5563', margin: [0, 0, 0, 1] },
+                  { text: `Email: ${printingInvoice.customer_email || 'N/A'}`, fontSize: 8, color: '#4b5563', margin: [0, 0, 0, 1] },
+                  { text: `VAT No: ${printingInvoice.customer_tax_number || 'N/A'}`, fontSize: 8, color: '#4b5563' }
+                ]
+              },
+              {
+                width: '4%',
+                text: ''
+              },
+              {
+                width: '48%',
+                stack: [
+                  { text: 'INVOICE DETAILS', fontSize: 9, bold: true, color: '#1f2937', alignment: 'right', margin: [0, 0, 0, 5] },
+                  {
+                    table: {
+                      widths: ['*', 'auto'],
+                      body: [
+                        [
+                          { text: 'Invoice Date:', fontSize: 8, bold: true, border: [false, false, false, false] },
+                          { text: formatDate(printingInvoice.invoice_date), fontSize: 8, alignment: 'right', border: [false, false, false, false] }
+                        ],
+                        [
+                          { text: 'Due Date:', fontSize: 8, bold: true, border: [false, false, false, false] },
+                          { text: formatDate(printingInvoice.due_date), fontSize: 8, alignment: 'right', border: [false, false, false, false] }
+                        ],
+                        [
+                          { text: 'Status:', fontSize: 8, bold: true, border: [false, false, false, false] },
+                          { 
+                            text: printingInvoice.status.toUpperCase().replace('_', ' '), 
+                            fontSize: 8, 
+                            bold: true,
+                            alignment: 'right',
+                            color: printingInvoice.status === 'paid' ? '#059669' : printingInvoice.status === 'overdue' ? '#dc2626' : '#6b7280',
+                            border: [false, false, false, false]
+                          }
+                        ],
+                        [
+                          { text: 'Company VAT:', fontSize: 8, bold: true, border: [false, false, false, false] },
+                          { text: selectedCompany?.tax_number || 'N/A', fontSize: 8, alignment: 'right', border: [false, false, false, false] }
+                        ]
+                      ]
+                    },
+                    layout: 'noBorders'
+                  },
+                  selectedCompany?.is_taxable ? {
+                    text: 'TAX INVOICE',
+                    fontSize: 9,
+                    bold: true,
+                    color: '#dc2626',
+                    alignment: 'right',
+                    margin: [0, 5, 0, 0]
+                  } : { text: '' }
+                ]
+              }
+            ],
+            margin: [0, 0, 0, 12]
+          },
+          printingInvoice.head_note ? {
+            text: printingInvoice.head_note,
+            fontSize: 8,
+            italics: true,
+            color: '#4b5563',
+            fillColor: '#fef3c7',
+            margin: [5, 5, 5, 5]
+          } : null,
+          printingInvoice.head_note ? { text: '', margin: [0, 0, 0, 8] } : null
+        ].filter(Boolean);
+      } else {
+        return [
+          {
+            text: `Invoice ${printingInvoice.invoice_number} - Continued`,
+            fontSize: 12,
+            bold: true,
+            color: '#6b7280',
+            margin: [0, 0, 0, 10]
+          }
+        ];
+      }
+    };
 
     const createItemsTable = (items: InvoiceItem[], startIndex: number) => {
       const tableBody: any[][] = [
         [
-          { text: '#', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [5, 5, 5, 5] },
-          { text: 'Product', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [5, 5, 5, 5] },
-          { text: 'Description', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [5, 5, 5, 5] },
-          { text: 'Qty', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [5, 5, 5, 5] },
-          { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [5, 5, 5, 5] },
-          { text: 'Tax %', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [5, 5, 5, 5] },
-          { text: 'Total', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [5, 5, 5, 5] }
+          { text: '#', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [3, 3, 3, 3] },
+          { text: 'Product', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [3, 3, 3, 3] },
+          { text: 'Description', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [3, 3, 3, 3] },
+          { text: 'Qty', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [3, 3, 3, 3] },
+          { text: 'Unit Price', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [3, 3, 3, 3] },
+          { text: 'Tax %', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [3, 3, 3, 3] },
+          { text: 'Total', fontSize: 8, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [3, 3, 3, 3] }
         ]
       ];
 
       items.forEach((item, index) => {
         tableBody.push([
-          { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [5, 5, 5, 5] },
-          { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9, margin: [5, 5, 5, 5] },
-          { text: item.description || '-', fontSize: 8, color: '#4b5563', margin: [5, 5, 5, 5] },
-          { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [5, 5, 5, 5] },
-          { text: `Rs. ${Number(item.actual_unit_price || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [5, 5, 5, 5] },
-          { text: `${item.tax_rate}%`, fontSize: 9, alignment: 'center', margin: [5, 5, 5, 5] },
-          { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [5, 5, 5, 5] }
+          { text: (startIndex + index + 1).toString(), fontSize: 7, alignment: 'center', margin: [2, 2, 2, 2] },
+          { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 7, margin: [2, 2, 2, 2] },
+          { text: item.description || '-', fontSize: 7, color: '#4b5563', margin: [2, 2, 2, 2] },
+          { text: item.quantity.toString(), fontSize: 7, alignment: 'center', margin: [2, 2, 2, 2] },
+          { text: `Rs. ${Number(item.actual_unit_price || 0).toFixed(2)}`, fontSize: 7, alignment: 'right', margin: [2, 2, 2, 2] },
+          { text: `${item.tax_rate}%`, fontSize: 7, alignment: 'center', margin: [2, 2, 2, 2] },
+          { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, fontSize: 7, bold: true, alignment: 'right', margin: [2, 2, 2, 2] }
         ]);
       });
 
       return {
         table: {
           headerRows: 1,
-          widths: [30, 'auto', '*', 40, 70, 40, 80],
+          widths: [25, 'auto', '*', 30, 60, 30, 70],
           body: tableBody
         },
         layout: {
-          hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1 : 0.5,
+          hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1 : 0.3,
           vLineWidth: () => 0,
           hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
           paddingLeft: () => 0,
@@ -416,73 +428,73 @@ export default function InvoicesPage() {
           paddingTop: () => 0,
           paddingBottom: () => 0
         },
-        margin: [0, 0, 0, 20]
+        margin: [0, 0, 0, 10]
       };
     };
 
     const createSummarySection = () => ({
       columns: [
         {
-          width: '58%',
+          width: '55%',
           stack: [
             printingInvoice.notes ? {
               stack: [
-                { text: 'Notes', fontSize: 11, bold: true, margin: [0, 0, 0, 5] },
-                { text: printingInvoice.notes, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 15] }
+                { text: 'Notes', fontSize: 9, bold: true, margin: [0, 0, 0, 3] },
+                { text: printingInvoice.notes, fontSize: 7, color: '#4b5563', margin: [0, 0, 0, 8] }
               ]
             } : {},
             printingInvoice.terms ? {
               stack: [
-                { text: 'Terms & Conditions', fontSize: 11, bold: true, margin: [0, 0, 0, 5] },
-                { text: printingInvoice.terms, fontSize: 9, color: '#4b5563' }
+                { text: 'Terms & Conditions', fontSize: 9, bold: true, margin: [0, 0, 0, 3] },
+                { text: printingInvoice.terms, fontSize: 7, color: '#4b5563' }
               ]
             } : {}
           ]
         },
         {
-          width: '42%',
+          width: '45%',
           table: {
             widths: ['*', 'auto'],
             body: [
               [
-                { text: 'Subtotal:', fontSize: 10, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                { text: `Rs. ${Number(printingInvoice.subtotal || 0).toFixed(2)}`, fontSize: 10, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                { text: 'Subtotal:', fontSize: 8, alignment: 'right', border: [false, false, false, false], margin: [0, 2, 8, 2] },
+                { text: `Rs. ${Number(printingInvoice.subtotal || 0).toFixed(2)}`, fontSize: 8, alignment: 'right', border: [false, false, false, false], margin: [0, 2, 0, 2] }
               ],
               [
-                { text: 'Discount:', fontSize: 10, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                { text: `Rs. ${Number(printingInvoice.discount_amount || 0).toFixed(2)}`, fontSize: 10, alignment: 'right', color: '#dc2626', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                { text: 'Discount:', fontSize: 8, alignment: 'right', border: [false, false, false, false], margin: [0, 2, 8, 2] },
+                { text: `Rs. ${Number(printingInvoice.discount_amount || 0).toFixed(2)}`, fontSize: 8, alignment: 'right', color: '#dc2626', border: [false, false, false, false], margin: [0, 2, 0, 2] }
               ],
               [
-                { text: 'Shipping:', fontSize: 10, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                { text: `Rs. ${Number(printingInvoice.shipping_cost || 0).toFixed(2)}`, fontSize: 10, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                { text: 'Shipping:', fontSize: 8, alignment: 'right', border: [false, false, false, false], margin: [0, 2, 8, 2] },
+                { text: `Rs. ${Number(printingInvoice.shipping_cost || 0).toFixed(2)}`, fontSize: 8, alignment: 'right', border: [false, false, false, false], margin: [0, 2, 0, 2] }
               ],
               [
-                { text: 'Tax:', fontSize: 10, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 10, 8] },
-                { text: `Rs. ${Number(printingInvoice.tax_amount || 0).toFixed(2)}`, fontSize: 10, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 0, 8] }
+                { text: 'Tax:', fontSize: 8, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 2, 8, 5] },
+                { text: `Rs. ${Number(printingInvoice.tax_amount || 0).toFixed(2)}`, fontSize: 8, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 2, 0, 5] }
               ],
               [
-                { text: 'TOTAL:', fontSize: 12, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 8, 10, 8] },
-                { text: `Rs. ${Number(printingInvoice.total_amount || 0).toFixed(2)}`, fontSize: 12, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 8, 0, 8] }
+                { text: 'TOTAL:', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 5, 8, 5] },
+                { text: `Rs. ${Number(printingInvoice.total_amount || 0).toFixed(2)}`, fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 5, 0, 5] }
               ],
               [
-                { text: 'Paid:', fontSize: 10, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, fontSize: 10, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                { text: 'Paid:', fontSize: 8, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 2, 8, 2] },
+                { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, fontSize: 8, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 2, 0, 2] }
               ],
               [
-                { text: 'BALANCE DUE:', fontSize: 11, bold: true, fillColor: '#fef3c7', color: '#92400e', alignment: 'right', margin: [0, 8, 10, 8] },
-                { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#fef3c7', color: '#92400e', alignment: 'right', margin: [0, 8, 0, 8] }
+                { text: 'BALANCE DUE:', fontSize: 9, bold: true, fillColor: '#fef3c7', color: '#92400e', alignment: 'right', margin: [0, 5, 8, 5] },
+                { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, fontSize: 9, bold: true, fillColor: '#fef3c7', color: '#92400e', alignment: 'right', margin: [0, 5, 0, 5] }
               ]
             ]
           },
           layout: {
-            paddingLeft: () => 10,
-            paddingRight: () => 10,
+            paddingLeft: () => 8,
+            paddingRight: () => 8,
             paddingTop: () => 0,
             paddingBottom: () => 0
           }
         }
       ],
-      margin: [0, 0, 0, 30]
+      margin: [0, 0, 0, 15]
     });
 
     const createSignatureSection = () => ({
@@ -490,12 +502,12 @@ export default function InvoicesPage() {
         {
           width: '48%',
           stack: [
-            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 1, lineColor: '#9ca3af' }], margin: [0, 0, 0, 5] },
-            { text: 'Customer Signature', fontSize: 9, color: '#6b7280', alignment: 'center', margin: [0, 0, 0, 10] },
-            { text: 'Name: _________________________', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 3] },
-            { text: 'NIC: _________________________', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 3] },
-            { text: 'Contact: _________________________', fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 3] },
-            { text: 'Vehicle No: _________________________', fontSize: 8, color: '#6b7280' }
+            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 180, y2: 0, lineWidth: 0.5, lineColor: '#9ca3af' }], margin: [0, 0, 0, 3] },
+            { text: 'Customer Signature', fontSize: 7, color: '#6b7280', alignment: 'center', margin: [0, 0, 0, 6] },
+            { text: 'Name: _______________________', fontSize: 7, color: '#6b7280', margin: [0, 0, 0, 2] },
+            { text: 'NIC: _______________________', fontSize: 7, color: '#6b7280', margin: [0, 0, 0, 2] },
+            { text: 'Contact: _______________________', fontSize: 7, color: '#6b7280', margin: [0, 0, 0, 2] },
+            { text: 'Vehicle No: _______________________', fontSize: 7, color: '#6b7280' }
           ]
         },
         {
@@ -505,10 +517,10 @@ export default function InvoicesPage() {
         {
           width: '48%',
           stack: [
-            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 1, lineColor: '#9ca3af' }], margin: [0, 0, 0, 5] },
-            { text: 'Authorized Signature', fontSize: 9, color: '#6b7280', alignment: 'center', margin: [0, 0, 0, 10] },
-            { text: `Created by: ${printingInvoice.employee_name || 'N/A'}`, fontSize: 8, color: '#6b7280', margin: [0, 0, 0, 3] },
-            { text: 'Checked by: _________________________', fontSize: 8, color: '#6b7280' }
+            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 180, y2: 0, lineWidth: 0.5, lineColor: '#9ca3af' }], margin: [0, 0, 0, 3] },
+            { text: 'Authorized Signature', fontSize: 7, color: '#6b7280', alignment: 'center', margin: [0, 0, 0, 6] },
+            { text: `Created by: ${printingInvoice.employee_name || 'N/A'}`, fontSize: 7, color: '#6b7280', margin: [0, 0, 0, 2] },
+            { text: 'Checked by: _______________________', fontSize: 7, color: '#6b7280' }
           ]
         }
       ]
@@ -516,7 +528,6 @@ export default function InvoicesPage() {
 
     const content: any[] = [];
     
-    // Split items into pages
     const totalPages = Math.ceil(printItems.length / ITEMS_PER_PAGE);
     
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
@@ -526,38 +537,16 @@ export default function InvoicesPage() {
       const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, printItems.length);
       const pageItems = printItems.slice(startIndex, endIndex);
 
-      // Header
-      content.push(createHeader(isFirstPage));
+      const headerContent = createHeader(isFirstPage);
+      headerContent.forEach(item => content.push(item));
 
-      // Info section (only first page)
-      if (isFirstPage) {
-        content.push(createInfoSection());
-
-        // Head note
-        if (printingInvoice.head_note) {
-          content.push({
-            text: printingInvoice.head_note,
-            fontSize: 10,
-            italics: true,
-            color: '#4b5563',
-            fillColor: '#fef3c7',
-            margin: [10, 10, 10, 10],
-            border: [false, false, false, false]
-          });
-          content.push({ text: '', margin: [0, 0, 0, 15] });
-        }
-      }
-
-      // Items table
       content.push(createItemsTable(pageItems, startIndex));
 
-      // Summary and signature (only last page)
       if (isLastPage) {
         content.push(createSummarySection());
         content.push(createSignatureSection());
       }
 
-      // Page break (except last page)
       if (!isLastPage) {
         content.push({ text: '', pageBreak: 'after' });
       }
@@ -565,21 +554,21 @@ export default function InvoicesPage() {
 
     const docDefinition: any = {
       pageSize: 'A4',
-      pageMargins: [40, 40, 40, 60],
+      pageMargins: [30, 30, 30, 50],
       footer: (currentPage: number, pageCount: number) => ({
         columns: [
           { 
             text: selectedCompany?.name || 'Company Name', 
-            fontSize: 8, 
+            fontSize: 7, 
             color: '#9ca3af',
-            margin: [40, 10, 0, 0]
+            margin: [30, 8, 0, 0]
           },
           { 
             text: `Page ${currentPage} of ${pageCount}`, 
             alignment: 'right',
-            fontSize: 8,
+            fontSize: 7,
             color: '#9ca3af',
-            margin: [0, 10, 40, 0]
+            margin: [0, 8, 30, 0]
           }
         ]
       }),
@@ -986,10 +975,10 @@ export default function InvoicesPage() {
 
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
               <p className="text-sm text-blue-700">
-                <strong>Preview:</strong> This shows an approximation of the PDF layout. The actual PDF will be generated using pdfMake with proper formatting.
+                <strong>PDF Preview:</strong> This invoice will be generated with pdfMake.
               </p>
               <p className="text-sm text-blue-700 mt-1">
-                Total Items: {printItems.length} | Pages: {Math.ceil(printItems.length / 20)}
+                <strong>Total Items:</strong> {printItems.length} | <strong>Pages:</strong> {Math.ceil(printItems.length / 20)} (20 items per page)
               </p>
             </div>
 
@@ -1030,8 +1019,8 @@ export default function InvoicesPage() {
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4">
-                  Showing first 20 items (Total: {printItems.length} items across {Math.ceil(printItems.length / 20)} page(s))
+                <p className="text-sm text-gray-600 mb-4 bg-yellow-50 p-2 rounded">
+                  📄 Preview showing first 20 items. PDF will contain all {printItems.length} items across {Math.ceil(printItems.length / 20)} page(s)
                 </p>
 
                 <table className="w-full text-sm border-collapse mb-6">
@@ -1048,7 +1037,7 @@ export default function InvoicesPage() {
                   </thead>
                   <tbody>
                     {printItems.slice(0, 20).map((item, index) => (
-                      <tr key={index} className="border-b">
+                      <tr key={index} className="border-b hover:bg-gray-50">
                         <td className="px-2 py-2">{index + 1}</td>
                         <td className="px-2 py-2">{products.find((p) => p.id === item.product_id)?.name || 'N/A'}</td>
                         <td className="px-2 py-2 text-xs text-gray-600">{item.description || '-'}</td>
@@ -1079,7 +1068,7 @@ export default function InvoicesPage() {
                       <span>Tax:</span>
                       <span>Rs. {Number(printingInvoice.tax_amount || 0).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between font-bold bg-gray-800 text-white p-2">
+                    <div className="flex justify-between font-bold bg-gray-800 text-white p-2 rounded">
                       <span>TOTAL:</span>
                       <span>Rs. {Number(printingInvoice.total_amount || 0).toFixed(2)}</span>
                     </div>
@@ -1087,7 +1076,7 @@ export default function InvoicesPage() {
                       <span>Paid:</span>
                       <span>Rs. {Number(printingInvoice.paid_amount || 0).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between font-bold bg-yellow-100 text-yellow-900 p-2">
+                    <div className="flex justify-between font-bold bg-yellow-100 text-yellow-900 p-2 rounded">
                       <span>BALANCE DUE:</span>
                       <span>Rs. {Number(printingInvoice.balance_due || 0).toFixed(2)}</span>
                     </div>
@@ -1112,7 +1101,7 @@ export default function InvoicesPage() {
                 className="btn btn-primary btn-md"
               >
                 <Printer className="h-4 w-4 mr-2" />
-                Download PDF
+                Download PDF (20 items/page)
               </button>
             </div>
           </div>
