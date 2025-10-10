@@ -135,10 +135,10 @@ export default function EditEstimate() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/employees/`),
-        axiosInstance.get(`/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees/`),
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -382,7 +382,7 @@ useEffect(() => {
         }))
       };
 
-      await axiosInstance.put(`/api/editEstimate/${selectedCompany?.company_id}/${estimate.id}`, submitData);
+      await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/editEstimate/${selectedCompany?.company_id}/${estimate.id}`, submitData);
 
       setFormData(initialFormData);
       setItems([
@@ -716,7 +716,7 @@ useEffect(() => {
                                 >
                                   {product.image && (
                                     <img
-                                      src={`http://localhost:3000${product.image}`}
+                                      src={`https://powerkey-backend-1.onrender.com${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />

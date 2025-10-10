@@ -60,7 +60,7 @@ const CustomerBalanceDetail: React.FC = () => {
     setError(null);
     try {
       console.log('Fetching with params:', { start_date: startDate, end_date: endDate, customerId });
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/customer-balance-detail/${selectedCompany.company_id}/${customerId}`, {
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/customer-balance-detail/${selectedCompany.company_id}/${customerId}`, {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);
@@ -452,7 +452,7 @@ const CustomerBalanceDetail: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkeybackend-production.up.railway.app${selectedCompany.company_logo}`}
+                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

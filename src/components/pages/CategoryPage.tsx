@@ -33,7 +33,7 @@ export default function CategoryPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkeybackend-production.up.railway.app/api/getCategories/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCategories/${selectedCompany?.company_id}`);
 
       setCategories(response.data);
     } catch (error) {
@@ -51,9 +51,9 @@ export default function CategoryPage() {
       };
 
       if (editingCategory) {
-        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/updateCategory/${selectedCompany?.company_id}/${editingCategory.id}`, submitData);
+        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/updateCategory/${selectedCompany?.company_id}/${editingCategory.id}`, submitData);
       } else {
-        await axiosInstance.post(`https://powerkeybackend-production.up.railway.app/api/createCategory/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createCategory/${selectedCompany?.company_id}`, submitData);
       }
       fetchCategories();
       setShowModal(false);
@@ -75,7 +75,7 @@ export default function CategoryPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this category?')) {
       try {
-        await axiosInstance.put(`https://powerkeybackend-production.up.railway.app/api/deleteCategories/softDelete/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/deleteCategories/softDelete/${selectedCompany?.company_id}/${id}`);
         fetchCategories();
       } catch (error: any) {
         console.error('Error deleting category:', error);

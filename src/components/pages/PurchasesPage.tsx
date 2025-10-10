@@ -19,7 +19,7 @@ export default function PurchasesPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch(`https://powerkeybackend-production.up.railway.app/api/stats/${selectedCompany?.company_id}`);
+        const response = await fetch(`https://powerkey-backend-1.onrender.com/api/stats/${selectedCompany?.company_id}`);
         console.log('Fetching stats for company:', selectedCompany?.company_id);
         const data = await response.json();
         setStats(data);
