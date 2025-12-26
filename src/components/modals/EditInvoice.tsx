@@ -142,10 +142,10 @@ export default function EditInvoice() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees/`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`http://147.79.115.89:3000/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/employees/`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -374,7 +374,7 @@ export default function EditInvoice() {
 
       try {
           if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
-            const eligibilityRes = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/checkCustomerEligibility`, {
+            const eligibilityRes = await axiosInstance.post(`http://147.79.115.89:3000/api/checkCustomerEligibility`, {
               company_id: selectedCompany?.company_id, 
               customer_id: parseInt(formData.customer_id),
               invoice_total: total,
@@ -392,7 +392,7 @@ export default function EditInvoice() {
 
           console.log('Submitting invoice data:', submitData);
 
-          await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+          await axiosInstance.put(`http://147.79.115.89:3000/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
 
           console.log('Invoice updated:');
 
@@ -757,7 +757,7 @@ export default function EditInvoice() {
                                 >
                                   {product.image && (
                                     <img
-                                      src={`https://powerkey-backend-1.onrender.com${product.image}`}
+                                      src={`http://147.79.115.89:3000${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />

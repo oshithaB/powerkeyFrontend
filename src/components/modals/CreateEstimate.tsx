@@ -127,10 +127,10 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees/`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`http://147.79.115.89:3000/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/employees/`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -308,9 +308,9 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       console.log("Submitting data:", submitData);
 
       if (estimate) {
-        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/estimates/${selectedCompany?.company_id}/${estimate.id}`, submitData);
+        await axiosInstance.put(`http://147.79.115.89:3000/api/estimates/${selectedCompany?.company_id}/${estimate.id}`, submitData);
       } else {
-        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createEstimates/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`http://147.79.115.89:3000/api/createEstimates/${selectedCompany?.company_id}`, submitData);
       }
 
       // Reset form and items after successful save
@@ -354,7 +354,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       };
   
       console.log('Submitting customer data:', submitData);
-      const response = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createCustomers/${selectedCompany?.company_id}`, submitData);
+      const response = await axiosInstance.post(`http://147.79.115.89:3000/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       console.log('API response:', response.data);
   
       const newCustomer = response.data.customer;
@@ -739,7 +739,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
                                 >
                                   {product.image && (
                                     <img
-                                      src={`https://powerkey-backend-1.onrender.com${product.image}`}
+                                      src={`http://147.79.115.89:3000${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />

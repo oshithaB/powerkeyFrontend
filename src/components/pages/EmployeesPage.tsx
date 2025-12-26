@@ -50,7 +50,7 @@ export default function EmployeesPage() {
 
   const fetchUserData = async (id: number): Promise<User | null> => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/users/by-employee/${id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/users/by-employee/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -60,7 +60,7 @@ export default function EmployeesPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get('https://powerkey-backend-1.onrender.com/api/employees');
+      const response = await axiosInstance.get('http://147.79.115.89:3000/api/employees');
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -71,7 +71,7 @@ export default function EmployeesPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await axiosInstance.get('https://powerkey-backend-1.onrender.com/api/roles');
+      const response = await axiosInstance.get('http://147.79.115.89:3000/api/roles');
       setRoles(response.data);
     } catch (error) {
       console.error('Error fetching roles:', error);
@@ -117,10 +117,10 @@ export default function EmployeesPage() {
     try {
       if (editingEmployee) {
         // Update employee with all relevant data in a single request
-        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/employees/${editingEmployee.id}`, employeePayload);
+        await axiosInstance.put(`http://147.79.115.89:3000/api/employees/${editingEmployee.id}`, employeePayload);
       } else {
         // Create new employee with all relevant data
-        await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/employees', employeePayload);
+        await axiosInstance.post('http://147.79.115.89:3000/api/employees', employeePayload);
       }
   
       fetchEmployees();
@@ -155,7 +155,7 @@ export default function EmployeesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/employees/${id}`);
+        await axiosInstance.delete(`http://147.79.115.89:3000/api/employees/${id}`);
         fetchEmployees();
       } catch (error) {
         console.error('Error deleting employee:', error);

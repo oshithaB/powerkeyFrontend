@@ -34,7 +34,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/dashboard/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/dashboard/${selectedCompany?.company_id}`);
       setDashboardData(response.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

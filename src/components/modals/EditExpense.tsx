@@ -95,7 +95,7 @@ export default function EditExpense() {
     const fetchCategories = async () => {
         try {
         console.log('Fetching expense categories for company:', selectedCompany?.company_id);
-        const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getExpenseCategories/${selectedCompany?.company_id}`);
+        const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getExpenseCategories/${selectedCompany?.company_id}`);
         setCategories(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
         console.error('Error fetching categories:', error);
@@ -105,7 +105,7 @@ export default function EditExpense() {
 
     const fetchPaymentAccounts = async () => {
         try {
-        const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getPaymentAccounts/${selectedCompany?.company_id}`);
+        const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getPaymentAccounts/${selectedCompany?.company_id}`);
         setPaymentAccounts(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
         console.error('Error fetching payment accounts:', error);
@@ -115,7 +115,7 @@ export default function EditExpense() {
 
     const fetchPaymentMethods = async () => {
         try {
-        const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getPaymentMethods`);
+        const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getPaymentMethods`);
         console.log('Fetched payment methods:', response.data);
         setPaymentMethods(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
@@ -127,7 +127,7 @@ export default function EditExpense() {
 
     const fetchPayees = async () => {
         try {
-        const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getPayees/${selectedCompany?.company_id}`);
+        const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getPayees/${selectedCompany?.company_id}`);
         setPayees(response.data);
         } catch (error) {
         console.error('Error fetching payees:', error);
@@ -136,7 +136,7 @@ export default function EditExpense() {
 
     const handleCreateCategory = async (name: string) => {
         try {
-        const response = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/addCategory/${selectedCompany?.company_id}`, {
+        const response = await axiosInstance.post(`http://147.79.115.89:3000/api/addCategory/${selectedCompany?.company_id}`, {
             name,
         });
         const newCategory = response.data;
@@ -151,7 +151,7 @@ export default function EditExpense() {
 
     const  handleCreatePaymentAccount = async (name: string, accountType?: string, detailType?: string, description?: string) => {
         try {
-        const response = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/addPaymentAccount/${selectedCompany?.company_id}`, {
+        const response = await axiosInstance.post(`http://147.79.115.89:3000/api/addPaymentAccount/${selectedCompany?.company_id}`, {
             name,
             account_type: accountType,
             detail_type: detailType,
@@ -171,7 +171,7 @@ export default function EditExpense() {
 
     const handleCreatePaymentMethod = async (name: string) => {
         try {
-        const response = await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/createPaymentMethod', {
+        const response = await axiosInstance.post('http://147.79.115.89:3000/api/createPaymentMethod', {
             name,
         });
         const newMethod = response.data.name;
@@ -187,7 +187,7 @@ export default function EditExpense() {
 
     const handleCreatePayeeMethod = async (name: string) => {
         try {
-        const response = await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/addPayee', {
+        const response = await axiosInstance.post('http://147.79.115.89:3000/api/addPayee', {
             name,
             company_id: selectedCompany?.company_id,
         });
@@ -204,7 +204,7 @@ export default function EditExpense() {
 
     const handleCreatePaymentAccountType = async (accountType: string, details: string[]) => {
         try {
-        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/addPaymentAccountType/${selectedCompany?.company_id}`, {
+        await axiosInstance.post(`http://147.79.115.89:3000/api/addPaymentAccountType/${selectedCompany?.company_id}`, {
             account_type: accountType,
             details,
         });
@@ -364,9 +364,9 @@ export default function EditExpense() {
         
         if (expense) {
             console.log('Updating existing expense with ID:', expense.id);
-            await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/updateExpense/${selectedCompany?.company_id}/${expense.id}`, submitData);
+            await axiosInstance.put(`http://147.79.115.89:3000/api/updateExpense/${selectedCompany?.company_id}/${expense.id}`, submitData);
         } else {
-            await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createExpense/${selectedCompany?.company_id}`, submitData);
+            await axiosInstance.post(`http://147.79.115.89:3000/api/createExpense/${selectedCompany?.company_id}`, submitData);
         }
     
         setFormData(initialFormData);
@@ -580,7 +580,7 @@ export default function EditExpense() {
         useEffect(() => {
         const fetchAccountTypes = async () => {
             try {
-            const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getPaymentAccountTypes/${selectedCompany?.company_id}`);
+            const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getPaymentAccountTypes/${selectedCompany?.company_id}`);
             setAccountTypes(response.data);
             } catch (error) {
             console.error('Error fetching account types:', error);
@@ -609,7 +609,7 @@ export default function EditExpense() {
 
         const fetchDetailTypes = async(id: string) => {
         try {
-            const detailTypes = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getPaymentAccountTypeDetails/${id}`);
+            const detailTypes = await axiosInstance.get(`http://147.79.115.89:3000/api/getPaymentAccountTypeDetails/${id}`);
             setDetailTypes(detailTypes.data || []);
         } catch (error) {
             console.error('Error fetching detail types:', error);

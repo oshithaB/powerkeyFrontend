@@ -102,7 +102,7 @@ export default function CreateCompany() {
         submitData.append('taxRates', JSON.stringify(taxRates.filter(tax => tax.name && tax.rate > 0)));
       }
 
-      const response = await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/createCompany', submitData, {
+      const response = await axiosInstance.post('http://147.79.115.89:3000/api/createCompany', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

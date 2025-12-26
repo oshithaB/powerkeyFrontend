@@ -105,7 +105,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     if (selectedCompany) {
       const fetchTaxRates = async () => {
         try {
-          const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/tax-rates/${selectedCompany?.company_id}`);
+          const response = await axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`);
           const taxRatesData = Array.isArray(response.data) && Array.isArray(response.data[0]) 
             ? response.data[0] 
             : Array.isArray(response.data) 
@@ -140,8 +140,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     if (!orderId) return;
     try {
       const [orderRes, itemsRes] = await Promise.all([
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getOrders/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/order-items/${selectedCompany?.company_id}/${orderId}`)
+        axiosInstance.get(`http://147.79.115.89:3000/api/getOrders/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}/${orderId}`)
       ]);
 
       const order = orderRes.data.find((e: any) => e.id === parseInt(orderId));
@@ -177,7 +177,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getVendors/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getVendors/${selectedCompany?.company_id}`);
       setVendors(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -187,7 +187,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`);
       setProducts(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -197,7 +197,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchPaymentMethods = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getPaymentMethods`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getPaymentMethods`);
       setPaymentMethods(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching payment methods:', error);
@@ -208,7 +208,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/employees`);
       setEmployees(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -371,9 +371,9 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       };
   
       if (expense) {
-        await axiosInstance.put(`https://powerkey-backend-1.onrender.com/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
+        await axiosInstance.put(`http://147.79.115.89:3000/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
       } else {
-        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createBill/${selectedCompany?.company_id}`, submitData);
+        await axiosInstance.post(`http://147.79.115.89:3000/api/createBill/${selectedCompany?.company_id}`, submitData);
       }
   
       setFormData(initialFormData);
@@ -396,7 +396,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
   const handleCreatePaymentMethod = async (name: string) => {
     try {
-      const response = await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/createPaymentMethod', {
+      const response = await axiosInstance.post('http://147.79.115.89:3000/api/createPaymentMethod', {
         name,
       });
       const newMethod = response.data;
@@ -541,7 +541,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           asOfDate: vendorFormData.as_of_date
         };
 
-        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createVendors/${selectedCompany?.company_id}`, payload);
+        await axiosInstance.post(`http://147.79.115.89:3000/api/createVendors/${selectedCompany?.company_id}`, payload);
 
         setIsCreateVendorModalOpen(false);
         fetchVendors();
@@ -889,7 +889,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           newEmployeePayload.role_id = parseInt(employeeFormData.role_id);
         }
         
-        await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/employees', newEmployeePayload);
+        await axiosInstance.post('http://147.79.115.89:3000/api/employees', newEmployeePayload);
         fetchEmployees();
         setIsCreateEmployeeModalOpen(false);
         resetEmployeeForm();
@@ -905,7 +905,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
     const fetchRoles = async () => {
       try {
-        const response = await axiosInstance.get('https://powerkey-backend-1.onrender.com/api/roles');
+        const response = await axiosInstance.get('http://147.79.115.89:3000/api/roles');
         setRoles(response.data);
       } catch (error) {
         console.error('Error fetching roles:', error);
@@ -1294,7 +1294,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                                 >
                                   {product.image && (
                                     <img
-                                      src={`https://powerkey-backend-1.onrender.com${product.image}`}
+                                      src={`http://147.79.115.89:3000${product.image}`}
                                       alt={product.name}
                                       className="w-8 h-8 object-cover mr-2 rounded"
                                     />

@@ -155,7 +155,7 @@ const BillReceivePaymentModal: React.FC = () => {
 
             try {
                 const response = await axiosInstance.get(
-                `https://powerkey-backend-1.onrender.com/api/getBillsByVendor/${selectedCompany.company_id}/${vendorId}`
+                `http://147.79.115.89:3000/api/getBillsByVendor/${selectedCompany.company_id}/${vendorId}`
                 );
                 setBills(response.data);
             } catch (error: any) {
@@ -173,7 +173,7 @@ const BillReceivePaymentModal: React.FC = () => {
             if (!selectedCompany?.company_id) return;
             setPaymentMethodsLoading(true);
             try {
-                const response = await axiosInstance.get('https://powerkey-backend-1.onrender.com/api/getPaymentMethods');
+                const response = await axiosInstance.get('http://147.79.115.89:3000/api/getPaymentMethods');
                 const methods = response.data.map((method: { name: string }) => method.name);
                 setPaymentMethods(methods);
                 if (methods.length > 0 && !payment.payment_method) {
@@ -258,7 +258,7 @@ const BillReceivePaymentModal: React.FC = () => {
 
   const handleCreatePaymentMethod = async (name: string) => {
     try {
-      const response = await axiosInstance.post('https://powerkey-backend-1.onrender.com/api/createPaymentMethod', {
+      const response = await axiosInstance.post('http://147.79.115.89:3000/api/createPaymentMethod', {
         name,
       });
       const { name: newMethod } = response.data;
@@ -315,7 +315,7 @@ const BillReceivePaymentModal: React.FC = () => {
   
     try {
       await axiosInstance.post(
-        `https://powerkey-backend-1.onrender.com/api/recordBillPayment/${selectedCompany.company_id}/${vendor_id}`,
+        `http://147.79.115.89:3000/api/recordBillPayment/${selectedCompany.company_id}/${vendor_id}`,
         {
           payment_amount: payment.payment_amount,
           payment_date: payment.payment_date,

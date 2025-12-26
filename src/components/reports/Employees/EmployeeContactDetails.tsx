@@ -35,7 +35,7 @@ const EmployeeContactDetails: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employee-contacts`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/employee-contacts`);
       
       if (response.data?.data && Array.isArray(response.data.data)) {
         setData(response.data.data);

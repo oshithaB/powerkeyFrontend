@@ -71,10 +71,10 @@ const ProfitAndLossByCustomer: React.FC = () => {
     setError(null);
     try {
       const [profitResponse, shrinkageResponse] = await Promise.all([
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/profit-and-loss-all-customers/${selectedCompany.company_id}`, {
+        axiosInstance.get(`http://147.79.115.89:3000/api/profit-and-loss-all-customers/${selectedCompany.company_id}`, {
           params: { start_date: startDate, end_date: endDate }
         }),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/inventory-shrinkage/${selectedCompany.company_id}`)
+        axiosInstance.get(`http://147.79.115.89:3000/api/inventory-shrinkage/${selectedCompany.company_id}`)
       ]);
       
       // Validate response structure
@@ -202,7 +202,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                 </p>
               </div>
               ${selectedCompany?.company_logo ? `
-                <img src="https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
+                <img src="http://147.79.115.89:3000${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
                      style="height: 100px; width: auto; max-width: 500px; object-fit: contain;" />
               ` : ''}
             </div>
@@ -778,7 +778,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
+                      src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

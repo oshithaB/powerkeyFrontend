@@ -41,7 +41,7 @@ export default function BillsPage() {
 
   const fetchBills = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getAllBills/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getAllBills/${selectedCompany?.company_id}`);
       setBills(response.data);
       console.log('Fetched bills:', response.data);
     } catch (error) {
@@ -70,7 +70,7 @@ export default function BillsPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this bill?')) {
       try {
-        await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/bills/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.delete(`http://147.79.115.89:3000/api/bills/${selectedCompany?.company_id}/${id}`);
         fetchBills();
       } catch (error) {
         console.error('Error deleting bill:', error);

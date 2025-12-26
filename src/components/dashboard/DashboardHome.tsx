@@ -69,7 +69,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
         return;
       }
 
-      let url = `https://powerkey-backend-1.onrender.com/api/moneyInDrawer/${selectedCompany.company_id}`;
+      let url = `http://147.79.115.89:3000/api/moneyInDrawer/${selectedCompany.company_id}`;
       const params = new URLSearchParams();
       
       if (startDate) params.append('start_date', startDate);
