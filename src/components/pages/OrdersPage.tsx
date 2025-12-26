@@ -52,7 +52,7 @@ export default function OrdersPage() {
 
     const fetchOrders = async () => {
         try {
-            const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getOrders/${selectedCompany?.company_id}`);
+            const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getOrders/${selectedCompany?.company_id}`);
             const parsedOrders = response.data.map((order: Order) => ({
                 ...order,
                 total_amount: order.total_amount != null ? parseFloat(order.total_amount.toString()) : null,
@@ -68,7 +68,7 @@ export default function OrdersPage() {
 
     const fetchOrderItems = async () => {
         try {
-            const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/order-items/${selectedCompany?.company_id}`);
+            const response = await axiosInstance.get(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}`);
             setOrderItems(response.data);
         } catch (error) {
             console.error('Error fetching order items:', error);
@@ -84,7 +84,7 @@ export default function OrdersPage() {
     const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this order?')) {
             try {
-                await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/orders/${selectedCompany?.company_id}/${id}`);
+                await axiosInstance.delete(`http://147.79.115.89:3000/api/orders/${selectedCompany?.company_id}/${id}`);
                 fetchOrders();
             } catch (error: any) {
                 console.error('Error deleting order:', error);

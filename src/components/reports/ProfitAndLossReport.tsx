@@ -69,7 +69,7 @@ const ProfitAndLossReport: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/profit-and-loss/${selectedCompany?.company_id}`, {
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/profit-and-loss/${selectedCompany?.company_id}`, {
         params: { start_date: startDate, end_date: endDate }
       });
       console.log(response.data);
@@ -119,7 +119,7 @@ const ProfitAndLossReport: React.FC = () => {
   const handleDownloadPDF = async () => {
     try {
       if (printRef.current) {
-        const logoUrl = selectedCompany?.company_logo ? `https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}` : null;
+        const logoUrl = selectedCompany?.company_logo ? `http://147.79.115.89:3000${selectedCompany.company_logo}` : null;
         let logoImage: HTMLImageElement | null = null;
         if (logoUrl) {
           logoImage = new Image();
@@ -478,7 +478,7 @@ const ProfitAndLossReport: React.FC = () => {
                   </div>
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
+                      src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

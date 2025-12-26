@@ -182,7 +182,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`);
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -191,7 +191,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchVendors = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getVendors/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getVendors/${selectedCompany?.company_id}`);
       setVendors(response.data);
     } catch (error) {
       console.error('Error fetching vendors:', error);
@@ -200,7 +200,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/employees`);
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -209,7 +209,7 @@ export default function PurchaseOrdersPage() {
 
   const fetchOrderCount = async () => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/orders/count/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/orders/count/${selectedCompany?.company_id}`);
       const count = response.data.count + 1;
       setOrderCount(count);
       setOrder((prev) => ({
@@ -317,7 +317,7 @@ export default function PurchaseOrdersPage() {
         asOfDate: vendorFormData.as_of_date
       };
 
-      const response = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/createVendors/${selectedCompany?.company_id}`, payload);
+      const response = await axiosInstance.post(`http://147.79.115.89:3000/api/createVendors/${selectedCompany?.company_id}`, payload);
       
       // Refresh vendors list
       await fetchVendors();
@@ -402,11 +402,11 @@ export default function PurchaseOrdersPage() {
         total_amount: calculateTotal(),
         company_id: selectedCompany?.company_id,
       };
-      const response = await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/orders/${selectedCompany?.company_id}`, orderData);
+      const response = await axiosInstance.post(`http://147.79.115.89:3000/api/orders/${selectedCompany?.company_id}`, orderData);
       const orderId = response.data.id;
 
       for (const item of orderItems) {
-        await axiosInstance.post(`https://powerkey-backend-1.onrender.com/api/order-items/${selectedCompany?.company_id}`, {
+        await axiosInstance.post(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}`, {
           ...item,
           order_id: orderId,
         });
@@ -667,7 +667,7 @@ export default function PurchaseOrdersPage() {
                                       >
                                         {product.image && (
                                           <img
-                                            src={`https://powerkey-backend-1.onrender.com${product.image}`}
+                                            src={`http://147.79.115.89:3000${product.image}`}
                                             alt={product.name}
                                             className="w-8 h-8 object-cover mr-2 rounded"
                                           />

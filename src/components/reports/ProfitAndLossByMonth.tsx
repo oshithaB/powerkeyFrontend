@@ -57,7 +57,7 @@ const ProfitAndLossByMonth: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/monthly-profit-and-loss/${selectedCompany.company_id}/${year}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/monthly-profit-and-loss/${selectedCompany.company_id}/${year}`);
       
       if (response.data?.data) {
         setData(response.data.data);
@@ -157,7 +157,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                 <p style="font-size: 12px; color: #666;">Year: ${data.year}</p>
               </div>
               ${selectedCompany?.company_logo ? `
-                <img src="https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
+                <img src="http://147.79.115.89:3000${selectedCompany.company_logo}" alt="${selectedCompany.name} Logo" 
                      style="height: 100px; width: auto; max-width: 500px; object-fit: contain;" />
               ` : ''}
             </div>
@@ -652,7 +652,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                     </div>
                     {selectedCompany?.company_logo && (
                       <img 
-                        src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
+                        src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                         alt={`${selectedCompany.name} Logo`}
                         className="h-20 w-auto max-w-xs object-contain"
                       />

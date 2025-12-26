@@ -1,8 +1,8 @@
-// srchttps://powerkey-backend-1.onrender.com/api/axiosInstance.ts
+// srchttp://147.79.115.89:3000/api/axiosInstance.ts
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: 'https://powerkey-backend-1.onrender.com', 
+  baseURL: 'http://147.79.115.89:3000', 
   timeout: 1800000,
   headers: {
     'Content-Type': 'application/json',

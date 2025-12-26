@@ -45,7 +45,7 @@ const SalesbyCustomerDetail: React.FC = () => {
     setError(null);
     try {
       const response = await axiosInstance.get(
-        `https://powerkey-backend-1.onrender.com/api/sales-by-customerid-detail/${selectedCompany.company_id}/${customerId}`,
+        `http://147.79.115.89:3000/api/sales-by-customerid-detail/${selectedCompany.company_id}/${customerId}`,
         {
           params: { 
             start_date: startDate, 
@@ -510,7 +510,7 @@ const SalesbyCustomerDetail: React.FC = () => {
 
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
+                      src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-20 w-auto max-w-[200px] object-contain"
                     />

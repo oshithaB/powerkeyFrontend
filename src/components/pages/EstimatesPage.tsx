@@ -87,7 +87,7 @@ export default function EstimatesPage() {
   const fetchEstimates = async () => {
     try {
       console.log('Fetching requests for company estimates sent.');
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getEstimates/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getEstimates/${selectedCompany?.company_id}`);
       setEstimates(response.data);
       console.log('Fetched estimates:', response.data);
       console.log(estimates);
@@ -102,10 +102,10 @@ export default function EstimatesPage() {
     try {
       console.log('Fetching customers, employees, products, and tax rates for company sent.');
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/employees/`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`http://147.79.115.89:3000/api/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/employees/`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       console.log('customers, employees, products, and tax rates fetched successfully.');
@@ -190,7 +190,7 @@ export default function EstimatesPage() {
 
   const fetchEstimateItems = async (estimateId: number) => {
     try {
-      const response = await axiosInstance.get(`https://powerkey-backend-1.onrender.com/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`);
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`);
       const items = Array.isArray(response.data) ? response.data : [];
       return items.map(item => ({
         id: item.id,
@@ -219,7 +219,7 @@ export default function EstimatesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this estimate?')) {
       try {
-        await axiosInstance.delete(`https://powerkey-backend-1.onrender.com/api/deleteEstimate/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.delete(`http://147.79.115.89:3000/api/deleteEstimate/${selectedCompany?.company_id}/${id}`);
         fetchEstimates();
       } catch (error: any) {
         const backendMessage = error.response?.data?.error;
@@ -251,7 +251,7 @@ export default function EstimatesPage() {
     try {
       if (printRef.current) {
         // Preload the logo image to ensure it’s available
-        const logoUrl = selectedCompany?.company_logo ? `https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}` : null;
+        const logoUrl = selectedCompany?.company_logo ? `http://147.79.115.89:3000${selectedCompany.company_logo}` : null;
         let logoImage: HTMLImageElement | null = null;
         if (logoUrl) {
           logoImage = new Image();
@@ -670,7 +670,7 @@ export default function EstimatesPage() {
                   </div>
                   {selectedCompany?.company_logo && (
                     <img
-                      src={`https://powerkey-backend-1.onrender.com${selectedCompany.company_logo}`}
+                      src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                       alt={`${selectedCompany.name} Logo`}
                       className="h-16 w-auto max-w-[150px] object-contain"
                     />
