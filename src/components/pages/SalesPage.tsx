@@ -45,12 +45,12 @@ export default function SalesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const salespersonsResponse = await axiosInstance.get(`api/top5Salespersons/${selectedCompany?.company_id}`, {
+        const salespersonsResponse = await axiosInstance.get(`http://147.79.115.89:3000/api/top5Salespersons/${selectedCompany?.company_id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setTopSalespersons(salespersonsResponse.data.data);
 
-        const customersResponse = await axiosInstance.get(`api/customerPurchaseFrequency/${selectedCompany?.company_id}`, {
+        const customersResponse = await axiosInstance.get(`http://147.79.115.89:3000/api/customerPurchaseFrequency/${selectedCompany?.company_id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         setTopCustomers(customersResponse.data.data);
