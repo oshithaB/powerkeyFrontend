@@ -8,13 +8,13 @@ import html2canvas from 'html2canvas';
 import { useCompany } from '../../../contexts/CompanyContext';
 
 interface SalesByCustomerSummaryData {
-    customer_id: string;
-    customer_name: string;
-    total_invoices: number;
-    total_sales: number;
-    total_paid: number;
-    total_balance_due: number;
-  }
+  customer_id: string;
+  customer_name: string;
+  total_invoices: number;
+  total_sales: number;
+  total_paid: number;
+  total_balance_due: number;
+}
 
 const SalesbyCustomerSummary: React.FC = () => {
   const { selectedCompany } = useCompany();
@@ -52,7 +52,7 @@ const SalesbyCustomerSummary: React.FC = () => {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);
-      
+
       if (response.data?.data && Array.isArray(response.data.data)) {
         setData(response.data.data);
         setCustomerSuggestions(response.data.data);
@@ -74,11 +74,11 @@ const SalesbyCustomerSummary: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -94,8 +94,8 @@ const SalesbyCustomerSummary: React.FC = () => {
   }, [selectedCompany?.company_id, filter, isCustomRange]);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -148,7 +148,7 @@ const SalesbyCustomerSummary: React.FC = () => {
         windowWidth: printRef.current.scrollWidth,
         windowHeight: printRef.current.scrollHeight,
       });
-      
+
       const imgData = canvas.toDataURL('image/png', 0.95);
       const imgProps = pdf.getImageProperties(imgData);
       const imgWidth = pageWidth - 2 * margin;
@@ -160,15 +160,15 @@ const SalesbyCustomerSummary: React.FC = () => {
         if (i > 0) {
           pdf.addPage();
         }
-        
+
         const srcY = i * maxContentHeight * (canvas.height / imgHeight);
         const pageContentHeight = Math.min(canvas.height - srcY, maxContentHeight * (canvas.height / imgHeight));
-        
+
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = pageContentHeight;
         const tempCtx = tempCanvas.getContext('2d');
-        
+
         if (tempCtx && pageContentHeight > 0) {
           tempCtx.imageSmoothingEnabled = true;
           tempCtx.imageSmoothingQuality = 'high';
@@ -300,7 +300,7 @@ const SalesbyCustomerSummary: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -334,7 +334,7 @@ const SalesbyCustomerSummary: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600"
@@ -367,43 +367,43 @@ const SalesbyCustomerSummary: React.FC = () => {
                   {error}
                 </div>
               )}
-              
+
               {loading && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && customerSuggestions.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No sales data available.
                 </div>
               )}
-              
+
               {!loading && !error && customerSuggestions.length > 0 && (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse min-w-full">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Customer
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total Invoices
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total Sales
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total Paid
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total Balance Due
                         </th>
                       </tr>
@@ -411,9 +411,9 @@ const SalesbyCustomerSummary: React.FC = () => {
                     <tbody>
                       {customerSuggestions.map((customer, index) => (
                         <tr
-                            key={index}
-                            onClick={() => handleCustomerClick(customer.customer_id)}
-                            className="hover:bg-gray-50 cursor-pointer"
+                          key={index}
+                          onClick={() => handleCustomerClick(customer.customer_id)}
+                          className="hover:bg-gray-50 cursor-pointer"
                         >
                           <td className="p-2 border-b font-medium">
                             {customer.customer_name}
@@ -451,7 +451,7 @@ const SalesbyCustomerSummary: React.FC = () => {
                   </table>
                 </div>
               )}
-              
+
               <p className="text-sm mt-5 text-gray-600">
                 Report generated at {new Date().toLocaleString()}
               </p>
@@ -486,10 +486,10 @@ const SalesbyCustomerSummary: React.FC = () => {
                       {selectedCompany?.name || 'Company Name'} (Pvt) Ltd.
                     </h2>
                     <p className="text-sm text-gray-600">
-                        {filter === 'week' && `Last 7 days: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
-                        {filter === 'month' && `Last 1 month: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
-                        {filter === 'year' && `Year to Date: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
-                        {isCustomRange && startDate && endDate && `Custom Range: ${formatDate(startDate)} - ${formatDate(endDate)}`}
+                      {filter === 'week' && `Last 7 days: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
+                      {filter === 'month' && `Last 1 month: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
+                      {filter === 'year' && `Year to Date: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
+                      {isCustomRange && startDate && endDate && `Custom Range: ${formatDate(startDate)} - ${formatDate(endDate)}`}
                     </p>
                   </div>
 
@@ -505,24 +505,24 @@ const SalesbyCustomerSummary: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Customer
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Total Invoices
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Total Sales
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Total Paid
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Total Balance Due
                       </th>
                     </tr>

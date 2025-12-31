@@ -53,31 +53,31 @@ const CommissionReport: React.FC = () => {
   };
 
   useEffect(() => {
-      if (selectedCompany?.company_id) {
-        if (isCustomRange) {
-          return;
-        }
-        
-        const today = new Date();
-        let startDate: string | undefined;
-        let endDate: string = today.toISOString().split('T')[0];
-    
-        if (filter === 'week') {
-          startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
-        } else if (filter === 'month') {
-          startDate = new Date(today.setMonth(today.getMonth() - 1)).toISOString().split('T')[0];
-        } else if (filter === 'year') {
-          startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
-        }
-    
-        setPeriodStart(startDate || '');
-        setPeriodEnd(endDate);
-        fetchCommissionData(startDate, endDate);
-      } else {
-        setError('Missing company or customer information');
-        setLoading(false);
+    if (selectedCompany?.company_id) {
+      if (isCustomRange) {
+        return;
       }
-    }, [selectedCompany?.company_id, filter, isCustomRange]);
+
+      const today = new Date();
+      let startDate: string | undefined;
+      let endDate: string = today.toISOString().split('T')[0];
+
+      if (filter === 'week') {
+        startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
+      } else if (filter === 'month') {
+        startDate = new Date(today.setMonth(today.getMonth() - 1)).toISOString().split('T')[0];
+      } else if (filter === 'year') {
+        startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
+      }
+
+      setPeriodStart(startDate || '');
+      setPeriodEnd(endDate);
+      fetchCommissionData(startDate, endDate);
+    } else {
+      setError('Missing company or customer information');
+      setLoading(false);
+    }
+  }, [selectedCompany?.company_id, filter, isCustomRange]);
 
   const formatCurrency = (value: string) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'LKR' }).format(parseFloat(value));
@@ -203,7 +203,7 @@ const CommissionReport: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -237,7 +237,7 @@ const CommissionReport: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -273,14 +273,14 @@ const CommissionReport: React.FC = () => {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Employee Name</th>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Email</th>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Total Commission</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Employee Name</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Email</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Total Commission</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.map((employee, index) => (
-                      <tr 
+                      <tr
                         key={employee.employeeId}
                         onClick={() => handleEmployeeClick(employee.employeeId)}
                         className="hover:bg-gray-50 cursor-pointer transition-colors"
@@ -356,9 +356,9 @@ const CommissionReport: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>EMPLOYEE NAME</th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>EMAIL</th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>TOTAL COMMISSION</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>EMPLOYEE NAME</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>EMAIL</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>TOTAL COMMISSION</th>
                     </tr>
                   </thead>
                   <tbody>

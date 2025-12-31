@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Trash2, Printer } from 'lucide-react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+(pdfMake as any).vfs = pdfFonts;
 
 interface Order {
   id: number;
@@ -93,7 +97,7 @@ export default function EditOrdersPage() {
         console.log("company ID:", selectedCompany?.company_id, "orderId:", orderId);
         return;
       }
-  
+
       try {
         setLoading(true);
         await Promise.all([
@@ -110,7 +114,7 @@ export default function EditOrdersPage() {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [selectedCompany, orderId]);
 
@@ -164,19 +168,19 @@ export default function EditOrdersPage() {
   };
 
   const fetchOrderItems = async () => {
-  try {
-    if (!selectedCompany) {
-      throw new Error('Selected company is not available');
+    try {
+      if (!selectedCompany) {
+        throw new Error('Selected company is not available');
+      }
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/order-items/${selectedCompany.company_id}`);
+      const allOrderItems = response.data;
+      const currentOrderItems = allOrderItems.filter((item: OrderItem) => item.order_id === parseInt(orderId ?? '0'));
+      setOrderItems(currentOrderItems);
+    } catch (error) {
+      console.error('Error fetching order items:', error);
+      throw error;
     }
-    const response = await axiosInstance.get(`http://147.79.115.89:3000/api/order-items/${selectedCompany.company_id}`);
-    const allOrderItems = response.data;
-    const currentOrderItems = allOrderItems.filter((item: OrderItem) => item.order_id === parseInt(orderId ?? '0'));
-    setOrderItems(currentOrderItems);
-  } catch (error) {
-    console.error('Error fetching order items:', error);
-    throw error;
-  }
-};
+  };
 
   const fetchProducts = async () => {
     try {
@@ -289,7 +293,7 @@ export default function EditOrdersPage() {
 
       // Delete existing order items and create new ones
       // await axiosInstance.delete(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}/${orderId}`);
-      
+
       // for (const item of orderItems) {
       //   await axiosInstance.post(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}`, {
       //     ...item,
@@ -303,6 +307,293 @@ export default function EditOrdersPage() {
       alert(error.response?.data?.message || 'Failed to update order');
     }
   };
+
+  const getImageDataUrl = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error loading image:', error);
+      return '';
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!order) return;
+
+    const ITEMS_PER_PAGE = 20;
+
+    let logoDataUrl = '';
+    if (selectedCompany?.company_logo) {
+      logoDataUrl = await getImageDataUrl(`http://147.79.115.89:3000${selectedCompany.company_logo}`);
+    }
+
+    const formatDate = (isoDate: string | Date | null | undefined) => {
+      if (!isoDate) return '';
+      const date = new Date(isoDate);
+      if (isNaN(date.getTime())) return '';
+      return date.toISOString().split('T')[0];
+    };
+
+    const vendor = vendors.find(v => v.vendor_id === order.vendor_id);
+    const vendorName = vendor ? vendor.name : 'Unknown Vendor';
+
+
+    const createHeader = (isFirstPage: boolean) => {
+      if (isFirstPage) {
+        return [
+          {
+            columns: [
+              {
+                width: '*',
+                stack: [
+                  { text: 'PURCHASE ORDER', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: order.order_no, fontSize: 16, bold: true, color: '#1f2937' }
+                ]
+              },
+              logoDataUrl ? {
+                image: logoDataUrl,
+                width: 110,
+                alignment: 'right'
+              } : { text: '', width: 110 }
+            ],
+            margin: [0, 0, 0, 15]
+          },
+          {
+            columns: [
+              {
+                width: '48%',
+                stack: [
+                  { text: 'VENDOR', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
+                  { text: vendorName, fontSize: 10, bold: true, margin: [0, 0, 0, 3] },
+                  { text: order.mailling_address || 'N/A', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
+                  { text: order.email || '', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
+                ]
+              },
+              {
+                width: '4%',
+                text: ''
+              },
+              {
+                width: '48%',
+                stack: [
+                  { text: 'ORDER DETAILS', fontSize: 10, bold: true, color: '#1f2937', alignment: 'right', margin: [0, 0, 0, 6] },
+                  {
+                    table: {
+                      widths: ['*', 'auto'],
+                      body: [
+                        [
+                          { text: 'Order Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                          { text: formatDate(order.order_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                        ],
+                        [
+                          { text: 'Ship Via:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                          { text: order.ship_via || 'N/A', fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                        ],
+                        [
+                          { text: 'Status:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                          {
+                            text: order.status.toUpperCase(),
+                            fontSize: 9,
+                            bold: true,
+                            alignment: 'right',
+                            color: order.status === 'open' ? '#059669' : '#6b7280',
+                            border: [false, false, false, false]
+                          }
+                        ],
+                      ]
+                    },
+                    layout: 'noBorders'
+                  }
+                ]
+              }
+            ],
+            margin: [0, 0, 0, 15]
+          },
+          // Shipping address if available
+          order.shipping_address ? {
+            columns: [
+              {
+                width: '48%',
+                stack: [
+                  { text: 'SHIP TO', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 10, 0, 4] },
+                  { text: order.shipping_address, fontSize: 9, color: '#4b5563' }
+                ]
+              }
+            ]
+          } : null,
+          { text: '', margin: [0, 0, 0, 10] }
+        ].filter(Boolean);
+      } else {
+        return [
+          {
+            text: `Purchase Order ${order.order_no} - Continued`,
+            fontSize: 14,
+            bold: true,
+            color: '#6b7280',
+            margin: [0, 0, 0, 12]
+          }
+        ];
+      }
+    };
+
+    const createItemsTable = (items: OrderItem[], startIndex: number) => {
+      const tableBody: any[][] = [
+        [
+          { text: '#', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+          { text: 'Item', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+          { text: 'Description', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+          { text: 'Qty', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [4, 5, 4, 5] },
+          { text: 'Rate', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] },
+          { text: 'Amount', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] }
+        ]
+      ];
+
+      items.forEach((item, index) => {
+        tableBody.push([
+          { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+          { text: item.name || 'N/A', fontSize: 9, margin: [3, 4, 3, 4] },
+          { text: item.description || '-', fontSize: 8.5, color: '#4b5563', margin: [3, 4, 3, 4] },
+          { text: item.qty.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+          { text: `Rs. ${Number(item.rate || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+          { text: `Rs. ${Number(item.amount || 0).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
+        ]);
+      });
+
+      return {
+        table: {
+          headerRows: 1,
+          widths: [30, 'auto', '*', 35, 65, 75],
+          body: tableBody
+        },
+        layout: {
+          hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1.5 : 0.5,
+          vLineWidth: () => 0,
+          hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
+          paddingLeft: () => 0,
+          paddingRight: () => 0,
+          paddingTop: () => 0,
+          paddingBottom: () => 0
+        },
+        margin: [0, 0, 0, 12]
+      };
+    };
+
+    const createSummarySection = () => ({
+      columns: [
+        {
+          width: '55%',
+          text: ''
+        },
+        {
+          width: '45%',
+          table: {
+            widths: ['*', 'auto'],
+            body: [
+              [
+                { text: 'TOTAL:', fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
+                { text: `Rs. ${calculateTotal().toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
+              ]
+            ]
+          },
+          layout: {
+            paddingLeft: () => 10,
+            paddingRight: () => 10,
+            paddingTop: () => 0,
+            paddingBottom: () => 0
+          }
+        }
+      ],
+      margin: [0, 0, 0, 18]
+    });
+    const createSignatureSection = () => ({
+      columns: [
+        {
+          width: '48%',
+          text: ''
+        },
+        {
+          width: '4%',
+          text: ''
+        },
+        {
+          width: '48%',
+          stack: [
+            { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 200, y2: 0, lineWidth: 0.8, lineColor: '#9ca3af' }], margin: [0, 0, 0, 4] },
+            { text: 'Authorized Signature', fontSize: 8, color: '#6b7280', alignment: 'center', margin: [0, 0, 0, 8] },
+          ]
+        }
+      ]
+    });
+
+
+    const content: any[] = [];
+
+    const totalPages = Math.ceil(orderItems.length / ITEMS_PER_PAGE);
+
+    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
+      const isFirstPage = pageIndex === 0;
+      const isLastPage = pageIndex === totalPages - 1;
+      const startIndex = pageIndex * ITEMS_PER_PAGE;
+      const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, orderItems.length);
+      const pageItems = orderItems.slice(startIndex, endIndex);
+
+      const headerContent = createHeader(isFirstPage);
+      headerContent.forEach(item => content.push(item));
+
+      content.push(createItemsTable(pageItems, startIndex));
+
+      if (isLastPage) {
+        content.push(createSummarySection());
+        content.push(createSignatureSection());
+      }
+
+      if (!isLastPage) {
+        content.push({ text: '', pageBreak: 'after' });
+      }
+    }
+
+    const docDefinition: any = {
+      pageSize: 'A4',
+      pageMargins: [35, 35, 35, 55],
+      footer: (currentPage: number, pageCount: number) => ({
+        columns: [
+          {
+            text: selectedCompany?.name || 'Company Name',
+            fontSize: 8,
+            color: '#9ca3af',
+            margin: [35, 10, 0, 0]
+          },
+          {
+            text: `Page ${currentPage} of ${pageCount}`,
+            alignment: 'right',
+            fontSize: 8,
+            color: '#9ca3af',
+            margin: [0, 10, 35, 0]
+          }
+        ]
+      }),
+      content: content,
+      defaultStyle: {
+        font: 'Roboto'
+      }
+    };
+
+    try {
+      const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+      pdfDocGenerator.download(`PurchaseOrder_${order.order_no}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
+  };
+
 
   if (loading) {
     return (
@@ -354,7 +645,7 @@ export default function EditOrdersPage() {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
@@ -408,7 +699,7 @@ export default function EditOrdersPage() {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Category</label>
@@ -441,7 +732,7 @@ export default function EditOrdersPage() {
                 </select>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Purchase Order Status</label>
@@ -711,6 +1002,14 @@ export default function EditOrdersPage() {
             </div>
 
             <div className="flex justify-end space-x-2">
+              <button
+                type="button"
+                onClick={handleDownloadPDF}
+                className="btn btn-secondary btn-md flex items-center"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Download PDF
+              </button>
               <button
                 type="button"
                 onClick={() => navigate(-1)}

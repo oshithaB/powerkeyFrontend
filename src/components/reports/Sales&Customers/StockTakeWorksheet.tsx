@@ -45,11 +45,11 @@ const StockTakeWorksheet: React.FC = () => {
     try {
       const response = await axiosInstance.get(`http://147.79.115.89:3000/api/stock-take-worksheet/${selectedCompany.company_id}`);
       console.log('API Response:', response.data);
-      
+
       if (response.data?.data && Array.isArray(response.data.data)) {
         setData(response.data.data);
         setFilteredData(response.data.data);
-        
+
         // Extract unique categories for filtering
         const categories = [...new Set(response.data.data.map((item: StockTakeData) => item.category_name).filter(Boolean))];
         setAvailableCategories(categories as string[]);
@@ -72,17 +72,17 @@ const StockTakeWorksheet: React.FC = () => {
       const response = await axiosInstance.put(`http://147.79.115.89:3000/api/update-product-manual-count/${selectedCompany?.company_id}/${productId}`, {
         manual_count: newManualCount
       });
-  
+
       if (response.status !== 200) {
         throw new Error(`Unexpected response status: ${response.status}`);
       }
-  
+
       // Update local state
       const updatedData = data.map(item =>
         item.id === productId ? { ...item, manual_count: newManualCount } : item
       );
       setData(updatedData);
-      
+
       // Apply current filters to updated data
       applyFiltersToData(updatedData, productFilter, categoryFilter);
     } catch (error: any) {
@@ -194,7 +194,7 @@ const StockTakeWorksheet: React.FC = () => {
         windowWidth: printRef.current.scrollWidth,
         windowHeight: printRef.current.scrollHeight,
       });
-      
+
       const imgData = canvas.toDataURL('image/png', 0.95);
       const imgProps = pdf.getImageProperties(imgData);
       const imgWidth = pageWidth - 2 * margin;
@@ -206,15 +206,15 @@ const StockTakeWorksheet: React.FC = () => {
         if (i > 0) {
           pdf.addPage();
         }
-        
+
         const srcY = i * maxContentHeight * (canvas.height / imgHeight);
         const pageContentHeight = Math.min(canvas.height - srcY, maxContentHeight * (canvas.height / imgHeight));
-        
+
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = pageContentHeight;
         const tempCtx = tempCanvas.getContext('2d');
-        
+
         if (tempCtx && pageContentHeight > 0) {
           tempCtx.imageSmoothingEnabled = true;
           tempCtx.imageSmoothingQuality = 'high';
@@ -328,7 +328,7 @@ const StockTakeWorksheet: React.FC = () => {
                     placeholder="Search products..."
                   />
                 </div>
-                
+
                 <div className="flex flex-col">
                   <label className="text-xs text-gray-600 mb-1">Filter by Category</label>
                   <select
@@ -353,7 +353,7 @@ const StockTakeWorksheet: React.FC = () => {
                     Clear
                   </button>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600"
@@ -383,59 +383,59 @@ const StockTakeWorksheet: React.FC = () => {
                   {error}
                 </div>
               )}
-              
+
               {loading && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && filteredData.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No stock data available.
                 </div>
               )}
-              
+
               {!loading && !error && filteredData.length > 0 && (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse min-w-full">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Product Name
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Category
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Vendor
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           System Count
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Manual Count
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Variance
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Shrinkage
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Reorder Level
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-center" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-center"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Status
                         </th>
                       </tr>
@@ -445,7 +445,7 @@ const StockTakeWorksheet: React.FC = () => {
                         const variance = getVariance(item.quantity_on_hand, item.manual_count);
                         const shrinkageValue = getShrinkageValue(variance, item.cost_price);
                         const needsReordering = needsReorder(item.quantity_on_hand, item.reorder_level);
-                        
+
                         return (
                           <tr key={index} className={`hover:bg-gray-50 ${needsReordering ? 'bg-yellow-50' : ''}`}>
                             <td className="p-2 border-b font-medium">
@@ -519,7 +519,7 @@ const StockTakeWorksheet: React.FC = () => {
                       })}
                     </tbody>
                   </table>
-                  
+
                   <div className="mt-4 text-sm text-gray-600">
                     <div className="flex flex-wrap gap-4">
                       <div className="flex items-center">
@@ -542,7 +542,7 @@ const StockTakeWorksheet: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               <p className="text-sm mt-5 text-gray-600">
                 Report generated at {new Date().toLocaleString()}
               </p>
@@ -593,36 +593,36 @@ const StockTakeWorksheet: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Product Name
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Category
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         System Count
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Manual Count
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Variance
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Shrinkage
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Reorder Level
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-center" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-center"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Status
                       </th>
                     </tr>
@@ -632,7 +632,7 @@ const StockTakeWorksheet: React.FC = () => {
                       const variance = getVariance(item.quantity_on_hand, item.manual_count);
                       const shrinkageValue = getShrinkageValue(variance, item.cost_price);
                       const needsReordering = needsReorder(item.quantity_on_hand, item.reorder_level);
-                      
+
                       return (
                         <tr key={index}>
                           <td className="p-2 border-b font-medium">

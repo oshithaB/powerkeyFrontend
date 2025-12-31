@@ -213,7 +213,7 @@ export default function BillsPage() {
                           Due: Rs. {bill.balance_due?.toLocaleString() || '0.00'}
                         </div>
                       )}
-                      </td>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(bill.status)}`}>
                         {bill.status.replace('_', ' ').charAt(0).toUpperCase() + bill.status.replace('_', ' ').slice(1)}

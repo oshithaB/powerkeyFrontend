@@ -87,11 +87,11 @@ const ProfitAndLossReport: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -99,7 +99,7 @@ const ProfitAndLossReport: React.FC = () => {
       } else if (filter === 'year') {
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
       }
-  
+
       fetchProfitAndLossData(startDate, endDate);
     }
   }, [selectedCompany?.company_id, filter, isCustomRange]);
@@ -211,89 +211,89 @@ const ProfitAndLossReport: React.FC = () => {
           <div className="relative top-4 mx-auto p-5 border w-full max-w-7xl shadow-lg rounded-md bg-white">
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold mb-4">Profit and Loss Report</h1>
-                <div className="flex space-x-2 items-end">
-                  <div className="flex flex-col">
-                    <label className="text-xs text-gray-600 mb-1">Filter Period</label>
-                    <select
-                      value={isCustomRange ? 'custom' : filter}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === 'custom') {
-                          setIsCustomRange(true);
-                          setFilter('');
-                        } else {
-                          setIsCustomRange(false);
-                          setFilter(value);
-                          setStartDate('');
-                          setEndDate('');
+              <div className="flex space-x-2 items-end">
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-600 mb-1">Filter Period</label>
+                  <select
+                    value={isCustomRange ? 'custom' : filter}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === 'custom') {
+                        setIsCustomRange(true);
+                        setFilter('');
+                      } else {
+                        setIsCustomRange(false);
+                        setFilter(value);
+                        setStartDate('');
+                        setEndDate('');
+                      }
+                    }}
+                    className="border rounded-md p-2 w-40"
+                  >
+                    <option value="">Select Period</option>
+                    <option value="week">Last Week</option>
+                    <option value="month">Last Month</option>
+                    <option value="year">Last Year</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+                </div>
+
+                {isCustomRange && (
+                  <>
+                    <div className="flex flex-col">
+                      <label className="text-xs text-gray-600 mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="border rounded-md p-2"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-xs text-gray-600 mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="border rounded-md p-2"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (startDate && endDate) {
+                          fetchProfitAndLossData(startDate, endDate);
                         }
                       }}
-                      className="border rounded-md p-2 w-40"
+                      disabled={!startDate || !endDate}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
-                      <option value="">Select Period</option>
-                      <option value="week">Last Week</option>
-                      <option value="month">Last Month</option>
-                      <option value="year">Last Year</option>
-                      <option value="custom">Custom Range</option>
-                    </select>
-                  </div>
-                  
-                  {isCustomRange && (
-                    <>
-                      <div className="flex flex-col">
-                        <label className="text-xs text-gray-600 mb-1">Start Date</label>
-                        <input
-                          type="date"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="border rounded-md p-2"
-                        />
-                      </div>
-                      <div className="flex flex-col">
-                        <label className="text-xs text-gray-600 mb-1">End Date</label>
-                        <input
-                          type="date"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="border rounded-md p-2"
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (startDate && endDate) {
-                            fetchProfitAndLossData(startDate, endDate);
-                          }
-                        }}
-                        disabled={!startDate || !endDate}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                      >
-                        Apply
-                      </button>
-                    </>
-                  )}
-                  
-                  <button
-                    onClick={handlePrint}
-                    className="text-gray-400 hover:text-gray-600"
-                    title="Print Report"
-                  >
-                    <Printer className="h-6 w-6" />
-                  </button>
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-6 w-6" />
-                  </button>
-                </div>
+                      Apply
+                    </button>
+                  </>
+                )}
+
+                <button
+                  onClick={handlePrint}
+                  className="text-gray-400 hover:text-gray-600"
+                  title="Print Report"
+                >
+                  <Printer className="h-6 w-6" />
+                </button>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
             </div>
 
             <div id="print-content">
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm">{selectedCompany?.name || 'Company Name'} (Pvt) Ltd.</p>
                 <p className="text-sm">
-                  {isCustomRange 
-                    ? `Period: ${startDate} to ${endDate}` 
+                  {isCustomRange
+                    ? `Period: ${startDate} to ${endDate}`
                     : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - ${data?.period.end_date}` : data?.period.end_date || '--'
                   }
                 </p>
@@ -306,7 +306,7 @@ const ProfitAndLossReport: React.FC = () => {
                   <tbody>
                     {/* Income Section */}
                     <tr className="section-spacing">
-                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Income</td>
+                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Income</td>
                     </tr>
                     <tr>
                       <td className="p-2 border-b">Product Income</td>
@@ -335,7 +335,7 @@ const ProfitAndLossReport: React.FC = () => {
 
                     {/* Cost of Sales Section */}
                     <tr className="section-spacing">
-                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Cost of Sales</td>
+                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Cost of Sales</td>
                     </tr>
                     <tr>
                       <td className="p-2 border-b">Cost of Sales</td>
@@ -352,7 +352,7 @@ const ProfitAndLossReport: React.FC = () => {
 
                     {/* Expenses Section */}
                     <tr className="section-spacing">
-                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Expenses</td>
+                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Expenses</td>
                     </tr>
                     <tr>
                       <td className="p-2 border-b">Operating Expenses</td>
@@ -369,7 +369,7 @@ const ProfitAndLossReport: React.FC = () => {
 
                     {/* Profitability Section */}
                     <tr className="section-spacing">
-                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Profitability</td>
+                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Profitability</td>
                     </tr>
                     <tr>
                       <td className="p-2 border-b">Gross Profit</td>
@@ -390,7 +390,7 @@ const ProfitAndLossReport: React.FC = () => {
 
                     {/* Cash Flow Section */}
                     <tr className="section-spacing">
-                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Cash Flow</td>
+                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Cash Flow</td>
                     </tr>
                     <tr>
                       <td className="p-2 border-b">Total Invoiced</td>
@@ -411,7 +411,7 @@ const ProfitAndLossReport: React.FC = () => {
 
                     {/* Summary Section */}
                     <tr className="section-spacing">
-                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Summary</td>
+                      <td colSpan={2} className="bg-gray-100 p-1 font-semibold text-lg border-b section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Summary</td>
                     </tr>
                     <tr>
                       <td className="p-2 border-b">Total Revenue</td>
@@ -470,7 +470,7 @@ const ProfitAndLossReport: React.FC = () => {
                       {selectedCompany?.name || 'Company Name'} (Pvt) Ltd.
                     </h2>
                     <p className="text-sm">
-                      {isCustomRange 
+                      {isCustomRange
                         ? `Period: ${startDate} to ${endDate}`
                         : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - ${data?.period.end_date}` : data?.period.end_date || '--'
                       }
@@ -515,13 +515,13 @@ const ProfitAndLossReport: React.FC = () => {
                       <td className="p-1 border-b text-right font-bold">{formatCurrency(data.income.total_income)}</td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-b font-bold" style={{paddingBottom: '15px'}}>Net Income</td>
-                      <td className="p-1 border-b text-right font-bold" style={{paddingBottom: '15px'}}>{formatCurrency(data.income.net_income)}</td>
+                      <td className="p-1 border-b font-bold" style={{ paddingBottom: '15px' }}>Net Income</td>
+                      <td className="p-1 border-b text-right font-bold" style={{ paddingBottom: '15px' }}>{formatCurrency(data.income.net_income)}</td>
                     </tr>
 
                     {/* Cost of Sales Section */}
                     <tr>
-                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact',}}>
+                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact', }}>
                         COST OF SALES
                       </td>
                     </tr>
@@ -534,13 +534,13 @@ const ProfitAndLossReport: React.FC = () => {
                       <td className="p-1 border-b text-right">{formatCurrency(data.cost_of_sales.inventory_shrinkage)}</td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-b font-bold" style={{paddingBottom: '15px'}}>Total Cost of Sales</td>
-                      <td className="p-1 border-b text-right font-bold" style={{paddingBottom: '15px'}}>{formatCurrency(data.cost_of_sales.total_cost_of_sales)}</td>
+                      <td className="p-1 border-b font-bold" style={{ paddingBottom: '15px' }}>Total Cost of Sales</td>
+                      <td className="p-1 border-b text-right font-bold" style={{ paddingBottom: '15px' }}>{formatCurrency(data.cost_of_sales.total_cost_of_sales)}</td>
                     </tr>
 
                     {/* Expenses Section */}
                     <tr>
-                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>
+                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         EXPENSES
                       </td>
                     </tr>
@@ -553,13 +553,13 @@ const ProfitAndLossReport: React.FC = () => {
                       <td className="p-1 border-b text-right">{formatCurrency(data.expenses.other_expenses)}</td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-b font-bold" style={{paddingBottom: '15px'}}>Total Expenses</td>
-                      <td className="p-1 border-b text-right font-bold" style={{paddingBottom: '15px'}}>{formatCurrency(data.expenses.total_expenses)}</td>
+                      <td className="p-1 border-b font-bold" style={{ paddingBottom: '15px' }}>Total Expenses</td>
+                      <td className="p-1 border-b text-right font-bold" style={{ paddingBottom: '15px' }}>{formatCurrency(data.expenses.total_expenses)}</td>
                     </tr>
 
                     {/* Profitability Section */}
                     <tr>
-                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>
+                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         PROFITABILITY
                       </td>
                     </tr>
@@ -576,13 +576,13 @@ const ProfitAndLossReport: React.FC = () => {
                       <td className="p-1 border-b text-right">{formatPercentage(data.profitability.gross_profit_margin)}</td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-b" style={{paddingBottom: '15px'}}>Net Profit Margin</td>
-                      <td className="p-1 border-b text-right" style={{paddingBottom: '15px'}}>{formatPercentage(data.profitability.net_profit_margin)}</td>
+                      <td className="p-1 border-b" style={{ paddingBottom: '15px' }}>Net Profit Margin</td>
+                      <td className="p-1 border-b text-right" style={{ paddingBottom: '15px' }}>{formatPercentage(data.profitability.net_profit_margin)}</td>
                     </tr>
 
                     {/* Cash Flow Section */}
                     <tr>
-                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>
+                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         CASH FLOW
                       </td>
                     </tr>
@@ -599,13 +599,13 @@ const ProfitAndLossReport: React.FC = () => {
                       <td className="p-1 border-b text-right">{formatCurrency(data.cash_flow.outstanding_balance)}</td>
                     </tr>
                     <tr>
-                      <td className="p-1 border-b" style={{paddingBottom: '15px'}}>Collection Rate</td>
-                      <td className="p-1 border-b text-right" style={{paddingBottom: '15px'}}>{formatPercentage(data.cash_flow.collection_rate)}</td>
+                      <td className="p-1 border-b" style={{ paddingBottom: '15px' }}>Collection Rate</td>
+                      <td className="p-1 border-b text-right" style={{ paddingBottom: '15px' }}>{formatPercentage(data.cash_flow.collection_rate)}</td>
                     </tr>
 
                     {/* Summary Section */}
                     <tr>
-                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>
+                      <td colSpan={2} className="bg-gray-100 p-1/2 font-bold text-base border section-header" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         SUMMARY
                       </td>
                     </tr>

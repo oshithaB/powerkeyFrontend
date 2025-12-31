@@ -76,7 +76,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
         }),
         axiosInstance.get(`http://147.79.115.89:3000/api/inventory-shrinkage/${selectedCompany.company_id}`)
       ]);
-      
+
       // Validate response structure
       if (profitResponse.data?.data?.customers && Array.isArray(profitResponse.data.data.customers)) {
         setData(profitResponse.data.data.customers);
@@ -98,11 +98,11 @@ const ProfitAndLossByCustomer: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -110,7 +110,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
       } else if (filter === 'year') {
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
       }
-  
+
       fetchProfitAndLossData(startDate, endDate);
     }
   }, [selectedCompany?.company_id, filter, isCustomRange]);
@@ -118,8 +118,8 @@ const ProfitAndLossByCustomer: React.FC = () => {
   const formatCurrency = (value: number) => {
     // Handle null/undefined values
     const numValue = typeof value === 'number' ? value : 0;
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -160,7 +160,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
       alert('No data available to print');
       return;
     }
-  
+
     try {
       const pdf = new jsPDF('l', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -168,24 +168,24 @@ const ProfitAndLossByCustomer: React.FC = () => {
       const margin = 10;
       const columnsPerPage = 5; // Account column + 4 customer columns + total column on last page
       const totalPages = Math.ceil((data.length + 1) / columnsPerPage); // +1 for total column
-  
+
       // Generate each page
       for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
         if (pageIndex > 0) {
           pdf.addPage();
         }
-  
+
         const startCustomerIndex = pageIndex * (columnsPerPage - 1);
         const endCustomerIndex = Math.min(startCustomerIndex + (columnsPerPage - 1), data.length);
         const pageCustomers = data.slice(startCustomerIndex, endCustomerIndex);
         const showTotalColumn = pageIndex === totalPages - 1;
-  
+
         // Create a temporary div for this page
         const tempDiv = document.createElement('div');
         tempDiv.style.width = '1200px';
         tempDiv.style.backgroundColor = '#ffffff';
         tempDiv.style.padding = '20px';
-        
+
         // Generate HTML content for this page with company logo
         tempDiv.innerHTML = `
           <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 15px;">
@@ -195,10 +195,10 @@ const ProfitAndLossByCustomer: React.FC = () => {
                 <h2 style="font-size: 18px; color: #666; margin-bottom: 8px;">Profit and Loss Summary</h2>
                 <h2 style="font-size: 18px; color: #666; margin-bottom: 8px;">${selectedCompany?.name || 'Company Name'} (Pvt) Ltd.</h2>
                 <p style="font-size: 12px; color: #666;">
-                  ${isCustomRange 
-                    ? `Period: ${startDate} to ${endDate}` 
-                    : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` : ''
-                  }
+                  ${isCustomRange
+            ? `Period: ${startDate} to ${endDate}`
+            : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` : ''
+          }
                 </p>
               </div>
               ${selectedCompany?.company_logo ? `
@@ -213,12 +213,12 @@ const ProfitAndLossByCustomer: React.FC = () => {
             <thead>
               <tr>
                 <th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: left; border: 1px solid #ccc; width: 200px;">Account</th>
-                ${pageCustomers.map(customer => 
-                  `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">${customer.customer.name}</th>`
-                ).join('')}
-                ${showTotalColumn ? 
-                  `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">Total</th>` 
-                  : ''}
+                ${pageCustomers.map(customer =>
+            `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">${customer.customer.name}</th>`
+          ).join('')}
+                ${showTotalColumn ?
+            `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">Total</th>`
+            : ''}
               </tr>
             </thead>
             <tbody>
@@ -233,9 +233,9 @@ const ProfitAndLossByCustomer: React.FC = () => {
             </div>
           </div>
         `;
-  
+
         document.body.appendChild(tempDiv);
-  
+
         // Convert to canvas
         const canvas = await html2canvas(tempDiv, {
           scale: 2,
@@ -244,18 +244,18 @@ const ProfitAndLossByCustomer: React.FC = () => {
           allowTaint: true,
           backgroundColor: '#ffffff',
         });
-  
+
         document.body.removeChild(tempDiv);
-  
+
         // Add to PDF
         const imgData = canvas.toDataURL('image/png', 0.95);
         const imgProps = pdf.getImageProperties(imgData);
         const imgWidth = pageWidth - 2 * margin;
         const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-  
+
         pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, Math.min(imgHeight, pageHeight - 2 * margin));
       }
-  
+
       const filename = `profit-and-loss-by-customer-${new Date().toISOString().split('T')[0]}.pdf`;
       pdf.save(filename);
       setShowPrintPreview(false);
@@ -264,7 +264,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
       alert('Failed to generate PDF. Please try again.');
     }
   };
-  
+
   const generateTableRowsHTML = (pageCustomers: any[], showTotalColumn: boolean) => {
     const rows = [
       { label: 'Discounts given', getValue: (customer: any) => -safeGetValue(customer, 'income.discounts_given') },
@@ -280,14 +280,12 @@ const ProfitAndLossByCustomer: React.FC = () => {
       { label: 'Other Expenses', getValue: () => 0 },
       { label: 'Net Earnings', getValue: (customer: any) => safeGetValue(customer, 'profitability.net_earnings'), isFinal: true }
     ];
-  
+
     return rows.map(row => {
-      const cellStyle = `padding: 6px; border: 1px solid #ccc; text-align: ${row.label === 'Account' ? 'left' : 'right'}; ${
-        row.isTotal || row.isFinal ? 'font-weight: bold;' : ''
-      } ${row.isCostSection ? 'background-color: #f7fafc;' : ''} ${
-        row.isFinal ? 'border-top: 2px solid #333;' : ''
-      }`;
-  
+      const cellStyle = `padding: 6px; border: 1px solid #ccc; text-align: ${row.label === 'Account' ? 'left' : 'right'}; ${row.isTotal || row.isFinal ? 'font-weight: bold;' : ''
+        } ${row.isCostSection ? 'background-color: #f7fafc;' : ''} ${row.isFinal ? 'border-top: 2px solid #333;' : ''
+        }`;
+
       let totalValue = 0;
       if (row.isInventory) {
         totalValue = inventoryShrinkage;
@@ -298,16 +296,16 @@ const ProfitAndLossByCustomer: React.FC = () => {
       } else {
         totalValue = data.reduce((sum, customer) => sum + row.getValue(customer), 0);
       }
-  
+
       return `
         <tr>
           <td style="${cellStyle}">${row.label}</td>
-          ${pageCustomers.map(customer => 
-            `<td style="${cellStyle}">${formatCurrency(row.isInventory ? 0 : row.getValue(customer))}</td>`
-          ).join('')}
-          ${showTotalColumn ? 
-            `<td style="${cellStyle}">${formatCurrency(totalValue)}</td>` 
-            : ''}
+          ${pageCustomers.map(customer =>
+        `<td style="${cellStyle}">${formatCurrency(row.isInventory ? 0 : row.getValue(customer))}</td>`
+      ).join('')}
+          ${showTotalColumn ?
+          `<td style="${cellStyle}">${formatCurrency(totalValue)}</td>`
+          : ''}
         </tr>
       `;
     }).join('');
@@ -467,7 +465,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -501,7 +499,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600"
@@ -521,8 +519,8 @@ const ProfitAndLossByCustomer: React.FC = () => {
             <div id="print-content">
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm font-medium">Profit and Loss Summary</p>
-                {isCustomRange 
-                  ? `Period: ${startDate} to ${endDate}` 
+                {isCustomRange
+                  ? `Period: ${startDate} to ${endDate}`
                   : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` : ''
                 }
               </div>
@@ -532,20 +530,20 @@ const ProfitAndLossByCustomer: React.FC = () => {
                   {error}
                 </div>
               )}
-              
+
               {loading && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && data.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No data available for the selected period.
                 </div>
               )}
-              
+
               {!loading && !error && data.length > 0 && (
                 <div className="table-container">
                   <div className="fixed-table">
@@ -555,7 +553,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                         <thead>
                           <tr>
                             <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left w-48"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Account
                             </th>
                           </tr>
@@ -583,20 +581,20 @@ const ProfitAndLossByCustomer: React.FC = () => {
                         <thead>
                           <tr>
                             {data.map((customer) => (
-                              <th key={customer.customer.id} 
-                                  onClick={() => handleCustomerClick(customer.customer.id)}
-                                  className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px] cursor-pointer hover:underline"
-                                  style={{ 
-                                    backgroundColor: '#e2e8f0', 
-                                    WebkitPrintColorAdjust: 'exact', 
-                                    colorAdjust: 'exact', 
-                                    printColorAdjust: 'exact'
-                                  }}>
+                              <th key={customer.customer.id}
+                                onClick={() => handleCustomerClick(customer.customer.id)}
+                                className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px] cursor-pointer hover:underline"
+                                style={{
+                                  backgroundColor: '#e2e8f0',
+                                  WebkitPrintColorAdjust: 'exact',
+                                  colorAdjust: 'exact',
+                                  printColorAdjust: 'exact'
+                                }}>
                                 {customer.customer.name}
                               </th>
                             ))}
-                            <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Total
                             </th>
                           </tr>
@@ -643,7 +641,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                               {formatCurrency(data.reduce((total, emp) => total + safeGetValue(emp, 'income.total_income'), 0))}
                             </td>
                           </tr>
-                          
+
                           {/* Cost of Sales Section */}
                           <tr>
                             {data.map((customer) => (
@@ -675,7 +673,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                               {formatCurrency(getTotal('cost_of_sales.total_cost_of_sales') + inventoryShrinkage)}
                             </td>
                           </tr>
-                          
+
                           {/* Profit Section */}
                           <tr>
                             {data.map((customer) => (
@@ -717,7 +715,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                               {formatCurrency(0)}
                             </td>
                           </tr>
-                          
+
                           {/* Final Net Earnings */}
                           <tr>
                             {data.map((customer) => (
@@ -735,7 +733,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               <p className="text-sm mt-5 text-gray-600">
                 Report generated at {new Date().toLocaleString()}
               </p>
@@ -789,19 +787,19 @@ const ProfitAndLossByCustomer: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr className='scrollable-columns'>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Account
                       </th>
                       {data.map((customer) => (
-                        <th key={customer.customer.id} 
-                            className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th key={customer.customer.id}
+                          className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           {customer.customer.name}
                         </th>
                       ))}
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Total
                       </th>
                     </tr>
@@ -812,7 +810,7 @@ const ProfitAndLossByCustomer: React.FC = () => {
                     {renderTableRow('Sales of Product Income', (emp) => safeGetValue(emp, 'income.sales_of_product_income'))}
                     {renderTableRow('Tax Income', (emp) => safeGetValue(emp, 'income.tax_income'))}
                     {renderTableRow('Total for Income', (emp) => safeGetValue(emp, 'income.total_income'), true)}
-                    
+
                     {/* Cost of Sales Section */}
                     {renderTableRow('Cost of Sales', (emp) => safeGetValue(emp, 'cost_of_sales.cost_of_sales'), false, true, 'cost-section')}
                     <tr>
@@ -837,13 +835,13 @@ const ProfitAndLossByCustomer: React.FC = () => {
                         {formatCurrency(getTotal('cost_of_sales.total_cost_of_sales') + inventoryShrinkage)}
                       </td>
                     </tr>
-                    
+
                     {/* Profit Section */}
                     {renderTableRow('Gross Profit', (emp) => safeGetValue(emp, 'profitability.gross_profit'), true)}
                     {renderTableRow('Other Income', () => 0)}
                     {renderTableRow('Expenses', () => 0)}
                     {renderTableRow('Other Expenses', () => 0)}
-                    
+
                     {/* Final Net Earnings */}
                     <tr>
                       <td className="p-2 border-t-2 border-gray-800 font-bold">Net Earnings</td>

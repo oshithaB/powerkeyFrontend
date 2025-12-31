@@ -39,11 +39,11 @@ const CustomerBalanceDetail: React.FC = () => {
   const [periodEnd, setPeriodEnd] = useState<string>('');
   const navigate = useNavigate();
   const printRef = useRef<HTMLDivElement>(null);
-  const { customer_Id } = useParams<{ customer_Id: string }>(); 
+  const { customer_Id } = useParams<{ customer_Id: string }>();
   const [endDate, setEndDate] = useState<string>('');
   const [isCustomRange, setIsCustomRange] = useState(false);
   const [startDate, setStartDate] = useState<string>('');
-  
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -64,7 +64,7 @@ const CustomerBalanceDetail: React.FC = () => {
         params: { start_date: startDate, end_date: endDate },
       });
       console.log('API Response:', response.data);
-      
+
       // Transform the flat response into grouped data
       const invoices = response.data.data;
       if (invoices.length > 0) {
@@ -103,11 +103,11 @@ const CustomerBalanceDetail: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -115,7 +115,7 @@ const CustomerBalanceDetail: React.FC = () => {
       } else if (filter === 'year') {
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
       }
-  
+
       setPeriodStart(startDate || '');
       setPeriodEnd(endDate);
       fetchCustomerBalanceData(customer_Id, startDate, endDate);
@@ -126,8 +126,8 @@ const CustomerBalanceDetail: React.FC = () => {
   }, [selectedCompany?.company_id, customer_Id, filter, isCustomRange]);
 
   const formatCurrency = (value: string) => {
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -275,7 +275,7 @@ const CustomerBalanceDetail: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -299,7 +299,7 @@ const CustomerBalanceDetail: React.FC = () => {
                     <button
                       onClick={() => {
                         if (startDate && endDate && customer_Id) {
-                            fetchCustomerBalanceData(customer_Id, startDate, endDate);
+                          fetchCustomerBalanceData(customer_Id, startDate, endDate);
                         }
                       }}
                       disabled={!startDate || !endDate}
@@ -309,7 +309,7 @@ const CustomerBalanceDetail: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -346,7 +346,7 @@ const CustomerBalanceDetail: React.FC = () => {
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {data && (
                 <>
                   <div className="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -355,18 +355,18 @@ const CustomerBalanceDetail: React.FC = () => {
                     <p className="text-sm text-gray-600">Phone: {data.phone || 'N/A'}</p>
                     <p className="text-sm font-medium text-red-600 mt-2">Total Outstanding Balance: {formatCurrency(getTotalBalance().toString())}</p>
                   </div>
-                  
+
                   {data.invoices && data.invoices.length > 0 ? (
                     <table className="w-full border-collapse">
                       <thead>
                         <tr>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Invoice Number</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Invoice Date</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Due Date</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Status</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Total Amount</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Paid Amount</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Balance Due</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Invoice Number</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Invoice Date</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Due Date</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Status</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Total Amount</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Paid Amount</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Balance Due</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -376,12 +376,11 @@ const CustomerBalanceDetail: React.FC = () => {
                             <td className="p-2 border-b">{formatDate(invoice.invoice_date)}</td>
                             <td className="p-2 border-b">{formatDate(invoice.due_date)}</td>
                             <td className="p-2 border-b">
-                              <span className={`px-2 py-1 text-xs rounded-full ${
-                                invoice.status === 'overdue' ? 'bg-red-100 text-red-800' :
+                              <span className={`px-2 py-1 text-xs rounded-full ${invoice.status === 'overdue' ? 'bg-red-100 text-red-800' :
                                 invoice.status === 'partially_paid' ? 'bg-yellow-100 text-yellow-800' :
-                                invoice.status === 'sent' ? 'bg-blue-100 text-blue-800' :
-                                'bg-gray-100 text-gray-800'
-                              }`}>
+                                  invoice.status === 'sent' ? 'bg-blue-100 text-blue-800' :
+                                    'bg-gray-100 text-gray-800'
+                                }`}>
                                 {invoice.status.replace('_', ' ').toUpperCase()}
                               </span>
                             </td>
@@ -464,13 +463,13 @@ const CustomerBalanceDetail: React.FC = () => {
                   <table className="w-full border-collapse mb-6">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>INVOICE NUMBER</th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>INVOICE DATE</th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>DUE DATE</th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>STATUS</th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>TOTAL AMOUNT</th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>PAID AMOUNT</th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>BALANCE DUE</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>INVOICE NUMBER</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>INVOICE DATE</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>DUE DATE</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>STATUS</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>TOTAL AMOUNT</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>PAID AMOUNT</th>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>BALANCE DUE</th>
                       </tr>
                     </thead>
                     <tbody>

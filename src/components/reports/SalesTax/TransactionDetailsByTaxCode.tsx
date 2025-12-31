@@ -63,7 +63,7 @@ const TransactionDetailsByTaxCode: React.FC = () => {
   const formatInvoiceDate = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -71,8 +71,8 @@ const TransactionDetailsByTaxCode: React.FC = () => {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -92,7 +92,7 @@ const TransactionDetailsByTaxCode: React.FC = () => {
         params: { start_date: startDate, end_date: endDate, tax_code: taxCode },
       });
       console.log('API Response:', response.data);
-      
+
       if (response.data?.data && Array.isArray(response.data.data) && response.data?.summary && Array.isArray(response.data.summary)) {
         setData(response.data.data);
         setSummary(response.data.summary);
@@ -116,11 +116,11 @@ const TransactionDetailsByTaxCode: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -187,7 +187,7 @@ const TransactionDetailsByTaxCode: React.FC = () => {
         windowWidth: printRef.current.scrollWidth,
         windowHeight: printRef.current.scrollHeight,
       });
-      
+
       const imgData = canvas.toDataURL('image/png', 0.95);
       const imgProps = pdf.getImageProperties(imgData);
       const imgWidth = pageWidth - 2 * margin;
@@ -199,15 +199,15 @@ const TransactionDetailsByTaxCode: React.FC = () => {
         if (i > 0) {
           pdf.addPage();
         }
-        
+
         const srcY = i * maxContentHeight * (canvas.height / imgHeight);
         const pageContentHeight = Math.min(canvas.height - srcY, maxContentHeight * (canvas.height / imgHeight));
-        
+
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = pageContentHeight;
         const tempCtx = tempCanvas.getContext('2d');
-        
+
         if (tempCtx && pageContentHeight > 0) {
           tempCtx.imageSmoothingEnabled = true;
           tempCtx.imageSmoothingQuality = 'high';
@@ -388,64 +388,64 @@ const TransactionDetailsByTaxCode: React.FC = () => {
                   {error}
                 </div>
               )}
-              
+
               {loading && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && filteredData.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No transaction data available.
                 </div>
               )}
-              
+
               {!loading && !error && filteredData.length > 0 && (
                 <>
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full border-collapse min-w-full">
                       <thead>
                         <tr>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Invoice Number
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Date
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Customer
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Product
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Quantity
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Unit Price
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Tax Rate (%)
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Tax Amount
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Total Price
                           </th>
-                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Status
                           </th>
                         </tr>
@@ -479,7 +479,7 @@ const TransactionDetailsByTaxCode: React.FC = () => {
                   </div>
                 </>
               )}
-              
+
               <p className="text-sm mt-5 text-gray-600">
                 Report generated at {new Date().toLocaleString()}
               </p>
@@ -533,44 +533,44 @@ const TransactionDetailsByTaxCode: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Invoice Number
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Date
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Customer
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Product
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Quantity
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Unit Price
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Tax Rate (%)
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Tax Amount
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Total Price
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Status
                       </th>
                     </tr>

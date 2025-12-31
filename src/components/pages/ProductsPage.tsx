@@ -79,7 +79,7 @@ export default function ProductsPage() {
   const [vendorFilter, setVendorFilter] = useState('');
   const [vendorSuggestions, setVendorSuggestions] = useState<Vendor[]>([]);
   const [selectedVendorId, setSelectedVendorId] = useState('');
-  
+
   const [productFormData, setProductFormData] = useState({
     sku: '',
     name: '',
@@ -97,11 +97,11 @@ export default function ProductsPage() {
     commission: 0,
     commission_type: 'fixed',
   });
-  
+
   const [categoryFormData, setCategoryFormData] = useState({
     name: '',
   });
-  
+
   const [vendorFormData, setVendorFormData] = useState({
     name: '',
     company_name: '',
@@ -123,7 +123,7 @@ export default function ProductsPage() {
     balance: 0,
     as_of_date: ''
   });
-  
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [vendorError, setVendorError] = useState<string | null>(null);
 
@@ -204,7 +204,7 @@ export default function ProductsPage() {
 
   const handleVendorSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isNaN(vendorFormData.balance) || isNaN(vendorFormData.billing_rate)) {
       setVendorError('Please enter valid numbers for balance and billing rate.');
       return;
@@ -220,20 +220,20 @@ export default function ProductsPage() {
       };
 
       const response = await axiosInstance.post(`http://147.79.115.89:3000/api/createVendors/${selectedCompany?.company_id}`, payload);
-      
+
       // Refresh vendors list
       await fetchVendors();
-      
+
       // Set the newly created vendor as selected
       if (response.data && response.data.vendor_id) {
         setSelectedVendorId(response.data.vendor_id.toString());
-        setProductFormData({ 
-          ...productFormData, 
-          preferred_vendor_id: response.data.vendor_id.toString() 
+        setProductFormData({
+          ...productFormData,
+          preferred_vendor_id: response.data.vendor_id.toString()
         });
         setVendorFilter(vendorFormData.name);
       }
-      
+
       setShowVendorModal(false);
       resetVendorForm();
       setVendorError(null);
@@ -268,16 +268,16 @@ export default function ProductsPage() {
       data.append('manual_count', productFormData.manual_count.toString());
       data.append('reorder_level', productFormData.reorder_level.toString());
       data.append('order_quantity', productFormData.order_quantity.toString());
-      
+
       // Calculate the final commission value based on type
-      const finalCommissionValue = productFormData.commission_type === 'percentage' 
-        ? (productFormData.unit_price * productFormData.commission) / 100 
+      const finalCommissionValue = productFormData.commission_type === 'percentage'
+        ? (productFormData.unit_price * productFormData.commission) / 100
         : productFormData.commission;
-      
+
       data.append('commission', finalCommissionValue.toString());
       data.append('commission_type', productFormData.commission_type);
       data.append('commission_input', productFormData.commission.toString()); // Store original input for editing
-  
+
       if (editingProduct) {
         await axiosInstance.put(`http://147.79.115.89:3000/api/products/${selectedCompany?.company_id}/${editingProduct.id}`, data, {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -318,9 +318,9 @@ export default function ProductsPage() {
   const handleVendorSelection = (vendor: Vendor) => {
     setVendorFilter(vendor.name);
     setSelectedVendorId(vendor.vendor_id.toString());
-    setProductFormData({ 
-      ...productFormData, 
-      preferred_vendor_id: vendor.vendor_id.toString() 
+    setProductFormData({
+      ...productFormData,
+      preferred_vendor_id: vendor.vendor_id.toString()
     });
     setVendorSuggestions([]);
   };
@@ -357,7 +357,7 @@ export default function ProductsPage() {
       commission: originalCommissionInput, // Use calculated original input
       commission_type: product.commission_type || 'fixed',
     });
-    
+
     // Set vendor filter and selected vendor for editing
     if (product.preferred_vendor_id) {
       const vendor = vendors.find(v => v.vendor_id === product.preferred_vendor_id);
@@ -366,7 +366,7 @@ export default function ProductsPage() {
         setSelectedVendorId(vendor.vendor_id.toString());
       }
     }
-    
+
     setImageFile(null);
     setShowProductModal(true);
   };
@@ -627,9 +627,8 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}
                     >
                       {product.is_active ? 'Active' : 'Inactive'}
                     </span>
@@ -994,7 +993,7 @@ export default function ProductsPage() {
 
       {/* Vendor Modal */}
       {showVendorModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style={{marginTop: "-1px"}}>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style={{ marginTop: "-1px" }}>
           <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white max-h-[90vh] overflow-y-auto">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-4">

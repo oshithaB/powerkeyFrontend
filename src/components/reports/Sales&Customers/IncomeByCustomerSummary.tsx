@@ -139,10 +139,10 @@ const IncomeByCustomerSummary: React.FC = () => {
                 <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">Income by Customer Summary</h1>
                 <h2 style="font-size: 18px; color: #666; margin-bottom: 8px;">${selectedCompany?.name || 'Company Name'} (Pvt) Ltd.</h2>
                 <p style="font-size: 12px; color: #666;">
-                  ${isCustomRange 
-                    ? `Period: ${startDate} to ${endDate}` 
-                    : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` : ''
-                  }
+                  ${isCustomRange
+            ? `Period: ${startDate} to ${endDate}`
+            : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` : ''
+          }
                 </p>
               </div>
               ${selectedCompany?.company_logo ? `
@@ -343,8 +343,8 @@ const IncomeByCustomerSummary: React.FC = () => {
             <div id="print-content">
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm font-medium">Income by Customer Summary</p>
-                {isCustomRange 
-                  ? `Period: ${startDate} to ${endDate}` 
+                {isCustomRange
+                  ? `Period: ${startDate} to ${endDate}`
                   : filter === 'week' ? 'Last 7 Days' : filter === 'month' ? 'Last 30 Days' : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` : ''
                 }
               </div>
@@ -372,20 +372,20 @@ const IncomeByCustomerSummary: React.FC = () => {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Customer
                       </th>
-                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Income
                       </th>
-                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Cost
                       </th>
-                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Net Income
                       </th>
                     </tr>
@@ -458,20 +458,20 @@ const IncomeByCustomerSummary: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Customer
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Income
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Expenses
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Net Income
                       </th>
                     </tr>

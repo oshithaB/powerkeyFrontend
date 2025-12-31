@@ -123,7 +123,7 @@ export default function EditCheques() {
       console.log('Update response:', response.data);
 
       setSuccess('Cheque updated successfully!');
-      
+
       setTimeout(() => {
         navigate('/dashboard/cheques');
       }, 2000);

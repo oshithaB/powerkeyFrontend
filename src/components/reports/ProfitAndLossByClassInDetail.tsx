@@ -140,11 +140,11 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -152,7 +152,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
       } else if (filter === 'year') {
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
       }
-  
+
       setPeriodStart(startDate || '');
       setPeriodEnd(endDate);
       fetchProfitAndLossData(employeeId, startDate, endDate);
@@ -340,7 +340,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -377,7 +377,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -400,12 +400,12 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
               <div className="flex justify-between items-center mb-4">
                 <p className="text-sm font-medium">Employee Profit and Loss Details</p>
                 <p className="text-sm text-gray-600">
-                  {isCustomRange 
-                    ? `Period: ${startDate} to ${endDate}` 
-                    : filter === 'week' ? 'Last 7 Days' 
-                    : filter === 'month' ? 'Last 30 Days' 
-                    : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}` 
-                    : ''
+                  {isCustomRange
+                    ? `Period: ${startDate} to ${endDate}`
+                    : filter === 'week' ? 'Last 7 Days'
+                      : filter === 'month' ? 'Last 30 Days'
+                        : filter === 'year' ? `January 1 - December 31, ${new Date().getFullYear()}`
+                          : ''
                   }
                 </p>
               </div>
@@ -441,12 +441,12 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                   <table className="w-full border-collapse mb-6">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Account
                         </th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Amount
                         </th>
                       </tr>
@@ -474,31 +474,31 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                         <thead>
                           <tr>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Invoice Number
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Date
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Customer
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Discount
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Paid Amount
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Total Amount
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Status
                             </th>
                           </tr>
@@ -574,12 +574,12 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Account
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Amount
                       </th>
                     </tr>
@@ -618,31 +618,31 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                       <thead>
                         <tr>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Invoice Number
                           </th>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Date
                           </th>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Customer
                           </th>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Discount
                           </th>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Paid Amount
                           </th>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Total Amount
                           </th>
                           <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                             Status
                           </th>
                         </tr>
@@ -659,7 +659,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                             <td className="p-2 border-b">{invoice.status}</td>
                           </tr>
                         ))}
-                        
+
                       </tbody>
                     </table>
                   ) : (

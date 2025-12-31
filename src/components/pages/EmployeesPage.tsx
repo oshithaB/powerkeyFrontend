@@ -81,12 +81,12 @@ export default function EmployeesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-  
+
     if (formData.hire_date && isNaN(new Date(formData.hire_date).getTime())) {
       setErrorMessage('Invalid hire date');
       return;
     }
-  
+
     // Validate that role_id is provided if username or password is filled
     if ((formData.username || formData.password) && !formData.role_id) {
       setErrorMessage('Role is required when username or password is provided');
@@ -97,7 +97,7 @@ export default function EmployeesPage() {
       setErrorMessage('Both username and password are required if one is provided');
       return;
     }
-  
+
     // Prepare employee payload
     const employeePayload: any = {
       name: formData.name,
@@ -113,7 +113,7 @@ export default function EmployeesPage() {
       employeePayload.password = formData.password;
       employeePayload.role_id = parseInt(formData.role_id);
     }
-  
+
     try {
       if (editingEmployee) {
         // Update employee with all relevant data in a single request
@@ -122,7 +122,7 @@ export default function EmployeesPage() {
         // Create new employee with all relevant data
         await axiosInstance.post('http://147.79.115.89:3000/api/employees', employeePayload);
       }
-  
+
       fetchEmployees();
       setShowModal(false);
       resetForm();

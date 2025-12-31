@@ -18,6 +18,7 @@ interface Company {
   registration_number: string;
   terms_and_conditions: string;
   notes: string;
+  opening_balance?: string;
 }
 
 // Define the TaxRate type
@@ -44,6 +45,7 @@ export default function CompanySelection() {
     tax_number: '',
     notes: '',
     terms_and_conditions: '',
+    opening_balance: '0',
     tax_rates: [] as TaxRate[]
   });
   const [logo, setLogo] = useState<File | null>(null);
@@ -80,9 +82,9 @@ export default function CompanySelection() {
   const handleCompanySelect = async (company: any) => {
     try {
       console.log('Selecting company:', company);
-      
+
       const response = await axiosInstance.get(`http://147.79.115.89:3000/api/selectCompany/${company.company_id}`);
-      
+
       if (response.data.success) {
         const mappedCompany: Company = {
           company_id: company.company_id,
@@ -96,8 +98,9 @@ export default function CompanySelection() {
           registration_number: company.registration_number,
           terms_and_conditions: company.terms_and_conditions,
           notes: company.notes,
+          opening_balance: company.opening_balance,
         };
-        
+
         setSelectedCompany(mappedCompany);
         navigate('/dashboard');
       }
@@ -120,6 +123,7 @@ export default function CompanySelection() {
       tax_number: company.tax_number || '',
       notes: company.notes || '',
       terms_and_conditions: company.terms_and_conditions || '',
+      opening_balance: company.opening_balance || '0',
       tax_rates: taxRates
     });
     setLogoPreview(company.company_logo ? `http://147.79.115.89:3000${company.company_logo}` : '');
@@ -143,7 +147,7 @@ export default function CompanySelection() {
     e.preventDefault();
     try {
       const submitData = new FormData();
-      
+
       Object.entries(formData).forEach(([key, value]) => {
         if (key === 'tax_rates') {
           submitData.append(key, JSON.stringify(value));
@@ -221,6 +225,7 @@ export default function CompanySelection() {
       tax_number: '',
       notes: '',
       terms_and_conditions: '',
+      opening_balance: '0',
       tax_rates: []
     });
   };
@@ -379,7 +384,7 @@ export default function CompanySelection() {
       </div>
 
       {showEditModal && editingCompany && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style={{marginTop: "-1px"}}>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style={{ marginTop: "-1px" }}>
           <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-gray-900">
@@ -421,17 +426,32 @@ export default function CompanySelection() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  className="input"
-                  value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="Enter address"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Opening Balance
+                  </label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={formData.opening_balance}
+                    onChange={(e) => setFormData({ ...formData, opening_balance: e.target.value })}
+                    placeholder="0.00"
+                    step="0.01"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    placeholder="Enter address"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

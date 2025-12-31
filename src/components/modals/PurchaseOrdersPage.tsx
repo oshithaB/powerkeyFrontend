@@ -99,7 +99,7 @@ export default function PurchaseOrdersPage() {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]); // New state for filtered products
   const [productSuggestions, setProductSuggestions] = useState<any[]>([]);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState<number | null>(null);
-  
+
   // Vendor Modal States
   const [showVendorModal, setShowVendorModal] = useState(false);
   const [vendorFormData, setVendorFormData] = useState({
@@ -148,7 +148,7 @@ export default function PurchaseOrdersPage() {
   // New useEffect to filter products based on selected vendor
   useEffect(() => {
     if (order.vendor_id && products.length > 0) {
-      const vendorProducts = products.filter(product => 
+      const vendorProducts = products.filter(product =>
         product.preferred_vendor_id === order.vendor_id
       );
       setFilteredProducts(vendorProducts);
@@ -246,7 +246,7 @@ export default function PurchaseOrdersPage() {
   const handleVendorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setVendorFilter(value);
-    
+
     if (value === '') {
       setOrder(prev => ({
         ...prev,
@@ -302,7 +302,7 @@ export default function PurchaseOrdersPage() {
 
   const handleVendorSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isNaN(vendorFormData.balance) || isNaN(vendorFormData.billing_rate)) {
       setVendorError('Please enter valid numbers for balance and billing rate.');
       return;
@@ -318,10 +318,10 @@ export default function PurchaseOrdersPage() {
       };
 
       const response = await axiosInstance.post(`http://147.79.115.89:3000/api/createVendors/${selectedCompany?.company_id}`, payload);
-      
+
       // Refresh vendors list
       await fetchVendors();
-      
+
       // Auto-select the newly created vendor
       const newVendor = response.data;
       setVendorFilter(vendorFormData.name);
@@ -331,7 +331,7 @@ export default function PurchaseOrdersPage() {
         mailling_address: vendorFormData.address,
         email: vendorFormData.email, // Auto-populate email for new vendor
       }));
-      
+
       setShowVendorModal(false);
       setVendorError(null);
     } catch (error: any) {
@@ -460,7 +460,7 @@ export default function PurchaseOrdersPage() {
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
@@ -775,14 +775,14 @@ export default function PurchaseOrdersPage() {
                 </div>
               </div>
               <div className="space-y-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="space-y-2">
-                      <div className="flex justify-between font-bold text-lg border-t pt-2">
-                        <span>Total:</span>
-                        <span>Rs. {calculateTotal().toFixed(2)}</span>
-                      </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex justify-between font-bold text-lg border-t pt-2">
+                      <span>Total:</span>
+                      <span>Rs. {calculateTotal().toFixed(2)}</span>
                     </div>
                   </div>
+                </div>
               </div>
             </div>
 
@@ -807,13 +807,13 @@ export default function PurchaseOrdersPage() {
 
       {/* Vendor Modal */}
       {showVendorModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style={{marginTop: "-1px"}}>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style={{ marginTop: "-1px" }}>
           <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Add New Vendor</h3>
-                <button 
-                  onClick={() => setShowVendorModal(false)} 
+                <button
+                  onClick={() => setShowVendorModal(false)}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="h-6 w-6" />

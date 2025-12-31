@@ -67,7 +67,7 @@ export default function SalesPage() {
   const fetchSalesData = async () => {
     try {
       const token = localStorage.getItem('token');
-      
+
       const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getSalesPageData/${selectedCompany?.company_id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -232,35 +232,32 @@ export default function SalesPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200" style={{marginTop: '-1px'}}>
+      <div className="border-b border-gray-200" style={{ marginTop: '-1px' }}>
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`${
-              activeTab === 'overview'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            className={`${activeTab === 'overview'
+              ? 'border-indigo-500 text-indigo-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
           >
             Overview
           </button>
           <button
             onClick={() => setActiveTab('estimates')}
-            className={`${
-              activeTab === 'estimates'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            className={`${activeTab === 'estimates'
+              ? 'border-indigo-500 text-indigo-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
           >
             Estimates
           </button>
           <button
             onClick={() => setActiveTab('invoices')}
-            className={`${
-              activeTab === 'invoices'
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            className={`${activeTab === 'invoices'
+              ? 'border-indigo-500 text-indigo-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
           >
             Invoices
           </button>

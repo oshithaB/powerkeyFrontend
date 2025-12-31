@@ -50,16 +50,16 @@ const SupplierBalanceDetails: React.FC = () => {
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long', 
-      day: 'numeric' 
+      month: 'long',
+      day: 'numeric'
     });
   };
 
   const formatCurrency = (value: string | number) => {
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -120,11 +120,11 @@ const SupplierBalanceDetails: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -132,7 +132,7 @@ const SupplierBalanceDetails: React.FC = () => {
       } else if (filter === 'year') {
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
       }
-  
+
       setPeriodStart(startDate || '');
       setPeriodEnd(endDate);
       fetchSupplierBalanceDetail(startDate, endDate);
@@ -301,7 +301,7 @@ const SupplierBalanceDetails: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -335,7 +335,7 @@ const SupplierBalanceDetails: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -393,13 +393,13 @@ const SupplierBalanceDetails: React.FC = () => {
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && data.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No order data available for the selected supplier and period.
                 </div>
               )}
-              
+
               {!loading && !error && data.length > 0 && (
                 <>
                   {/* Order Summary */}
@@ -408,10 +408,10 @@ const SupplierBalanceDetails: React.FC = () => {
                     <table className="w-full border-collapse mb-6">
                       <thead>
                         <tr>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Order No</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Order Date</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-center" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Status</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Total Amount</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Order No</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Order Date</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-center" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Status</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Total Amount</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -437,12 +437,12 @@ const SupplierBalanceDetails: React.FC = () => {
                     <table className="w-full border-collapse">
                       <thead>
                         <tr>
-                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Order No</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Product Name</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>SKU</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-center" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Quantity</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Unit Price</th>
-                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Total Price</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Order No</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Product Name</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>SKU</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-center" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Quantity</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Unit Price</th>
+                          <th className="bg-gray-100 p-2 font-semibold text-sm border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Total Price</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -532,10 +532,10 @@ const SupplierBalanceDetails: React.FC = () => {
                   <table className="w-full border-collapse mb-6">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>ORDER NO</th>
-                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>ORDER DATE</th>
-                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-center" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>STATUS</th>
-                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>TOTAL AMOUNT</th>
+                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>ORDER NO</th>
+                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>ORDER DATE</th>
+                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-center" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>STATUS</th>
+                        <th className="bg-gray-100 p-2 font-bold text-sm border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>TOTAL AMOUNT</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -557,12 +557,12 @@ const SupplierBalanceDetails: React.FC = () => {
                   <table className="w-full border-collapse mb-6">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>ORDER NO</th>
-                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>PRODUCT</th>
-                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>SKU</th>
-                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-center" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>QTY</th>
-                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>UNIT PRICE</th>
-                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>TOTAL PRICE</th>
+                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>ORDER NO</th>
+                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>PRODUCT</th>
+                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>SKU</th>
+                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-center" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>QTY</th>
+                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>UNIT PRICE</th>
+                        <th className="bg-gray-100 p-2 font-bold text-xs border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>TOTAL PRICE</th>
                       </tr>
                     </thead>
                     <tbody>
