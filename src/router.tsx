@@ -37,6 +37,8 @@ import ProfitAndLossByCustomer from './components/reports/ProfitAndLossByCustome
 import ProfitAndLossByCustomerInDetail from './components/reports/ProfitAndLossByCustomerInDetail';
 import ProfitAndLossByMonth from './components/reports/ProfitAndLossByMonth';
 
+import BalanceSheet from './components/reports/BalanceSheet';
+
 // Sales & Customers Reports
 import CustomerContactDetails from './components/reports/Sales&Customers/CustomerContactDetails';
 import ProductAndServiceList from './components/reports/Sales&Customers/ProductAndServiceList';
@@ -286,6 +288,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <ProfitAndLossByMonth />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "reports/balance-sheet",
+                element: (
+                    <ProtectedRoute>
+                        <BalanceSheet />
                     </ProtectedRoute>
                 ),
             },

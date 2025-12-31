@@ -155,7 +155,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     }
   };
 
-  const  handleCreatePaymentAccount = async (name: string, accountType?: string, detailType?: string, description?: string) => {
+  const handleCreatePaymentAccount = async (name: string, accountType?: string, detailType?: string, description?: string) => {
     try {
       const response = await axiosInstance.post(`http://147.79.115.89:3000/api/addPaymentAccount/${selectedCompany?.company_id}`, {
         name,
@@ -192,7 +192,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     }
   };
 
-    const handleCreatePayeeMethod = async (name: string) => {
+  const handleCreatePayeeMethod = async (name: string) => {
     try {
       const response = await axiosInstance.post('http://147.79.115.89:3000/api/addPayee', {
         name,
@@ -311,7 +311,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     try {
       if (!formData.expense_number) {
         throw new Error('Expense number is required');
@@ -319,16 +319,16 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       if (!formData.payment_date) {
         throw new Error('Payment date is required');
       }
-      
+
       // Filter out items with invalid category_id and validate
       const validItems = items.filter(item => item.category_id && item.category_id !== 0 && item.amount > 0);
-      
+
       if (validItems.length === 0) {
         throw new Error('At least one item with a valid category and amount is required');
       }
-  
+
       const total = calculateTotal();
-  
+
       const submitData = {
         ...formData,
         company_id: selectedCompany?.company_id,
@@ -338,21 +338,21 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
           category_id: item.category_id,
           category_name: item.category_name,
           description: item.description,
-          amount: Number(item.amount), 
+          amount: Number(item.amount),
         })),
       };
-      
+
       console.log('Submitting expense data:', submitData);
-      
+
       if (expense) {
         await axiosInstance.put(`http://147.79.115.89:3000/api/expenses/${selectedCompany?.company_id}/${expense.id}`, submitData);
       } else {
         await axiosInstance.post(`http://147.79.115.89:3000/api/createExpense/${selectedCompany?.company_id}`, submitData);
       }
-  
+
       setFormData(initialFormData);
       setItems(initialItems);
-  
+
       if (onSave && typeof onSave === 'function') {
         onSave();
       } else {
@@ -370,7 +370,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
   const total = calculateTotal();
 
-//   payment method
+  //   payment method
   const CreatePaymentMethodModal: React.FC<CreateModalProps> = ({
     isOpen,
     onClose,
@@ -380,7 +380,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     label,
   }) => {
     const [newName, setNewName] = useState('');
-  
+
     const handleCreate = async () => {
       const trimmedName = newName.trim();
       if (!trimmedName) {
@@ -394,9 +394,9 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       await onCreate(trimmedName);
       setNewName('');
     };
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -441,7 +441,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     label,
   }) => {
     const [newName, setNewName] = useState('');
-  
+
     const handleCreate = async () => {
       const trimmedName = newName.trim();
       if (!trimmedName) {
@@ -455,9 +455,9 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       await onCreate(trimmedName);
       setNewName('');
     };
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -501,7 +501,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     existingMethods: string[];
   }> = ({ isOpen, onClose, onCreate, existingMethods }) => {
     const [newName, setNewName] = useState('');
-  
+
     const handleCreate = async () => {
       const trimmedName = newName.trim();
       if (!trimmedName) {
@@ -515,9 +515,9 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       await onCreate(trimmedName);
       setNewName('');
     };
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -554,7 +554,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
   };
 
   // payment account modal
-  const CreatePaymentAccountModal: React.FC<CreateModalProps> = ({isOpen, onClose, onCreate, existingMethods, title, label}) => {
+  const CreatePaymentAccountModal: React.FC<CreateModalProps> = ({ isOpen, onClose, onCreate, existingMethods, title, label }) => {
     const [newName, setNewName] = useState('');
     const [accountType, setAccountType] = useState('');
     const [detailType, setDetailType] = useState('');
@@ -574,7 +574,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       fetchAccountTypes();
     }, [selectedCompany]);
 
-  
+
     const handleCreate = async () => {
       const trimmedName = newName.trim();
       if (!trimmedName) {
@@ -592,7 +592,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
       setDescription('');
     };
 
-    const fetchDetailTypes = async(id: string) => {
+    const fetchDetailTypes = async (id: string) => {
       try {
         const detailTypes = await axiosInstance.get(`http://147.79.115.89:3000/api/getPaymentAccountTypeDetails/${id}`);
         setDetailTypes(detailTypes.data || []);
@@ -600,9 +600,9 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
         console.error('Error fetching detail types:', error);
       }
     };
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -652,7 +652,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
             </select>
           </div>
 
-            <div className="mb-4">
+          <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Detail Type *</label>
             <select
               value={detailType}
@@ -668,7 +668,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
                 </option>
               ))}
             </select>
-            </div>
+          </div>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
@@ -692,7 +692,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
     );
   };
 
-  const PaymentAccountTypeModal: React.FC<{isOpen: boolean; onClose: () => void; onSave: (accountType: string, details: string[]) => Promise<void>;}> = ({ isOpen, onClose, onSave }) => {
+  const PaymentAccountTypeModal: React.FC<{ isOpen: boolean; onClose: () => void; onSave: (accountType: string, details: string[]) => Promise<void>; }> = ({ isOpen, onClose, onSave }) => {
 
     const [accountType, setAccountType] = useState('');
     const [items, setItems] = useState<string[]>([]);
@@ -748,7 +748,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
 
           {/* Items Header + Add Button */}
           <label className="block text-sm font-medium text-gray-700 mb-1">Detail Types *</label>
-            <div className="flex justify-between items-center mb-2">
+          <div className="flex justify-between items-center mb-2">
             <input
               type="text"
               value={newItem}
@@ -766,49 +766,49 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
               <Plus className="h-4 w-4 mr-1" />
               Add
             </button>
-            </div>
+          </div>
 
           {/* Items Table */}
           <div className="overflow-x-auto mb-4">
             <table className="min-w-full border border-gray-200">
               <thead className="bg-gray-50">
-              <tr>
-                <th
-                className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
-                style={{ width: '90%' }}
-                >
-                Detail Type
-                </th>
-                <th
-                className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
-                style={{ width: '10%' }}
-                >
-                Action
-                </th>
-              </tr>
+                <tr>
+                  <th
+                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    style={{ width: '90%' }}
+                  >
+                    Detail Type
+                  </th>
+                  <th
+                    className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase"
+                    style={{ width: '10%' }}
+                  >
+                    Action
+                  </th>
+                </tr>
               </thead>
               <tbody>
-              {items.map((item, index) => (
-                <tr key={index} className="border-t">
-                <td className="px-4 py-2" style={{ width: '90%' }}>{item}</td>
-                <td className="px-4 py-2" style={{ width: '10%' }}>
-                  <button
-                  type="button"
-                  onClick={() => removeItem(index)}
-                  className="text-red-600 hover:text-red-900"
-                  >
-                  <Trash2 className="h-4 w-4" />
-                  </button>
-                </td>
-                </tr>
-              ))}
-              {items.length === 0 && (
-                <tr>
-                <td colSpan={2} className="px-4 py-4 text-center text-gray-400 uppercase text-sm">
-                  No detail types added
-                </td>
-                </tr>
-              )}
+                {items.map((item, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="px-4 py-2" style={{ width: '90%' }}>{item}</td>
+                    <td className="px-4 py-2" style={{ width: '10%' }}>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(index)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {items.length === 0 && (
+                  <tr>
+                    <td colSpan={2} className="px-4 py-4 text-center text-gray-400 uppercase text-sm">
+                      No detail types added
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -828,7 +828,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
   };
 
 
-  return ( 
+  return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
       animate={{ opacity: 1, y: 0 }}
@@ -923,7 +923,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
                         key={index}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
                         onMouseDown={() => {
-                          setFormData({ ...formData, payee_name: payee.name , payee_id: payee.id.toString() });
+                          setFormData({ ...formData, payee_name: payee.name, payee_id: payee.id.toString() });
                           setPayeeSuggestions([]);
                           setActivePayeeSuggestion(false);
                         }}
@@ -935,7 +935,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
                 )}
               </div>
 
-                {/* <div>
+              {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                         Category *
                     </label>
@@ -964,47 +964,47 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
                     </select>
                 </div> */}
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Payment Date *
-                    </label>
-                    <input
-                        type="date"
-                        className="input"
-                        value={formData.payment_date}
-                        onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
-                        required
-                    />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Payment Date *
+                </label>
+                <input
+                  type="date"
+                  className="input"
+                  value={formData.payment_date}
+                  onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
+                  required
+                />
+              </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Payment Method *
-                    </label>
-                    <select
-                        name="payment_method"
-                        value={formData.payment_method}
-                        onChange={(e) => {
-                        if (e.target.value === 'create_new') {
-                            setIsCreatePaymentMethodModalOpen(true);
-                        } else {
-                            setFormData({ ...formData, payment_method: e.target.value });
-                        }
-                        }}
-                        className="input w-full"
-                        required
-                    >
-                        <option value="" disabled>
-                        Select Payment Method
-                        </option>
-                        <option value="create_new">+ Create New Payment Method</option>
-                        {paymentMethods.map((method, index) => (
-                        <option key={index} value={method.id}>
-                            {method.name}
-                        </option>
-                        ))}
-                    </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Payment Method *
+                </label>
+                <select
+                  name="payment_method"
+                  value={formData.payment_method}
+                  onChange={(e) => {
+                    if (e.target.value === 'create_new') {
+                      setIsCreatePaymentMethodModalOpen(true);
+                    } else {
+                      setFormData({ ...formData, payment_method: e.target.value });
+                    }
+                  }}
+                  className="input w-full"
+                  required
+                >
+                  <option value="" disabled>
+                    Select Payment Method
+                  </option>
+                  <option value="create_new">+ Create New Payment Method</option>
+                  {paymentMethods.map((method, index) => (
+                    <option key={index} value={method.id}>
+                      {method.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>
@@ -1197,7 +1197,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
               .map(c => c.category_name.toLowerCase())
             }
           />
-            <CreatePaymentAccountModal
+          <CreatePaymentAccountModal
             isOpen={isCreatePaymentAccountModalOpen}
             onClose={() => setIsCreatePaymentAccountModalOpen(false)}
             onCreate={handleCreatePaymentAccount}
@@ -1208,7 +1208,7 @@ export default function ExpenseModal({ expense, onSave }: ExpenseModalProps) {
             title="Create New Payment Account"
             label="Payment Account"
           />
-            <CreatePaymentMethodModal
+          <CreatePaymentMethodModal
             isOpen={isCreatePaymentMethodModalOpen}
             onClose={() => setIsCreatePaymentMethodModalOpen(false)}
             onCreate={handleCreatePaymentMethod}

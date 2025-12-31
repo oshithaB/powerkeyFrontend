@@ -186,7 +186,7 @@ export default function InvoicesPage() {
       return changed ? updatedInvoices : prevInvoices;
     });
   };
-  
+
   useEffect(() => {
     convertInvoicesToLocked();
   }, [lockedInvoices, invoices]);
@@ -274,7 +274,7 @@ export default function InvoicesPage() {
     if (!printingInvoice || !printItems) return;
 
     const ITEMS_PER_PAGE = 20;
-    
+
     let logoDataUrl = '';
     if (selectedCompany?.company_logo) {
       logoDataUrl = await getImageDataUrl(`http://147.79.115.89:3000${selectedCompany.company_logo}`);
@@ -335,9 +335,9 @@ export default function InvoicesPage() {
                         ],
                         [
                           { text: 'Status:', fontSize: 9, bold: true, border: [false, false, false, false] },
-                          { 
-                            text: printingInvoice.status.toUpperCase().replace('_', ' '), 
-                            fontSize: 9, 
+                          {
+                            text: printingInvoice.status.toUpperCase().replace('_', ' '),
+                            fontSize: 9,
                             bold: true,
                             alignment: 'right',
                             color: printingInvoice.status === 'paid' ? '#059669' : printingInvoice.status === 'overdue' ? '#dc2626' : '#6b7280',
@@ -527,9 +527,9 @@ export default function InvoicesPage() {
     });
 
     const content: any[] = [];
-    
+
     const totalPages = Math.ceil(printItems.length / ITEMS_PER_PAGE);
-    
+
     for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
       const isFirstPage = pageIndex === 0;
       const isLastPage = pageIndex === totalPages - 1;
@@ -557,14 +557,14 @@ export default function InvoicesPage() {
       pageMargins: [35, 35, 35, 55],
       footer: (currentPage: number, pageCount: number) => ({
         columns: [
-          { 
-            text: selectedCompany?.name || 'Company Name', 
-            fontSize: 8, 
+          {
+            text: selectedCompany?.name || 'Company Name',
+            fontSize: 8,
             color: '#9ca3af',
             margin: [35, 10, 0, 0]
           },
-          { 
-            text: `Page ${currentPage} of ${pageCount}`, 
+          {
+            text: `Page ${currentPage} of ${pageCount}`,
             alignment: 'right',
             fontSize: 8,
             color: '#9ca3af',
@@ -634,7 +634,7 @@ export default function InvoicesPage() {
 
     const matchesCustomer = customerFilter
       ? invoice.customer_name?.toLowerCase().includes(customerFilter.toLowerCase()) ||
-        'Unknown Customer'.toLowerCase().includes(customerFilter.toLowerCase())
+      'Unknown Customer'.toLowerCase().includes(customerFilter.toLowerCase())
       : true;
 
     const invoiceDate = new Date(invoice.invoice_date).getTime();
@@ -653,10 +653,10 @@ export default function InvoicesPage() {
     .filter(invoice => invoice.status === 'partially_paid' || invoice.status === 'opened' || invoice.status === 'sent')
     .reduce((acc, invoice) => {
       const amount = invoice.status === 'partially_paid'
-        ? (Number(invoice.balance_due) || 0) 
+        ? (Number(invoice.balance_due) || 0)
         : (Number(invoice.total_amount) || 0);
       return acc + amount;
-  }, 0);
+    }, 0);
 
   const partially_paidData = invoices
     .filter(invoices => invoices.status === 'partially_paid')
@@ -887,7 +887,7 @@ export default function InvoicesPage() {
                           <div className="text-sm text-red-600">
                             {Math.floor(
                               (new Date().getTime() - new Date(invoice.due_date).getTime()) /
-                                (1000 * 60 * 60 * 24)
+                              (1000 * 60 * 60 * 24)
                             )}{' '}
                             days late
                           </div>
@@ -936,13 +936,7 @@ export default function InvoicesPage() {
                           >
                             <DollarSign className="h-4 w-4" />
                           </button>
-                          <button
-                            onClick={() => handleDelete(invoice.id)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          {/* Delete button removed as per user request */}
                         </div>
                       </td>
                     </tr>

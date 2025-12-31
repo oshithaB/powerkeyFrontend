@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Package, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  BarChart3,
   Settings,
   X,
   Building2,
@@ -104,7 +104,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
             <li>
               <ul role="list" className="-mx-2 space-y-1">
                 {navigation
-                  .filter((item) => 
+                  .filter((item) =>
                     item.name !== 'Employees' || (user?.role === 'admin' && item.name === 'Employees')
                   )
                   .map((item) => {

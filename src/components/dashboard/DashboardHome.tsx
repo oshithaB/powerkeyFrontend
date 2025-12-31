@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCompany } from '../../contexts/CompanyContext';
-import { 
+import {
   Banknote,
-  Package, 
-  FileText, 
-  DollarSign, 
-  TrendingUp, 
+  Package,
+  FileText,
+  DollarSign,
+  TrendingUp,
   Workflow,
   ArrowUpRight,
   Users,
@@ -42,7 +42,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
   const [endDate, setEndDate] = useState<string>('');
   const [isCustomRange, setIsCustomRange] = useState(false);
   const { selectedCompany } = useCompany();
-  
+
   // Default values for metrics and recentInvoices
   const metrics = data?.metrics || {};
   const recentInvoices = data?.recentInvoices || [];
@@ -62,7 +62,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
     try {
       // Get token from localStorage
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-      
+
       if (!token) {
         console.error('No authentication token found');
         setLoading(false);
@@ -71,10 +71,10 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
 
       let url = `http://147.79.115.89:3000/api/moneyInDrawer/${selectedCompany.company_id}`;
       const params = new URLSearchParams();
-      
+
       if (startDate) params.append('start_date', startDate);
       if (endDate) params.append('end_date', endDate);
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -86,7 +86,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         setMoneyFlowData(result.data);
@@ -105,7 +105,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
@@ -197,7 +197,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
     if (isCustomRange && startDate && endDate) {
       return `Custom Range: ${formatDate(startDate)} - ${formatDate(endDate)}`;
     }
-    
+
     switch (filter) {
       case 'today':
         return `Today: ${formatDate(periodStart)}`;
@@ -323,7 +323,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
                 <p className="font-medium text-gray-900">Add Customer</p>
                 <p className="text-sm text-gray-600">Create new customer</p>
               </Link>
-              
+
               <Link
                 to="/dashboard/products"
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
@@ -332,7 +332,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
                 <p className="font-medium text-gray-900">Add Product</p>
                 <p className="text-sm text-gray-600">Create new product</p>
               </Link>
-              
+
               <Link
                 to="/dashboard/invoices"
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
@@ -341,7 +341,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
                 <p className="font-medium text-gray-900">Create Invoice</p>
                 <p className="text-sm text-gray-600">Generate new invoice</p>
               </Link>
-              
+
               <Link
                 to="/dashboard/reports"
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
@@ -530,7 +530,7 @@ export default function DashboardHome({ data }: DashboardHomeProps) {
                     <div className="flex flex-wrap justify-center gap-4 mt-4">
                       {pieChartData.map((entry, index) => (
                         <div key={entry.name} className="flex items-center">
-                          <div 
+                          <div
                             className="w-3 h-3 rounded-full mr-2"
                             style={{ backgroundColor: getColor(entry, index) }}
                           ></div>

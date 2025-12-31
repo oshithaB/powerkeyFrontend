@@ -106,13 +106,13 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       const fetchTaxRates = async () => {
         try {
           const response = await axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`);
-          const taxRatesData = Array.isArray(response.data) && Array.isArray(response.data[0]) 
-            ? response.data[0] 
-            : Array.isArray(response.data) 
-              ? response.data 
+          const taxRatesData = Array.isArray(response.data) && Array.isArray(response.data[0])
+            ? response.data[0]
+            : Array.isArray(response.data)
+              ? response.data
               : [];
           setTaxRates(taxRatesData);
-          
+
           const defaultTaxRate = taxRatesData.find((tax: TaxRate) => tax.is_default === 1);
           if (defaultTaxRate) {
             setItems(prevItems => prevItems.map(item => ({
@@ -152,7 +152,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       setFormData({
         ...formData,
         bill_number: `BILL-${order.order_no}-${Date.now()}`,
-        order_id: orderId, 
+        order_id: orderId,
         employee_id: order.class ? order.class.toString() : '',
         vendor_name: order.supplier,
         vendor_id: order.vendor_id ? order.vendor_id.toString() : '',
@@ -173,7 +173,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       console.error('Error loading order data:', error);
       setError('Failed to load order data');
     }
-  };  
+  };
 
   const fetchVendors = async () => {
     try {
@@ -255,8 +255,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       }
     } else {
       setVendorSuggestions([]);
-    } 
-  }, [formData.vendor_name, vendors, activeVendorSuggestion]); 
+    }
+  }, [formData.vendor_name, vendors, activeVendorSuggestion]);
 
   useEffect(() => {
     if (formData.terms === 'due_on_receipt') {
@@ -281,7 +281,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
   const updateItem = (index: number, field: keyof BillItem, value: any) => {
     const updatedItems = [...items];
     updatedItems[index] = { ...updatedItems[index], [field]: value };
-  
+
     if (field === 'product_id' && value) {
       const product = products.find(p => p.id === parseInt(value));
       if (product) {
@@ -291,19 +291,19 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
         updatedItems[index].product_id = product.id;
       }
     }
-  
+
     if (field === 'quantity' || field === 'cost_price' || field === 'tax_rate') {
       const item = updatedItems[index];
       const quantity = Number(item.quantity) || 0;
       const unitPrice = Number(item.cost_price) || 0;
       const taxRate = Number(item.tax_rate) || 0;
-  
+
       const subtotal = quantity * unitPrice;
       item.actual_unit_price = Number((unitPrice / (1 + taxRate / 100)).toFixed(2));
       item.tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
       item.total_price = Number((subtotal).toFixed(2));
     }
-  
+
     setItems(updatedItems);
   };
 
@@ -338,7 +338,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     try {
       if (!formData.bill_number) {
         throw new Error('Bill number is required');
@@ -349,9 +349,9 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       if (!items.some(item => item.product_id !== 0)) {
         throw new Error('At least one valid item is required');
       }
-  
+
       const { subtotal, totalTax, total } = calculateTotals();
-  
+
       const submitData = {
         ...formData,
         company_id: selectedCompany?.company_id,
@@ -369,16 +369,16 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           total_price: Number(item.total_price),
         })),
       };
-  
+
       if (expense) {
         await axiosInstance.put(`http://147.79.115.89:3000/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
       } else {
         await axiosInstance.post(`http://147.79.115.89:3000/api/createBill/${selectedCompany?.company_id}`, submitData);
       }
-  
+
       setFormData(initialFormData);
       setItems(initialItems);
-  
+
       if (onSave && typeof onSave === 'function') {
         onSave();
       } else {
@@ -420,7 +420,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     label,
   }) => {
     const [newName, setNewName] = useState('');
-  
+
     const handleCreate = async () => {
       const trimmedName = newName.trim();
       if (!trimmedName) {
@@ -434,9 +434,9 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       await onCreate(trimmedName);
       setNewName('');
     };
-  
+
     if (!isOpen) return null;
-  
+
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -862,17 +862,17 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
         setError('Invalid hire date');
         return;
       }
-    
+
       if ((employeeFormData.username || employeeFormData.password) && !employeeFormData.role_id) {
         setError('Role is required when username or password is provided');
         return;
       }
-    
+
       if ((employeeFormData.username || employeeFormData.password) && (!employeeFormData.username || !employeeFormData.password)) {
         setError('Both username and password are required if one is provided');
         return;
       }
-    
+
       const employeePayload = {
         name: employeeFormData.name,
         email: employeeFormData.email || null,
@@ -880,7 +880,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
         address: employeeFormData.address || null,
         hire_date: employeeFormData.hire_date || null,
       };
-    
+
       try {
         const newEmployeePayload: any = { ...employeePayload };
         if (employeeFormData.username && employeeFormData.password && employeeFormData.role_id) {
@@ -888,7 +888,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           newEmployeePayload.password = employeeFormData.password;
           newEmployeePayload.role_id = parseInt(employeeFormData.role_id);
         }
-        
+
         await axiosInstance.post('http://147.79.115.89:3000/api/employees', newEmployeePayload);
         fetchEmployees();
         setIsCreateEmployeeModalOpen(false);

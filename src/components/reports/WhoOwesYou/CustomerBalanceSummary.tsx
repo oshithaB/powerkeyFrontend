@@ -63,11 +63,11 @@ const CustomerBalanceSummary: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -75,7 +75,7 @@ const CustomerBalanceSummary: React.FC = () => {
       } else if (filter === 'year') {
         startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
       }
-  
+
       setPeriodStart(startDate || '');
       setPeriodEnd(endDate);
       fetchCustomerBalanceData(startDate, endDate);
@@ -84,10 +84,10 @@ const CustomerBalanceSummary: React.FC = () => {
       setLoading(false);
     }
   }, [selectedCompany?.company_id, filter, isCustomRange]);
-    
+
   const formatCurrency = (value: string) => {
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -231,7 +231,7 @@ const CustomerBalanceSummary: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -265,7 +265,7 @@ const CustomerBalanceSummary: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -302,26 +302,26 @@ const CustomerBalanceSummary: React.FC = () => {
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && data.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No customer balance data available for the selected period.
                 </div>
               )}
-              
+
               {!loading && !error && data.length > 0 && (
                 <table className="w-full border-collapse">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Customer Name</th>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Email</th>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Phone</th>
-                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>Outstanding Balance</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Customer Name</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Email</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Phone</th>
+                      <th className="bg-gray-100 p-2 font-semibold text-lg border-b section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>Outstanding Balance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.map((customer, index) => (
-                      <tr 
+                      <tr
                         key={customer.id}
                         onClick={() => handleCustomerClick(customer.id)}
                         className="hover:bg-gray-50 cursor-pointer transition-colors"
@@ -398,10 +398,10 @@ const CustomerBalanceSummary: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>CUSTOMER NAME</th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>EMAIL</th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>PHONE</th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact'}}>OUTSTANDING BALANCE</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>CUSTOMER NAME</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>EMAIL</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>PHONE</th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>OUTSTANDING BALANCE</th>
                     </tr>
                   </thead>
                   <tbody>

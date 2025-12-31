@@ -87,7 +87,7 @@ export default function EditInvoice() {
     if (!invoice || !invoice.discount_amount || invoice.discount_amount === 0) {
       return 0;
     }
-    
+
     if (invoice.discount_type === 'percentage') {
       return invoice.subtotal > 0 ? Number(((invoice.discount_amount / invoice.subtotal) * 100).toFixed(2)) : 0;
     } else {
@@ -118,10 +118,10 @@ export default function EditInvoice() {
       invoice?.status === 'proforma'
         ? 'proforma'
         : invoice?.status === 'cancelled'
-        ? 'cancelled'
-        : invoice?.status === 'paid'
-        ? 'paid'
-        : 'invoice',
+          ? 'cancelled'
+          : invoice?.status === 'paid'
+            ? 'paid'
+            : 'invoice',
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -151,10 +151,10 @@ export default function EditInvoice() {
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
       setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
       setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
-      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0]) 
-        ? taxRatesRes.data[0] 
-        : Array.isArray(taxRatesRes.data) 
-          ? taxRatesRes.data 
+      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0])
+        ? taxRatesRes.data[0]
+        : Array.isArray(taxRatesRes.data)
+          ? taxRatesRes.data
           : [];
       setTaxRates(taxRatesData);
 
@@ -286,7 +286,7 @@ export default function EditInvoice() {
     const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(items.reduce((sum, item) => sum + item.tax_amount, 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
-    
+
     let discountAmount = 0;
     const discountValue = Number(formData.discount_value) || 0;
     if (formData.discount_type === 'percentage') {
@@ -294,18 +294,18 @@ export default function EditInvoice() {
     } else {
       discountAmount = Number(discountValue.toFixed(2));
     }
-  
+
     const total = Number((subtotal + shippingCost + totalTax - discountAmount).toFixed(2));
     const balanceDue = Number((total - Number(invoice?.paid_amount || 0)).toFixed(2));
-  
+
     return { subtotal, totalTax, discountAmount, shippingCost, total, balanceDue };
   };
 
-  const handleSubmit = async (e: React.FormEvent) => { 
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     try {
       if (!formData.invoice_number) {
         throw new Error('Invoice number is required');
@@ -322,9 +322,9 @@ export default function EditInvoice() {
       if (!items.some(item => item.product_id !== 0)) {
         throw new Error('At least one valid item is required');
       }
-  
+
       const { subtotal, totalTax, discountAmount, shippingCost, total, balanceDue } = calculateTotals();
-  
+
       const submitData = {
         invoice_number: formData.invoice_number,
         head_note: formData.head_note || null,
@@ -343,8 +343,8 @@ export default function EditInvoice() {
         paid_amount: invoice?.paid_amount || 0,
         balance_due:
           formData.invoice_type === "proforma" && formData.status === "proforma"
-        ? 0
-        : Number(balanceDue),
+            ? 0
+            : Number(balanceDue),
         status: formData.status,
         notes: formData.notes || null,
         terms: formData.terms || null,
@@ -366,35 +366,35 @@ export default function EditInvoice() {
         })),
         invoice_type: formData.invoice_type || null
       };
-  
+
       console.log('Submitting invoice update:', submitData);
 
       const userRole = JSON.parse(localStorage.getItem('user') || '{}')?.role;
       console.log('User role:', userRole);
 
       try {
-          if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
-            const eligibilityRes = await axiosInstance.post(`http://147.79.115.89:3000/api/checkCustomerEligibility`, {
-              company_id: selectedCompany?.company_id, 
-              customer_id: parseInt(formData.customer_id),
-              invoice_total: total,
-              operation_type: 'create'
-            });
+        if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
+          const eligibilityRes = await axiosInstance.post(`http://147.79.115.89:3000/api/checkCustomerEligibility`, {
+            company_id: selectedCompany?.company_id,
+            customer_id: parseInt(formData.customer_id),
+            invoice_total: total,
+            operation_type: 'create'
+          });
 
-            console.log('Eligibility response:', eligibilityRes.data);
+          console.log('Eligibility response:', eligibilityRes.data);
 
-            if (!eligibilityRes.data.eligible) {
-              throw new Error(eligibilityRes.data.reason || 'Customer is not eligible to create more invoices');
-            }
-
-            console.log('Customer is eligible to update invoice');
+          if (!eligibilityRes.data.eligible) {
+            throw new Error(eligibilityRes.data.reason || 'Customer is not eligible to create more invoices');
           }
 
-          console.log('Submitting invoice data:', submitData);
+          console.log('Customer is eligible to update invoice');
+        }
 
-          await axiosInstance.put(`http://147.79.115.89:3000/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+        console.log('Submitting invoice data:', submitData);
 
-          console.log('Invoice updated:');
+        await axiosInstance.put(`http://147.79.115.89:3000/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+
+        console.log('Invoice updated:');
 
       } catch (error: any) {
         console.error('Invoice update failed:', error);
@@ -415,7 +415,7 @@ export default function EditInvoice() {
           total_price: 0
         }
       ]);
-  
+
       navigate('/dashboard/invoices', { replace: true });
       alert('Invoice updated successfully');
     } catch (error: any) {
@@ -877,12 +877,12 @@ export default function EditInvoice() {
                     type="file"
                     className="input"
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    // onChange={(e) => {
-                    //   if (e.target.files && e.target.files.length > 0) {
-                    //     const file = e.target.files[0];
-                    //     setFormData({ ...formData, attachment: file });
-                    //   }
-                    // }}
+                  // onChange={(e) => {
+                  //   if (e.target.files && e.target.files.length > 0) {
+                  //     const file = e.target.files[0];
+                  //     setFormData({ ...formData, attachment: file });
+                  //   }
+                  // }}
                   />
                 </div>
               </div>
@@ -931,7 +931,7 @@ export default function EditInvoice() {
                       <span>Tax:</span>
                       <span>Rs. {totalTax.toFixed(2)}</span>
                     </div>
-                    
+
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total:</span>
                       <span>Rs. {total.toFixed(2)}</span>

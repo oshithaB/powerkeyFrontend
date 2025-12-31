@@ -12,7 +12,7 @@ export default function CreateCheque() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState<string | null>(null);
     const [chequeNumber, setChequeNumber] = useState(`CHEQ-${Date.now()}`);
-    
+
     // Form state
     const [formData, setFormData] = useState({
         bank_name: '',
@@ -46,7 +46,7 @@ export default function CreateCheque() {
                 setLoading(false);
                 return;
             }
-            
+
             const payload = {
                 company_id: selectedCompany.company_id,
                 cheque_number: chequeNumber,
@@ -60,7 +60,7 @@ export default function CreateCheque() {
             const response = await axiosInstance.post('http://147.79.115.89:3000/api/addCheque', payload);
 
             setSuccess('Cheque created successfully!');
-            
+
             // Reset form or navigate after success
             setTimeout(() => {
                 navigate("/dashboard/cheques");

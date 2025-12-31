@@ -181,12 +181,12 @@ export default function ChequesPage() {
                 filteredCheques.map((cheque) => {
                   const isNearDue = cheque.cheque_date && cheque.status === 'pending'
                     ? (() => {
-                        const today = new Date();
-                        const chequeDate = new Date(cheque.cheque_date);
-                        const diffInTime = chequeDate.getTime() - today.getTime();
-                        const diffInDays = diffInTime / (1000 * 3600 * 24);
-                        return diffInDays == 0 || diffInDays <= 3;
-                      })()
+                      const today = new Date();
+                      const chequeDate = new Date(cheque.cheque_date);
+                      const diffInTime = chequeDate.getTime() - today.getTime();
+                      const diffInDays = diffInTime / (1000 * 3600 * 24);
+                      return diffInDays == 0 || diffInDays <= 3;
+                    })()
                     : false;
 
                   return (

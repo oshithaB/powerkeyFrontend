@@ -51,7 +51,7 @@ export default function ReportsPage() {
     },
     {
       name: 'Balance Sheet',
-      description: 'Cash flow statement',
+      description: 'Assets, liabilities, and equity',
       path: '/reports/balance-sheet'
     },
     {
@@ -355,14 +355,14 @@ export default function ReportsPage() {
                 ...forMyAccountant]
                 .filter(report => favoriteReports.includes(report.name))
                 .map(report => (
-                  <button 
+                  <button
                     key={report.name}
                     className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                     onClick={() => navigate('path' in report ? report.path : '/reports')}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-gray-900">{report.name}</h4>
-                      <Star 
+                      <Star
                         className="h-5 w-5 text-yellow-400 fill-yellow-400 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -387,19 +387,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {businessOverviewReports.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -421,19 +420,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {whoOwesYouReports.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -446,7 +444,7 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        
+
       </div>
 
       {/* Sales and Customers */}
@@ -457,19 +455,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {salesAndCustomersReports.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -491,19 +488,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {whatYouOweReports.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -525,19 +521,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {expenseAndSuppliers.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -559,19 +554,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {salesTax.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -593,19 +587,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {employees.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);
@@ -627,19 +620,18 @@ export default function ReportsPage() {
         <div className="card-content">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {forMyAccountant.map(report => (
-              <button 
+              <button
                 key={report.name}
                 className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors text-left"
                 onClick={() => navigate(report.path)}
               >
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
-                  <Star 
-                    className={`h-5 w-5 cursor-pointer ${
-                      favoriteReports.includes(report.name) 
-                        ? 'text-yellow-400 fill-yellow-400' 
+                  <Star
+                    className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
+                        ? 'text-yellow-400 fill-yellow-400'
                         : 'text-gray-400'
-                    }`}
+                      }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFavorite(report.name);

@@ -58,7 +58,7 @@ const ProfitAndLossByMonth: React.FC = () => {
     setError(null);
     try {
       const response = await axiosInstance.get(`http://147.79.115.89:3000/api/monthly-profit-and-loss/${selectedCompany.company_id}/${year}`);
-      
+
       if (response.data?.data) {
         setData(response.data.data);
       } else {
@@ -81,8 +81,8 @@ const ProfitAndLossByMonth: React.FC = () => {
 
   const formatCurrency = (value: number) => {
     const numValue = typeof value === 'number' ? value : 0;
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -120,7 +120,7 @@ const ProfitAndLossByMonth: React.FC = () => {
       alert('No data available to print');
       return;
     }
-  
+
     try {
       const pdf = new jsPDF('l', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
@@ -145,7 +145,7 @@ const ProfitAndLossByMonth: React.FC = () => {
         tempDiv.style.width = '1200px';
         tempDiv.style.backgroundColor = '#ffffff';
         tempDiv.style.padding = '20px';
-        
+
         // Generate HTML content for this page
         tempDiv.innerHTML = `
           <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 15px;">
@@ -168,12 +168,12 @@ const ProfitAndLossByMonth: React.FC = () => {
             <thead>
               <tr>
                 <th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: left; border: 1px solid #ccc; width: 200px;">Account</th>
-                ${pageMonths.map(month => 
-                  `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">${month.month_name}</th>`
-                ).join('')}
-                ${showTotalColumn ? 
-                  `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">Total</th>` 
-                  : ''}
+                ${pageMonths.map(month =>
+          `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">${month.month_name}</th>`
+        ).join('')}
+                ${showTotalColumn ?
+            `<th style="background-color: #e2e8f0; padding: 8px; font-weight: bold; text-align: right; border: 1px solid #ccc; min-width: 120px;">Total</th>`
+            : ''}
               </tr>
             </thead>
             <tbody>
@@ -219,7 +219,7 @@ const ProfitAndLossByMonth: React.FC = () => {
       alert('Failed to generate PDF. Please try again.');
     }
   };
-  
+
   const generateTableRowsHTML = (pageMonths: MonthlyData[], showTotalColumn: boolean) => {
     const rows = [
       { label: 'Discounts given', getValue: (month: MonthlyData) => -safeGetValue(month, 'income.discounts_given') },
@@ -237,23 +237,21 @@ const ProfitAndLossByMonth: React.FC = () => {
     ];
 
     return rows.map(row => {
-      const cellStyle = `padding: 6px; border: 1px solid #ccc; text-align: ${row.label === 'Account' ? 'left' : 'right'}; ${
-        row.isTotal || row.isFinal ? 'font-weight: bold;' : ''
-      } ${row.isCostSection ? 'background-color: #f7fafc;' : ''} ${
-        row.isFinal ? 'border-top: 2px solid #333;' : ''
-      }`;
+      const cellStyle = `padding: 6px; border: 1px solid #ccc; text-align: ${row.label === 'Account' ? 'left' : 'right'}; ${row.isTotal || row.isFinal ? 'font-weight: bold;' : ''
+        } ${row.isCostSection ? 'background-color: #f7fafc;' : ''} ${row.isFinal ? 'border-top: 2px solid #333;' : ''
+        }`;
 
       const totalValue = data!.monthly_breakdown.reduce((sum, month) => sum + row.getValue(month), 0);
 
       return `
         <tr>
           <td style="${cellStyle}">${row.label}</td>
-          ${pageMonths.map(month => 
-            `<td style="${cellStyle}">${formatCurrency(row.getValue(month))}</td>`
-          ).join('')}
-          ${showTotalColumn ? 
-            `<td style="${cellStyle}">${formatCurrency(totalValue)}</td>` 
-            : ''}
+          ${pageMonths.map(month =>
+        `<td style="${cellStyle}">${formatCurrency(row.getValue(month))}</td>`
+      ).join('')}
+          ${showTotalColumn ?
+          `<td style="${cellStyle}">${formatCurrency(totalValue)}</td>`
+          : ''}
         </tr>
       `;
     }).join('');
@@ -399,7 +397,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600"
@@ -427,20 +425,20 @@ const ProfitAndLossByMonth: React.FC = () => {
                   {error}
                 </div>
               )}
-              
+
               {loading && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && (!data || data.monthly_breakdown.length === 0) && (
                 <div className="text-center py-8 text-gray-500">
                   No data available for the selected year.
                 </div>
               )}
-              
+
               {!loading && !error && data && data.monthly_breakdown.length > 0 && (
                 <div className="table-container">
                   <div className="fixed-table">
@@ -450,7 +448,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                         <thead>
                           <tr>
                             <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left w-48"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Account
                             </th>
                           </tr>
@@ -478,19 +476,19 @@ const ProfitAndLossByMonth: React.FC = () => {
                         <thead>
                           <tr>
                             {data.monthly_breakdown.map((month) => (
-                              <th key={month.month} 
-                                  className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
-                                  style={{ 
-                                    backgroundColor: '#e2e8f0', 
-                                    WebkitPrintColorAdjust: 'exact', 
-                                    colorAdjust: 'exact', 
-                                    printColorAdjust: 'exact'
-                                  }}>
+                              <th key={month.month}
+                                className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                                style={{
+                                  backgroundColor: '#e2e8f0',
+                                  WebkitPrintColorAdjust: 'exact',
+                                  colorAdjust: 'exact',
+                                  printColorAdjust: 'exact'
+                                }}>
                                 {month.month_name}
                               </th>
                             ))}
-                            <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               Total
                             </th>
                           </tr>
@@ -537,7 +535,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                               {formatCurrency(getTotal('income.total_income'))}
                             </td>
                           </tr>
-                          
+
                           {/* Cost of Sales Section */}
                           <tr>
                             {data.monthly_breakdown.map((month) => (
@@ -569,7 +567,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                               {formatCurrency(getTotal('cost_of_sales.total_cost_of_sales'))}
                             </td>
                           </tr>
-                          
+
                           {/* Profit Section */}
                           <tr>
                             {data.monthly_breakdown.map((month) => (
@@ -611,7 +609,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                               {formatCurrency(0)}
                             </td>
                           </tr>
-                          
+
                           {/* Final Net Earnings */}
                           <tr>
                             {data.monthly_breakdown.map((month) => (
@@ -640,7 +638,7 @@ const ProfitAndLossByMonth: React.FC = () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-regular">Print Preview</h3>
               </div>
-              
+
               <div ref={printRef} className="print-content bg-white p-6">
                 <div className="mb-6 border-b pb-4">
                   <div className="flex justify-between items-start mb-4">
@@ -651,7 +649,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                       <p className="text-sm text-gray-600">Year: {data?.year}</p>
                     </div>
                     {selectedCompany?.company_logo && (
-                      <img 
+                      <img
                         src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                         alt={`${selectedCompany.name} Logo`}
                         className="h-20 w-auto max-w-xs object-contain"
@@ -720,7 +718,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                             {formatCurrency(getTotal('income.total_income'))}
                           </td>
                         </tr>
-                        
+
                         {/* Cost of Sales Section */}
                         <tr>
                           <td className="p-2 border font-medium cost-section sticky left-0 bg-blue-50 z-10 min-w-[200px]">Cost of Sales</td>
@@ -755,7 +753,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                             {formatCurrency(getTotal('cost_of_sales.total_cost_of_sales'))}
                           </td>
                         </tr>
-                        
+
                         {/* Profit Section */}
                         <tr>
                           <td className="p-2 border font-bold sticky left-0 bg-white z-10 min-w-[200px]">Gross Profit</td>
@@ -801,7 +799,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                             {formatCurrency(0)}
                           </td>
                         </tr>
-                        
+
                         {/* Final Net Earnings */}
                         <tr>
                           <td className="p-3 border-t-2 border-gray-800 font-bold sticky left-0 bg-white z-10 min-w-[200px]">Net Earnings</td>
@@ -818,7 +816,7 @@ const ProfitAndLossByMonth: React.FC = () => {
                     </table>
                   </div>
                 )}
-                
+
                 <div className="mt-6 border-t pt-4">
                   <div className="flex justify-between items-center text-sm text-gray-600">
                     <p>Report generated at: {new Date().toLocaleString()}</p>

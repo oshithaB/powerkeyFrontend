@@ -26,7 +26,8 @@ export default function CreateCompany() {
     isTaxable: 'Not Taxable',
     taxNumber: '',
     notes: '',
-    termsAndConditions: ''
+    termsAndConditions: '',
+    openingBalance: '0'
   });
 
   const [logo, setLogo] = useState<File | null>(null);
@@ -64,14 +65,14 @@ export default function CreateCompany() {
   const updateTaxRate = (index: number, field: keyof TaxRate, value: string | number | boolean) => {
     const updated = [...taxRates];
     updated[index] = { ...updated[index], [field]: value };
-    
+
     // If setting as default, unset others
     if (field === 'is_default' && value === true) {
       updated.forEach((tax, i) => {
         if (i !== index) tax.is_default = false;
       });
     }
-    
+
     setTaxRates(updated);
   };
 
@@ -107,7 +108,7 @@ export default function CreateCompany() {
           'Content-Type': 'multipart/form-data'
         }
       });
-      
+
       // Clear any previously selected company to ensure user goes to company selection
       setSelectedCompany(null);
 
@@ -259,6 +260,22 @@ export default function CreateCompany() {
                 )}
               </div>
 
+              {/* Opening Balance Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Opening Balance
+                </label>
+                <input
+                  type="number"
+                  name="openingBalance"
+                  className="input"
+                  value={formData.openingBalance}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Company Logo
@@ -336,7 +353,7 @@ export default function CreateCompany() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="card-content">
                 <div className="space-y-4">
                   {taxRates.map((taxRate, index) => (
@@ -377,7 +394,7 @@ export default function CreateCompany() {
                           Is Default?
                         </label>
                         <div className="flex items-center mt-2">
-                          <input 
+                          <input
                             type="checkbox"
                             className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                             checked={taxRate.is_default}

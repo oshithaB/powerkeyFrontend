@@ -54,7 +54,7 @@ const SalesbyProductSummary: React.FC = () => {
       const response = await axiosInstance.get(`http://147.79.115.89:3000/api/sales-by-product-service-summary/${selectedCompany.company_id}`, {
         params: { start_date: startDate, end_date: endDate },
       });
-      
+
       if (response.data?.data && Array.isArray(response.data.data)) {
         setData(response.data.data);
         setProductSuggestions(response.data.data);
@@ -76,11 +76,11 @@ const SalesbyProductSummary: React.FC = () => {
       if (isCustomRange) {
         return;
       }
-      
+
       const today = new Date();
       let startDate: string | undefined;
       let endDate: string = today.toISOString().split('T')[0];
-  
+
       if (filter === 'week') {
         startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
       } else if (filter === 'month') {
@@ -96,8 +96,8 @@ const SalesbyProductSummary: React.FC = () => {
   }, [selectedCompany?.company_id, filter, isCustomRange]);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-LK', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('en-LK', {
+      style: 'currency',
       currency: 'LKR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -151,7 +151,7 @@ const SalesbyProductSummary: React.FC = () => {
         windowWidth: printRef.current.scrollWidth,
         windowHeight: printRef.current.scrollHeight,
       });
-      
+
       const imgData = canvas.toDataURL('image/png', 0.95);
       const imgProps = pdf.getImageProperties(imgData);
       const imgWidth = pageWidth - 2 * margin;
@@ -163,15 +163,15 @@ const SalesbyProductSummary: React.FC = () => {
         if (i > 0) {
           pdf.addPage();
         }
-        
+
         const srcY = i * maxContentHeight * (canvas.height / imgHeight);
         const pageContentHeight = Math.min(canvas.height - srcY, maxContentHeight * (canvas.height / imgHeight));
-        
+
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = pageContentHeight;
         const tempCtx = tempCanvas.getContext('2d');
-        
+
         if (tempCtx && pageContentHeight > 0) {
           tempCtx.imageSmoothingEnabled = true;
           tempCtx.imageSmoothingQuality = 'high';
@@ -303,7 +303,7 @@ const SalesbyProductSummary: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -337,7 +337,7 @@ const SalesbyProductSummary: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600"
@@ -370,65 +370,65 @@ const SalesbyProductSummary: React.FC = () => {
                   {error}
                 </div>
               )}
-              
+
               {loading && (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <p className="mt-2 text-gray-600">Loading data...</p>
                 </div>
               )}
-              
+
               {!loading && !error && productSuggestions.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   No sales data available.
                 </div>
               )}
-              
+
               {!loading && !error && productSuggestions.length > 0 && (
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse min-w-full">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Product Name
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           SKU
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Unit Price
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Cost Price
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Manual Count
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total QTY Sold
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total Cost
                         </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Total Sales
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {productSuggestions.map((product, index) => (
-                        <tr 
-                            key={index} 
-                            onClick={() => handleProductClick(product.product_id)}
-                            className="hover:bg-gray-50 cursor-pointer"
+                        <tr
+                          key={index}
+                          onClick={() => handleProductClick(product.product_id)}
+                          className="hover:bg-gray-50 cursor-pointer"
                         >
                           <td className="p-2 border-b font-medium">
                             {product.product_name}
@@ -437,7 +437,7 @@ const SalesbyProductSummary: React.FC = () => {
                             {product.sku}
                           </td>
                           <td className="p-2 border-b">
-                              {formatCurrency(product.unit_price)}
+                            {formatCurrency(product.unit_price)}
                           </td>
                           <td className='p-2 border-b'>
                             {formatCurrency(product.cost_price)}
@@ -475,7 +475,7 @@ const SalesbyProductSummary: React.FC = () => {
                   </table>
                 </div>
               )}
-              
+
               <p className="text-sm mt-5 text-gray-600">
                 Report generated at {new Date().toLocaleString()}
               </p>
@@ -510,10 +510,10 @@ const SalesbyProductSummary: React.FC = () => {
                       {selectedCompany?.name || 'Company Name'} (Pvt) Ltd.
                     </h2>
                     <p className="text-sm text-gray-600">
-                        {filter === 'week' && `Last 7 days: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
-                        {filter === 'month' && `Last 1 month: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
-                        {filter === 'year' && `Year to Date: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
-                        {isCustomRange && startDate && endDate && `Custom Range: ${formatDate(startDate)} - ${formatDate(endDate)}`}
+                      {filter === 'week' && `Last 7 days: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
+                      {filter === 'month' && `Last 1 month: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
+                      {filter === 'year' && `Year to Date: ${formatDate(periodStart)} - ${formatDate(periodEnd)}`}
+                      {isCustomRange && startDate && endDate && `Custom Range: ${formatDate(startDate)} - ${formatDate(endDate)}`}
                     </p>
                   </div>
 
@@ -529,66 +529,66 @@ const SalesbyProductSummary: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            Product Name
-                        </th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            SKU
-                        </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            Unit Price
-                        </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            Total QTY Sold
-                        </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            Total Cost
-                        </th>
-                        <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            Total Sales
-                        </th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        Product Name
+                      </th>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        SKU
+                      </th>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        Unit Price
+                      </th>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        Total QTY Sold
+                      </th>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        Total Cost
+                      </th>
+                      <th className="bg-gray-100 p-3 font-semibold text-lg border section-header text-right min-w-[120px]"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', colorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        Total Sales
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {productSuggestions.map((product, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                      <td className="p-2 border-b font-medium">
-                        {product.product_name}
-                      </td>
-                      <td className="p-2 border-b">
-                        {product.sku}
-                      </td>
-                        <td className="p-2 border-b">
-                            {formatCurrency(product.unit_price)}
+                        <td className="p-2 border-b font-medium">
+                          {product.product_name}
                         </td>
-                      <td className="p-2 border-b text-right">
-                        {product.total_quantity_sold}
-                      </td>
-                      <td className="p2 border-b text-right">
-                        {formatCurrency(product.total_cost)}
-                      </td>
-                      <td className="p-2 border-b text-right font-bold">
-                        {formatCurrency(product.total_sales)}
-                      </td>
-                    </tr>
+                        <td className="p-2 border-b">
+                          {product.sku}
+                        </td>
+                        <td className="p-2 border-b">
+                          {formatCurrency(product.unit_price)}
+                        </td>
+                        <td className="p-2 border-b text-right">
+                          {product.total_quantity_sold}
+                        </td>
+                        <td className="p2 border-b text-right">
+                          {formatCurrency(product.total_cost)}
+                        </td>
+                        <td className="p-2 border-b text-right font-bold">
+                          {formatCurrency(product.total_sales)}
+                        </td>
+                      </tr>
                     ))}
                     <tr>
-                        <td className="p-3 border-t-2 border-gray-800 font-bold" colSpan={3}>Total</td>
-                        <td className="p-3 border-t-2 border-gray-800 font-bold text-right">
-                          {getTotal('total_quantity_sold')}
-                        </td>
-                        <td className='border-t-2 border-gray-800 font-bold text-right'>
-                          {formatCurrency(getTotal('total_cost'))}
-                        </td>
-                        <td className="p-3 border-t-2 border-gray-800 font-bold text-right">
-                          {formatCurrency(getTotal('total_sales'))}
-                        </td>
+                      <td className="p-3 border-t-2 border-gray-800 font-bold" colSpan={3}>Total</td>
+                      <td className="p-3 border-t-2 border-gray-800 font-bold text-right">
+                        {getTotal('total_quantity_sold')}
+                      </td>
+                      <td className='border-t-2 border-gray-800 font-bold text-right'>
+                        {formatCurrency(getTotal('total_cost'))}
+                      </td>
+                      <td className="p-3 border-t-2 border-gray-800 font-bold text-right">
+                        {formatCurrency(getTotal('total_sales'))}
+                      </td>
                     </tr>
                   </tbody>
                 </table>

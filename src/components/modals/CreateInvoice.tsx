@@ -147,10 +147,10 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
       setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
       setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
-      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0]) 
-        ? taxRatesRes.data[0] 
-        : Array.isArray(taxRatesRes.data) 
-          ? taxRatesRes.data 
+      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0])
+        ? taxRatesRes.data[0]
+        : Array.isArray(taxRatesRes.data)
+          ? taxRatesRes.data
           : [];
       setTaxRates(taxRatesData);
 
@@ -267,10 +267,10 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
           selectedCustomer.terms === 'net15'
             ? new Date(new Date(initialFormData.invoice_date).getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
             : selectedCustomer.terms === 'net30'
-            ? new Date(new Date(initialFormData.invoice_date).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-            : selectedCustomer.terms === 'net60'
-            ? new Date(new Date(initialFormData.invoice_date).getTime() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-            : initialFormData.invoice_date,
+              ? new Date(new Date(initialFormData.invoice_date).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+              : selectedCustomer.terms === 'net60'
+                ? new Date(new Date(initialFormData.invoice_date).getTime() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                : initialFormData.invoice_date,
       }));
       if (!invoice && formData.customer_id) {
         fetchCustomerEstimates(formData.customer_id);
@@ -351,19 +351,19 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     const shippingTaxRate = Number(formData.shipping_tax_rate || 0);
     const shippingTaxAmount = Number((shippingCost * shippingTaxRate / 100).toFixed(2));
     const totalShippingWithTax = Number((shippingCost + shippingTaxAmount).toFixed(2));
-    
+
     const subtotal = Number(items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.tax_amount), 0).toFixed(2));
-    
+
     let discountAmount = 0;
     if (formData.discount_type === 'percentage') {
       discountAmount = Number(((subtotal * Number(formData.discount_value)) / 100).toFixed(2));
     } else {
       discountAmount = Number(formData.discount_value.toFixed(2));
     }
-  
+
     const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
-  
+
     return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total };
   };
 
@@ -371,11 +371,11 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-  
+
     try {
       // Use the invoiceType parameter if provided, otherwise use the formData value
       const currentInvoiceType = invoiceType || formData.invoice_type;
-  
+
       if (!formData.invoice_number) {
         throw new Error('Invoice number is required');
       }
@@ -388,14 +388,14 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       if (!items.some(item => item.product_id !== 0)) {
         throw new Error('At least one valid item is required');
       }
-  
+
       const { subtotal, totalTax, discountAmount, shippingCost, shippingTaxAmount, total } = calculateTotals();
-  
+
       // const selectedCustomer = customers.find(customer => customer.id === parseInt(formData.customer_id));
       // if (selectedCustomer && selectedCustomer.credit_limit < total) {
       //   throw new Error("Invoice total exceeds customer's credit limit");
       // }
-  
+
       const submitData = {
         ...formData,
         company_id: selectedCompany?.company_id,
@@ -421,7 +421,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
           total_price: Number(item.total_price)
         }))
       };
-  
+
       let response;
 
       if (invoice) {
@@ -468,7 +468,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
 
           setFormData(initialFormData);
           setItems(initialItems);
-      
+
           navigate("/dashboard/sales", { state: { activeTab: 'invoices' } });
 
         } catch (error: any) {
@@ -478,11 +478,11 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
           alert(errorMessage);
           setFormData(initialFormData);
           setItems(initialItems);
-      
+
           navigate("/dashboard/sales", { state: { activeTab: 'invoices' } });
         }
       }
-  
+
     } catch (error: any) {
       console.error('Error saving invoice:', error);
       const errorMessage = error.response?.data?.reason || error.response?.data?.error || error.message || 'Failed to save invoice';
@@ -512,16 +512,16 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         credit_limit: parseFloat(newCustomerForm.credit_limit.toString()) || 0,
         current_balance: parseFloat(newCustomerForm.current_balance.toString()) || 0,
       };
-  
+
       console.log('Submitting customer data:', submitData);
       const response = await axiosInstance.post(`http://147.79.115.89:3000/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       console.log('API response:', response.data);
-  
+
       const newCustomer = response.data.customer;
       if (!newCustomer || !newCustomer.id) {
         throw new Error('Invalid customer data returned from server');
       }
-  
+
       setCustomers((prev) => [...prev, newCustomer]);
       setFormData({
         ...formData,
@@ -598,8 +598,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
             <h3 className="text-lg font-medium text-gray-900">
               {invoice ? 'Edit Invoice' : 'Create New Invoice'}
             </h3>
-            <button 
-              onClick={() => navigate("/dashboard/sales", { state: { activeTab: 'invoices' } })} 
+            <button
+              onClick={() => navigate("/dashboard/sales", { state: { activeTab: 'invoices' } })}
               className="text-gray-400 hover:text-gray-600">
               <X className="h-6 w-6" />
             </button>
@@ -688,7 +688,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
               </div>
 
               <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Customer *
                 </label>
                 <div className="relative">
@@ -980,6 +980,14 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                           />
                         </td>
                         <td className="px-4 py-2">
+                          {(() => {
+                            const product = products.find(p => p.id === item.product_id);
+                            return product ? (
+                              <div className="text-xs text-gray-500 mb-1">
+                                Avail: {product.quantity_on_hand}
+                              </div>
+                            ) : null;
+                          })()}
                           <input
                             type="number"
                             min="0"
@@ -1197,19 +1205,19 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                   </button>
                 </div>
                 {showInvoiceTypeDropdown && (
-                    <div className="absolute left-10 mt-1 bg-white rounded-md shadow-lg z-10 w-auto min-w-max">
+                  <div className="absolute left-10 mt-1 bg-white rounded-md shadow-lg z-10 w-auto min-w-max">
                     <button
                       type="button"
                       className="btn btn-primary btn-md px-3 rounded"
                       onClick={(e) => {
-                      e.preventDefault();
-                      setShowInvoiceTypeDropdown(false);
-                      handleSubmit(e, 'proforma');
+                        e.preventDefault();
+                        setShowInvoiceTypeDropdown(false);
+                        handleSubmit(e, 'proforma');
                       }}
                     >
                       Create Proforma Invoice
                     </button>
-                    </div>
+                  </div>
                 )}
               </div>
             </div>

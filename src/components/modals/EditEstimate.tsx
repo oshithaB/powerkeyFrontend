@@ -88,7 +88,7 @@ export default function EditEstimate() {
     if (!estimate || !estimate.discount_amount || estimate.discount_amount === 0) {
       return 0;
     }
-    
+
     if (estimate.discount_type === 'percentage') {
       // If it's percentage, calculate the percentage from subtotal
       return estimate.subtotal > 0 ? Number(((estimate.discount_amount / estimate.subtotal) * 100).toFixed(2)) : 0;
@@ -144,10 +144,10 @@ export default function EditEstimate() {
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
       setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
       setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
-      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0]) 
-        ? taxRatesRes.data[0] 
-        : Array.isArray(taxRatesRes.data) 
-          ? taxRatesRes.data 
+      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0])
+        ? taxRatesRes.data[0]
+        : Array.isArray(taxRatesRes.data)
+          ? taxRatesRes.data
           : [];
       setTaxRates(taxRatesData);
 
@@ -183,29 +183,29 @@ export default function EditEstimate() {
   // }, [estimate.id]);
 
   // inside EditEstimate.tsx
-useEffect(() => {
-  const socket = socketRef.current;
-  if (!socket || !estimate) return;
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !estimate) return;
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  // Start editing
-  socket.emit("start_edit_estimate", { estimateId: estimate.id, user });
+    // Start editing
+    socket.emit("start_edit_estimate", { estimateId: estimate.id, user });
 
-  return () => {
-    // Stop editing only when leaving the page (not refresh)
-    socket.emit("stop_edit_estimate", { estimateId: estimate.id, user });
-  };
-}, [estimate?.id]);
+    return () => {
+      // Stop editing only when leaving the page (not refresh)
+      socket.emit("stop_edit_estimate", { estimateId: estimate.id, user });
+    };
+  }, [estimate?.id]);
 
-useEffect(() => {
-  const socket = socketRef.current;
-  if (!socket || !estimate) return;
-  const interval = setInterval(() => {
-    socket.emit("heartbeat_edit_estimate", { estimateId: estimate.id });
-  }, 5000);
-  return () => clearInterval(interval);
-}, [estimate?.id]);
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket || !estimate) return;
+    const interval = setInterval(() => {
+      socket.emit("heartbeat_edit_estimate", { estimateId: estimate.id });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [estimate?.id]);
 
 
 
@@ -308,7 +308,7 @@ useEffect(() => {
     const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(items.reduce((sum, item) => sum + item.tax_amount, 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
-    
+
     let discountAmount = 0;
     const discountValue = Number(formData.discount_value) || 0;
     if (formData.discount_type === 'percentage') {
@@ -316,10 +316,10 @@ useEffect(() => {
     } else {
       discountAmount = Number(discountValue.toFixed(2));
     }
-  
+
     const total = Number((subtotal + shippingCost + totalTax - discountAmount).toFixed(2));
     const balanceDue = Number((total - Number(estimate?.paid_amount || 0)).toFixed(2));
-  
+
     return { subtotal, totalTax, discountAmount, shippingCost, total, balanceDue };
   };
 
@@ -426,9 +426,9 @@ useEffect(() => {
             <h3 className="text-lg font-medium text-gray-900">
               Edit Estimate #{estimate?.estimate_number}
             </h3>
-            <button 
-            onClick={() => navigate("/dashboard/sales", { state: { activeTab: 'estimates' } })}
-            className="text-gray-400 hover:text-gray-600">
+            <button
+              onClick={() => navigate("/dashboard/sales", { state: { activeTab: 'estimates' } })}
+              className="text-gray-400 hover:text-gray-600">
               <X className="h-6 w-6" />
             </button>
           </div>
@@ -763,24 +763,24 @@ useEffect(() => {
                           Rs. {(item.actual_unit_price ?? 0).toFixed(2)}
                         </td>
                         <td className="px-4 py-2">
-                            <select
-                                className="input w-20"
-                                value={item.tax_rate}
-                                onChange={(e) => updateItem(index, 'tax_rate', parseFloat(e.target.value) || 0)}
-                            >
-                                {taxRates.length > 0 ? (
-                                <>
-                                    {taxRates.map((tax) => (
-                                    <option key={tax.tax_rate_id} value={parseFloat(tax.rate)}>
-                                        {tax.name} ({tax.rate}%)
-                                    </option>
-                                    ))}
-                                    <option value={0}>0% No Tax</option>
-                                </>
-                                ) : (
-                                <option value={0} disabled>No tax rates available</option>
-                                )}
-                            </select>
+                          <select
+                            className="input w-20"
+                            value={item.tax_rate}
+                            onChange={(e) => updateItem(index, 'tax_rate', parseFloat(e.target.value) || 0)}
+                          >
+                            {taxRates.length > 0 ? (
+                              <>
+                                {taxRates.map((tax) => (
+                                  <option key={tax.tax_rate_id} value={parseFloat(tax.rate)}>
+                                    {tax.name} ({tax.rate}%)
+                                  </option>
+                                ))}
+                                <option value={0}>0% No Tax</option>
+                              </>
+                            ) : (
+                              <option value={0} disabled>No tax rates available</option>
+                            )}
+                          </select>
                         </td>
                         <td className="px-4 py-2 text-center border border-gray-200">
                           Rs. {item.total_price.toFixed(2)}

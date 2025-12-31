@@ -136,10 +136,10 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
       setEmployees(Array.isArray(employeesRes.data) ? employeesRes.data : []);
       setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
-      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0]) 
-        ? taxRatesRes.data[0] 
-        : Array.isArray(taxRatesRes.data) 
-          ? taxRatesRes.data 
+      const taxRatesData = Array.isArray(taxRatesRes.data) && Array.isArray(taxRatesRes.data[0])
+        ? taxRatesRes.data[0]
+        : Array.isArray(taxRatesRes.data)
+          ? taxRatesRes.data
           : [];
       setTaxRates(taxRatesData);
 
@@ -249,7 +249,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
     const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.tax_amount), 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
-    
+
     let discountAmount = 0;
     if (formData.discount_type === 'percentage') {
       discountAmount = Number(((subtotal * Number(formData.discount_value)) / 100).toFixed(2));
@@ -316,7 +316,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       // Reset form and items after successful save
       setFormData(initialFormData);
       setItems(initialItems);
-      
+
       // Navigate back if no onSave callback is provided
       if (onSave && typeof onSave === 'function') {
         onSave();
@@ -352,16 +352,16 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
         credit_limit: parseFloat(newCustomerForm.credit_limit.toString()) || 0,
         current_balance: parseFloat(newCustomerForm.current_balance.toString()) || 0,
       };
-  
+
       console.log('Submitting customer data:', submitData);
       const response = await axiosInstance.post(`http://147.79.115.89:3000/api/createCustomers/${selectedCompany?.company_id}`, submitData);
       console.log('API response:', response.data);
-  
+
       const newCustomer = response.data.customer;
       if (!newCustomer || !newCustomer.id) {
         throw new Error('Invalid customer data returned from server');
       }
-  
+
       setCustomers((prev) => [...prev, newCustomer]);
       setFormData({
         ...formData,
@@ -424,7 +424,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
       .filter(Boolean)
       .join(', ');
   };
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 100 }}
@@ -761,6 +761,14 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
                           />
                         </td>
                         <td className="px-4 py-2">
+                          {(() => {
+                            const product = products.find(p => p.id === item.product_id);
+                            return product ? (
+                              <div className="text-xs text-gray-500 mb-1">
+                                Avail: {product.quantity}
+                              </div>
+                            ) : null;
+                          })()}
                           <input
                             type="number"
                             min="0"
@@ -840,7 +848,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Terms & Conditions
+                    Terms & Conditions
                   </label>
                   <textarea
                     className="input min-h-[80px]"

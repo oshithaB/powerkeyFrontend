@@ -132,32 +132,32 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
   };
 
   useEffect(() => {
-      if (selectedCompany?.company_id && customerId) {
-        if (isCustomRange) {
-          return;
-        }
-        
-        const today = new Date();
-        let startDate: string | undefined;
-        let endDate: string = today.toISOString().split('T')[0];
-    
-        if (filter === 'week') {
-          startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
-        } else if (filter === 'month') {
-          startDate = new Date(today.setMonth(today.getMonth() - 1)).toISOString().split('T')[0];
-        } else if (filter === 'year') {
-          startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
-        }
-    
-        setPeriodStart(startDate || '');
-        setPeriodEnd(endDate);
-        fetchProfitAndLossData(customerId, startDate, endDate);
-        fetchInvoicesByCustomer(customerId, startDate, endDate);
-      } else {
-        setError('Missing company or employee information');
-        setLoading(false);
+    if (selectedCompany?.company_id && customerId) {
+      if (isCustomRange) {
+        return;
       }
-    }, [selectedCompany?.company_id, customerId, filter, isCustomRange]);
+
+      const today = new Date();
+      let startDate: string | undefined;
+      let endDate: string = today.toISOString().split('T')[0];
+
+      if (filter === 'week') {
+        startDate = new Date(today.setDate(today.getDate() - 7)).toISOString().split('T')[0];
+      } else if (filter === 'month') {
+        startDate = new Date(today.setMonth(today.getMonth() - 1)).toISOString().split('T')[0];
+      } else if (filter === 'year') {
+        startDate = new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0];
+      }
+
+      setPeriodStart(startDate || '');
+      setPeriodEnd(endDate);
+      fetchProfitAndLossData(customerId, startDate, endDate);
+      fetchInvoicesByCustomer(customerId, startDate, endDate);
+    } else {
+      setError('Missing company or employee information');
+      setLoading(false);
+    }
+  }, [selectedCompany?.company_id, customerId, filter, isCustomRange]);
 
   const formatCurrency = (value: number | string) => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value;
@@ -336,7 +336,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                     <option value="custom">Custom Range</option>
                   </select>
                 </div>
-                
+
                 {isCustomRange && (
                   <>
                     <div className="flex flex-col">
@@ -373,7 +373,7 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                     </button>
                   </>
                 )}
-                
+
                 <button
                   onClick={handlePrint}
                   className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
@@ -433,12 +433,12 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                   <table className="w-full border-collapse mb-6">
                     <thead>
                       <tr>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Account
                         </th>
-                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           Amount
                         </th>
                       </tr>
@@ -462,55 +462,55 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold mb-2">Invoices</h3>
                     {salesData && salesData.length > 0 ? (
-                        <table className="w-full border-collapse">
+                      <table className="w-full border-collapse">
                         <thead>
-                            <tr>
+                          <tr>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Invoice Number
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Invoice Number
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Date
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Date
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Due Date
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Due Date
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Paid Amount
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Paid Amount
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Balance Due
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Balance Due
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Total Amount
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Total Amount
                             </th>
                             <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Status
+                              style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              Status
                             </th>
-                            </tr>
+                          </tr>
                         </thead>
                         <tbody>
-                            {salesData.map((invoice: any) => (
+                          {salesData.map((invoice: any) => (
                             <tr key={invoice.invoiceId}>
-                                <td className="p-2 border-b">{invoice.invoiceNumber}</td>
-                                <td className="p-2 border-b">{formatDate(invoice.invoiceDate)}</td>
-                                <td className="p-2 border-b">{formatDate(invoice.dueDate)}</td>
-                                <td className="p-2 border-b text-right">{formatCurrency(invoice.paidAmount)}</td>
-                                <td className="p-2 border-b text-right">{formatCurrency(invoice.balanceDue)}</td>
-                                <td className="p-2 border-b text-right">{formatCurrency(invoice.totalAmount)}</td>
-                                <td className="p-2 border-b">{invoice.status}</td>
+                              <td className="p-2 border-b">{invoice.invoiceNumber}</td>
+                              <td className="p-2 border-b">{formatDate(invoice.invoiceDate)}</td>
+                              <td className="p-2 border-b">{formatDate(invoice.dueDate)}</td>
+                              <td className="p-2 border-b text-right">{formatCurrency(invoice.paidAmount)}</td>
+                              <td className="p-2 border-b text-right">{formatCurrency(invoice.balanceDue)}</td>
+                              <td className="p-2 border-b text-right">{formatCurrency(invoice.totalAmount)}</td>
+                              <td className="p-2 border-b">{invoice.status}</td>
                             </tr>
-                            ))}
+                          ))}
                         </tbody>
-                        </table>
+                      </table>
                     ) : (
-                        <p className="text-sm text-gray-600">No invoices found for this customer.</p>
+                      <p className="text-sm text-gray-600">No invoices found for this customer.</p>
                     )}
                   </div>
 
@@ -566,12 +566,12 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                 <table className="w-full border-collapse mb-6">
                   <thead>
                     <tr>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Account
                       </th>
-                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right" 
-                          style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                        style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         Amount
                       </th>
                     </tr>
@@ -604,58 +604,58 @@ const ProfitAndLossByClassInDetail: React.FC = () => {
                 </div>
 
                 <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-2">Invoices</h3>
-                    {salesData && salesData.length > 0 ? (
-                        <table className="w-full border-collapse">
-                        <thead>
-                            <tr>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Invoice Number
-                            </th>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Date
-                            </th>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Due Date
-                            </th>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Paid Amount
-                            </th>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Balance Due
-                            </th>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Total Amount
-                            </th>
-                            <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
-                                style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                                Status
-                            </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {salesData.invoices.map((invoice) => (
-                            <tr key={invoice.invoiceId}>
-                                <td className="p-2 border-b">{invoice.invoiceNumber}</td>
-                                <td className="p-2 border-b">{formatDate(invoice.invoiceDate)}</td>
-                                <td className="p-2 border-b">{formatDate(invoice.dueDate)}</td>
-                                <td className="p-2 border-b text-right">{formatCurrency(invoice.paidAmount)}</td>
-                                <td className="p-2 border-b text-right">{formatCurrency(invoice.balanceDue)}</td>
-                                <td className="p-2 border-b text-right">{formatCurrency(invoice.totalAmount)}</td>
-                                <td className="p-2 border-b">{invoice.status}</td>
-                            </tr>
-                            ))}
-                        </tbody>
-                        </table>
-                    ) : (
-                        <p className="text-sm text-gray-600">No invoices found for this customer.</p>
-                    )}
+                  <h3 className="text-lg font-semibold mb-2">Invoices</h3>
+                  {salesData && salesData.length > 0 ? (
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Invoice Number
+                          </th>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Date
+                          </th>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Due Date
+                          </th>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Paid Amount
+                          </th>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Balance Due
+                          </th>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-right"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Total Amount
+                          </th>
+                          <th className="bg-gray-100 p-2 font-bold text-base border section-header text-left"
+                            style={{ backgroundColor: '#e2e8f0', WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            Status
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {salesData.invoices.map((invoice) => (
+                          <tr key={invoice.invoiceId}>
+                            <td className="p-2 border-b">{invoice.invoiceNumber}</td>
+                            <td className="p-2 border-b">{formatDate(invoice.invoiceDate)}</td>
+                            <td className="p-2 border-b">{formatDate(invoice.dueDate)}</td>
+                            <td className="p-2 border-b text-right">{formatCurrency(invoice.paidAmount)}</td>
+                            <td className="p-2 border-b text-right">{formatCurrency(invoice.balanceDue)}</td>
+                            <td className="p-2 border-b text-right">{formatCurrency(invoice.totalAmount)}</td>
+                            <td className="p-2 border-b">{invoice.status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-sm text-gray-600">No invoices found for this customer.</p>
+                  )}
                 </div>
 
                 <div className="border-t pt-2 mt-6">

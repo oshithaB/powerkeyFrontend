@@ -27,7 +27,7 @@ interface Invoice {
   invoice_number: string;
   customer_id: number;
   customer_name?: string;
-  customer_credit_limit? : number | String,
+  customer_credit_limit?: number | String,
   company_id: number;
   employee_id: number;
   employee_name?: string;
@@ -230,24 +230,24 @@ const InvoiceReceivePaymentModal: React.FC = () => {
       setPayment((prev) => ({ ...prev, payment_amount: 0 }));
     }
   };
-  
+
   const handleSelectInvoice = (invoiceId: number, totalAmount: number | string | null) => {
     const invoice = invoices.find((inv) => inv.id === invoiceId);
     if (invoice?.status === 'paid') return;
-  
+
     const newSelected = selectedInvoices.includes(invoiceId)
       ? selectedInvoices.filter((id) => id !== invoiceId)
       : [...selectedInvoices, invoiceId];
-  
+
     setSelectedInvoices(newSelected);
-  
+
     const balanceDue = invoice ? Number(invoice.total_amount) - (Number(invoice.paid_amount) || 0) : 0;
-  
+
     const total = newSelected.reduce((sum, id) => {
       const inv = invoices.find((inv) => inv.id === id);
       return sum + (inv ? (Number(payment[id]) || (inv.status === 'paid' ? 0 : Number(inv.total_amount) - (Number(inv.paid_amount) || 0))) : 0);
     }, 0);
-  
+
     setPayment((prev) => ({
       ...prev,
       [invoiceId]: newSelected.includes(invoiceId) ? balanceDue : '',
@@ -302,7 +302,7 @@ const InvoiceReceivePaymentModal: React.FC = () => {
   const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     const customerId = state?.invoice?.customer_id || null;
-  
+
     if (!customerId || !selectedCompany?.company_id) {
       alert('Missing customer ID or company ID');
       return;
@@ -311,19 +311,19 @@ const InvoiceReceivePaymentModal: React.FC = () => {
       alert('Please select a payment method.');
       return;
     }
-  
+
     const invoicePayments = invoices
       .filter((invoice) => selectedInvoices.includes(invoice.id) && Number(payment[invoice.id]) > 0)
       .map((invoice) => ({
         invoice_id: invoice.id,
         payment_amount: Number(payment[invoice.id]) || 0,
       }));
-  
+
     if (invoicePayments.length === 0) {
       alert('please select the invoices to pay.');
       return;
     }
-  
+
     try {
       await axiosInstance.post(
         `http://147.79.115.89:3000/api/recordInvoicePayment/${selectedCompany.company_id}/${customerId}`,
@@ -400,7 +400,7 @@ const InvoiceReceivePaymentModal: React.FC = () => {
                 Credit Limit: {state?.invoice?.customer_credit_limit ? `Rs. ${formatAmount(state?.invoice?.customer_credit_limit)}` : 'N/A'}
               </h3>
             </div>
-            
+
             <h4 className="text-md font-semibold text-gray-600 mb-2">Invoices</h4>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Search by Invoice Number</label>
@@ -449,89 +449,88 @@ const InvoiceReceivePaymentModal: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {invoices
+                  {invoices
                     .filter(
                       (invoice) =>
-                      ['opened', 'overdue', 'partially_paid'].includes(invoice.status) &&
-                      invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase())
+                        ['opened', 'overdue', 'partially_paid'].includes(invoice.status) &&
+                        invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase())
                     )
                     .length === 0 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-2 text-center text-sm text-gray-500">
-                      No invoices found.
+                        No invoices found.
                       </td>
                     </tr>
-                    ) : (
+                  ) : (
                     invoices
                       .filter(
-                      (invoice) =>
-                        ['opened', 'overdue', 'partially_paid'].includes(invoice.status) &&
-                        invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase())
+                        (invoice) =>
+                          ['opened', 'overdue', 'partially_paid'].includes(invoice.status) &&
+                          invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase())
                       )
                       .map((invoice) => (
-                      <tr key={invoice.id}>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                        <input
-                          type="checkbox"
-                          checked={selectedInvoices.includes(invoice.id)}
-                          onChange={() => handleSelectInvoice(invoice.id, invoice.total_amount)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                          disabled={invoice.status === 'paid'}
-                        />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">{invoice.invoice_number}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                        {format(new Date(invoice.due_date), 'MMM dd, yyyy')}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                        Rs. {formatAmount(invoice.total_amount)}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                        Rs. {formatAmount(invoice.paid_amount)}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm">
-                        <input
-                          type="number"
-                          value={
-                          payment[invoice.id] !== undefined
-                            ? payment[invoice.id]
-                            : selectedInvoices.includes(invoice.id)
-                            ? Number(invoice.total_amount) - (Number(invoice.paid_amount) || 0)
-                            : ''
-                          }
-                          onChange={(e) => handlePaymentChange(e, invoice.id)}
-                          className="input w-full"
-                          placeholder="Enter amount"
-                          disabled={invoice.status === 'paid'}
-                        />
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm text-red-600">
-                        Rs. {formatAmount(Number(invoice.total_amount) - (Number(invoice.paid_amount) || 0) - (Number(payment[invoice.id]) || 0))}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          (invoice.computed_status || invoice.status) === 'paid'
-                            ? 'bg-green-100 text-green-800'
-                            : (invoice.computed_status || invoice.status) === 'partially_paid'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : (invoice.computed_status || invoice.status) === 'overdue'
-                            ? 'bg-red-100 text-red-800'
-                            : (invoice.computed_status || invoice.status) === 'proforma'
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {(invoice.computed_status || invoice.status)
-                          .replace('_', ' ')
-                          .charAt(0)
-                          .toUpperCase() +
-                          (invoice.computed_status || invoice.status).replace('_', ' ').slice(1)}
-                        </span>
-                        </td>
-                      </tr>
+                        <tr key={invoice.id}>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={selectedInvoices.includes(invoice.id)}
+                              onChange={() => handleSelectInvoice(invoice.id, invoice.total_amount)}
+                              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                              disabled={invoice.status === 'paid'}
+                            />
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">{invoice.invoice_number}</td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">
+                            {format(new Date(invoice.due_date), 'MMM dd, yyyy')}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">
+                            Rs. {formatAmount(invoice.total_amount)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">
+                            Rs. {formatAmount(invoice.paid_amount)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm">
+                            <input
+                              type="number"
+                              value={
+                                payment[invoice.id] !== undefined
+                                  ? payment[invoice.id]
+                                  : selectedInvoices.includes(invoice.id)
+                                    ? Number(invoice.total_amount) - (Number(invoice.paid_amount) || 0)
+                                    : ''
+                              }
+                              onChange={(e) => handlePaymentChange(e, invoice.id)}
+                              className="input w-full"
+                              placeholder="Enter amount"
+                              disabled={invoice.status === 'paid'}
+                            />
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-red-600">
+                            Rs. {formatAmount(Number(invoice.total_amount) - (Number(invoice.paid_amount) || 0) - (Number(payment[invoice.id]) || 0))}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap">
+                            <span
+                              className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${(invoice.computed_status || invoice.status) === 'paid'
+                                ? 'bg-green-100 text-green-800'
+                                : (invoice.computed_status || invoice.status) === 'partially_paid'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : (invoice.computed_status || invoice.status) === 'overdue'
+                                    ? 'bg-red-100 text-red-800'
+                                    : (invoice.computed_status || invoice.status) === 'proforma'
+                                      ? 'bg-purple-100 text-purple-800'
+                                      : 'bg-gray-100 text-gray-800'
+                                }`}
+                            >
+                              {(invoice.computed_status || invoice.status)
+                                .replace('_', ' ')
+                                .charAt(0)
+                                .toUpperCase() +
+                                (invoice.computed_status || invoice.status).replace('_', ' ').slice(1)}
+                            </span>
+                          </td>
+                        </tr>
                       ))
-                    )}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -578,7 +577,7 @@ const InvoiceReceivePaymentModal: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Reference</label>
-                <input 
+                <input
                   className='flex items-center border rounded px-3 py-2 w-full'
                   placeholder='Enter Reference'
                   type="text"

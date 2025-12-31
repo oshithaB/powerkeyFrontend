@@ -66,7 +66,7 @@ export default function Header({ setSidebarOpen }: HeaderProps) {
                 <Link
                   to="/companies"
                   className="btn btn-secondary btn-sm"
-                  onClick={(e) => {handleCompanySwitch(e)}}
+                  onClick={(e) => { handleCompanySwitch(e) }}
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Switch Company

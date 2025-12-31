@@ -6,7 +6,7 @@ import OrdersPage from './OrdersPage';
 import { useCompany } from '../../contexts/CompanyContext';
 
 export default function PurchasesPage() {
-  const {selectedCompany} = useCompany();
+  const { selectedCompany } = useCompany();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
@@ -29,20 +29,20 @@ export default function PurchasesPage() {
     };
     fetchStats();
   }, []);
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Purchases</h1>
         <div className="flex justify-between items-center">
           <button
-              onClick={() => {
-                  navigate('/purchase-orders');
-              }}
-              className="btn btn-primary btn-md"
+            onClick={() => {
+              navigate('/purchase-orders');
+            }}
+            className="btn btn-primary btn-md"
           >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Purchase Order
+            <Plus className="h-4 w-4 mr-2" />
+            Add Purchase Order
           </button>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function PurchasesPage() {
 
         <OrdersPage />
       </div>
-      
+
     </div>
   );
 }
