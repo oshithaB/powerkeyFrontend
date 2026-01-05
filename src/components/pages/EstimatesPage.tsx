@@ -291,7 +291,7 @@ export default function EstimatesPage() {
               {
                 width: '*',
                 stack: [
-                  { text: 'ESTIMATE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: selectedCompany?.is_taxable ? 'TAX ESTIMATE' : 'ESTIMATE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
                   { text: estimate.estimate_number, fontSize: 16, bold: true, color: '#1f2937' }
                 ]
               },

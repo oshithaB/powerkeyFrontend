@@ -815,7 +815,6 @@ export default function ProductsPage() {
                       step="0.01"
                       className="input"
                       value={productFormData.cost_price}
-                      disabled
                       onChange={(e) =>
                         setProductFormData({ ...productFormData, cost_price: parseFloat(e.target.value) || 0 })
                       }

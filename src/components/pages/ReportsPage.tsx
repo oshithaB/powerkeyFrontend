@@ -149,6 +149,11 @@ export default function ReportsPage() {
       name: 'Stock Take Worksheet',
       description: 'Worksheet for stock taking',
       path: '/reports/stock-take-worksheet'
+    },
+    {
+      name: 'Inventory Valuation Report',
+      description: 'Value of stock on hand',
+      path: '/reports/inventory-valuation-report'
     }
 
   ];
@@ -396,8 +401,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -429,8 +434,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -464,8 +469,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -497,8 +502,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -530,8 +535,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -563,8 +568,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -596,8 +601,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -629,8 +634,8 @@ export default function ReportsPage() {
                   <h4 className="font-medium text-gray-900">{report.name}</h4>
                   <Star
                     className={`h-5 w-5 cursor-pointer ${favoriteReports.includes(report.name)
-                        ? 'text-yellow-400 fill-yellow-400'
-                        : 'text-gray-400'
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-400'
                       }`}
                     onClick={(e) => {
                       e.stopPropagation();

@@ -288,7 +288,7 @@ export default function InvoicesPage() {
               {
                 width: '*',
                 stack: [
-                  { text: 'INVOICE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
                   { text: printingInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937' }
                 ]
               },
@@ -352,14 +352,7 @@ export default function InvoicesPage() {
                     },
                     layout: 'noBorders'
                   },
-                  selectedCompany?.is_taxable ? {
-                    text: 'TAX INVOICE',
-                    fontSize: 10,
-                    bold: true,
-                    color: '#dc2626',
-                    alignment: 'right',
-                    margin: [0, 6, 0, 0]
-                  } : { text: '' }
+                  selectedCompany?.is_taxable ? { text: '' } : { text: '' }
                 ]
               }
             ],

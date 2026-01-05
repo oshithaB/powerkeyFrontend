@@ -37,6 +37,8 @@ import ProfitAndLossByCustomer from './components/reports/ProfitAndLossByCustome
 import ProfitAndLossByCustomerInDetail from './components/reports/ProfitAndLossByCustomerInDetail';
 import ProfitAndLossByMonth from './components/reports/ProfitAndLossByMonth';
 
+import InventoryReport from './components/reports/InventoryReport';
+
 import BalanceSheet from './components/reports/BalanceSheet';
 
 // Sales & Customers Reports
@@ -400,6 +402,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <StockTakeWorksheet />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "reports/inventory-valuation-report",
+                element: (
+                    <ProtectedRoute>
+                        <InventoryReport />
                     </ProtectedRoute>
                 ),
             },
