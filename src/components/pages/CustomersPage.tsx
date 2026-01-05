@@ -404,6 +404,7 @@ export default function CustomersPage() {
                     </label>
                     <input
                       type="tel"
+                      required
                       className="input"
                       placeholder="Enter Phone Number"
                       value={formData.phone}
@@ -465,7 +466,6 @@ export default function CustomersPage() {
                       placeholder='Enter Billing Address'
                       value={formData.billing_address}
                       onChange={(e) => setFormData({ ...formData, billing_address: e.target.value })}
-                      required
                     />
                   </div>
 
@@ -478,7 +478,6 @@ export default function CustomersPage() {
                       placeholder='Enter City'
                       value={formData.billing_city}
                       onChange={(e) => setFormData({ ...formData, billing_city: e.target.value })}
-                      required
                     />
                   </div>
 
@@ -489,7 +488,6 @@ export default function CustomersPage() {
                       className="input"
                       value={formData.billing_province}
                       onChange={(e) => setFormData({ ...formData, billing_province: e.target.value })}
-                      required
                     >
                       <option value="">Select Province</option>
                       <option value="Central">Central Province</option>
@@ -513,7 +511,6 @@ export default function CustomersPage() {
                       placeholder='Enter Postal Code'
                       value={formData.billing_postal_code}
                       onChange={(e) => setFormData({ ...formData, billing_postal_code: e.target.value })}
-                      required
                     />
                   </div>
 
@@ -526,7 +523,6 @@ export default function CustomersPage() {
                       placeholder='Enter Country'
                       value={formData.billing_country}
                       onChange={(e) => setFormData({ ...formData, billing_country: e.target.value })}
-                      required
                     />
                   </div>
                 </div>
@@ -659,7 +655,6 @@ export default function CustomersPage() {
                       className="input"
                       value={formData.primary_payment_method}
                       onChange={(e) => setFormData({ ...formData, primary_payment_method: e.target.value })}
-                      required
                     >
                       <option value="">Select Payment Method</option>
                       <option value="cash">Cash</option>
@@ -681,7 +676,6 @@ export default function CustomersPage() {
                       className="input"
                       value={formData.terms}
                       onChange={(e) => setFormData({ ...formData, terms: e.target.value })}
-                      required
                     >
                       <option value="">Select Terms</option>
                       <option value="dueonreceipt">Due on Receipt</option>
@@ -698,7 +692,6 @@ export default function CustomersPage() {
                       className="input"
                       value={formData.delivery_option}
                       onChange={(e) => setFormData({ ...formData, delivery_option: e.target.value })}
-                      required
                     >
                       <option value="">Select Delivery Option</option>
                       <option value="printLater">Print Later</option>
@@ -715,7 +708,6 @@ export default function CustomersPage() {
                       className="input"
                       value={formData.invoice_language}
                       onChange={(e) => setFormData({ ...formData, invoice_language: e.target.value })}
-                      required
                     >
                       <option value="">Select Language</option>
                       <option value="english">English</option>
@@ -753,7 +745,6 @@ export default function CustomersPage() {
                       placeholder="Enter Opening Balance"
                       value={formData.opening_balance}
                       onChange={(e) => setFormData({ ...formData, opening_balance: parseFloat(e.target.value) || 0 })}
-                      required
                     />
                   </div>
 
