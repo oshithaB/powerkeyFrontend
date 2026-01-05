@@ -387,6 +387,7 @@ export default function VendorsPage() {
                     </label>
                     <input
                       type="tel"
+                      required
                       className="input"
                       placeholder="Enter Phone Number"
                       value={formData.phone}
