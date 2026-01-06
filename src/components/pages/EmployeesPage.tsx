@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
 import { Plus, Search, Edit, Trash2, User, Mail, Phone } from 'lucide-react';
 import { format } from 'date-fns';
@@ -22,9 +23,11 @@ interface User {
   user_id: number;
   username: string;
   role_id: number;
+  is_fixed_to_company?: boolean;
 }
 
 export default function EmployeesPage() {
+  const { selectedCompany } = useCompany();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +42,7 @@ export default function EmployeesPage() {
     role_id: '',
     username: '',
     password: '',
+    is_fixed_to_company: false,
   });
   const [roles, setRoles] = useState<Role[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -112,6 +116,15 @@ export default function EmployeesPage() {
       employeePayload.username = formData.username;
       employeePayload.password = formData.password;
       employeePayload.role_id = parseInt(formData.role_id);
+
+      // Add fixed company logic
+      if (formData.is_fixed_to_company && selectedCompany?.company_id) {
+        employeePayload.is_fixed_to_company = true;
+        employeePayload.fixed_company_id = selectedCompany.company_id;
+      } else {
+        employeePayload.is_fixed_to_company = false;
+        employeePayload.fixed_company_id = null;
+      }
     }
 
     try {
@@ -148,6 +161,7 @@ export default function EmployeesPage() {
       role_id: userData?.role_id?.toString() || '',
       username: userData?.username || '',
       password: '',
+      is_fixed_to_company: !!userData?.is_fixed_to_company,
     });
     setShowModal(true);
   };
@@ -174,6 +188,7 @@ export default function EmployeesPage() {
       role_id: '',
       username: '',
       password: '',
+      is_fixed_to_company: false,
     });
     setEditingEmployee(null);
     setErrorMessage(null);
@@ -442,27 +457,47 @@ export default function EmployeesPage() {
                     />
                   </div>
                 </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="btn btn-secondary btn-md"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-md"
-                  >
-                    {editingEmployee ? 'Update' : 'Create'} Employee
-                  </button>
-                </div>
-              </form>
             </div>
-          </div>
+
+            {formData.role_id && formData.username && formData.password && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-primary"
+                    checked={formData.is_fixed_to_company}
+                    onChange={(e) => setFormData({ ...formData, is_fixed_to_company: e.target.checked })}
+                  />
+                  <span className="text-sm font-medium text-gray-700">Fixed to Company</span>
+                </label>
+                <p className="text-xs text-gray-500 mt-1 pl-6">
+                  If checked, this user will ONLY be able to access <strong>{selectedCompany?.name || 'the current company'}</strong>.
+                  Uncheck to allow access to all companies.
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="btn btn-secondary btn-md"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary btn-md"
+              >
+                {editingEmployee ? 'Update' : 'Create'} Employee
+              </button>
+            </div>
+          </form>
         </div>
-      )}
-    </div>
+          </div>
+        </div >
+      )
+}
+    </div >
   );
 }
