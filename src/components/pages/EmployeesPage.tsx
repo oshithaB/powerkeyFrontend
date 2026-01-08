@@ -457,47 +457,47 @@ export default function EmployeesPage() {
                     />
                   </div>
                 </div>
-            </div>
 
-            {formData.role_id && formData.username && formData.password && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-primary"
-                    checked={formData.is_fixed_to_company}
-                    onChange={(e) => setFormData({ ...formData, is_fixed_to_company: e.target.checked })}
-                  />
-                  <span className="text-sm font-medium text-gray-700">Fixed to Company</span>
-                </label>
-                <p className="text-xs text-gray-500 mt-1 pl-6">
-                  If checked, this user will ONLY be able to access <strong>{selectedCompany?.name || 'the current company'}</strong>.
-                  Uncheck to allow access to all companies.
-                </p>
-              </div>
-            )}
 
-            <div className="flex justify-end space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="btn btn-secondary btn-md"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn-primary btn-md"
-              >
-                {editingEmployee ? 'Update' : 'Create'} Employee
-              </button>
+                {formData.role_id && formData.username && formData.password && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-primary"
+                        checked={formData.is_fixed_to_company}
+                        onChange={(e) => setFormData({ ...formData, is_fixed_to_company: e.target.checked })}
+                      />
+                      <span className="text-sm font-medium text-gray-700">Fixed to Company</span>
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1 pl-6">
+                      If checked, this user will ONLY be able to access <strong>{selectedCompany?.name || 'the current company'}</strong>.
+                      Uncheck to allow access to all companies.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="btn btn-secondary btn-md"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary btn-md"
+                  >
+                    {editingEmployee ? 'Update' : 'Create'} Employee
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
-        </div>
           </div>
         </div >
       )
-}
+      }
     </div >
   );
 }
