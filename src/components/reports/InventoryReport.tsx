@@ -83,6 +83,36 @@ const InventoryReport: React.FC = () => {
         window.print();
     };
 
+    const handleDownloadExcel = async () => {
+        try {
+            const companyId = selectedCompany?.company_id;
+            const token = localStorage.getItem('token');
+            if (!companyId) return;
+
+            const response = await fetch(`http://147.79.115.89:3000/api/inventory-valuation-summary-excel/${companyId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'inventory_valuation.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } else {
+                alert('Failed to download Excel');
+            }
+        } catch (error) {
+            console.error('Download error:', error);
+            alert('Error downloading Excel');
+        }
+    };
+
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
         doc.text(`${selectedCompany?.name} - Inventory Report`, 14, 20);
@@ -123,6 +153,9 @@ const InventoryReport: React.FC = () => {
                         </button>
                         <button onClick={handleDownloadPDF} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                             <Download size={20} /> Export PDF
+                        </button>
+                        <button onClick={handleDownloadExcel} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                            <Download size={20} /> Export Excel
                         </button>
                     </div>
                 </div>

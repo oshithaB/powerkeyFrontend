@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axiosInstance from '../../../axiosInstance';
-import { X, Printer, ArrowLeft } from 'lucide-react';
+import { X, Printer, ArrowLeft, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import jsPDF from 'jspdf';
@@ -169,6 +169,37 @@ const StockTakeWorksheet: React.FC = () => {
       return;
     }
     setShowPrintPreview(true);
+  };
+
+  const handleDownloadExcel = async () => {
+    try {
+      const companyId = selectedCompany?.company_id;
+      const token = localStorage.getItem('token');
+      if (!companyId) return;
+
+      const response = await fetch(`http://147.79.115.89:3000/api/stock-take-worksheet-excel/${companyId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'stock_take_worksheet.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        alert('Failed to download Excel');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Error downloading Excel');
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -360,6 +391,13 @@ const StockTakeWorksheet: React.FC = () => {
                   title="Print Report"
                 >
                   <Printer className="h-6 w-6" />
+                </button>
+                <button
+                  onClick={handleDownloadExcel}
+                  className="text-green-600 hover:text-green-800"
+                  title="Download Excel"
+                >
+                  <Download className="h-6 w-6" />
                 </button>
                 <button
                   onClick={() => navigate(-1)}
