@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
-import { Plus, Search, Edit, Trash2, Receipt, Eye, DollarSign } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Receipt, Printer, DollarSign } from 'lucide-react';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+(pdfMake as any).vfs = pdfFonts;
 import { format } from 'date-fns';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -24,6 +28,7 @@ interface Bill {
   paid_amount: number;
   balance_due: number;
   order_number?: string; // Add this
+  terms?: string; // Add this
   created_at: string;
 }
 
@@ -48,6 +53,202 @@ export default function BillsPage() {
       console.error('Error fetching bills:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getImageDataUrl = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error loading image:', error);
+      return '';
+    }
+  };
+
+  const handlePrintBill = async (bill: Bill) => {
+    try {
+      // 1. Fetch bill items first
+      const itemsRes = await axiosInstance.get(`http://147.79.115.89:3000/api/getBillItems/${selectedCompany?.company_id}/${bill.id}`);
+      const items: any[] = Array.isArray(itemsRes.data) ? itemsRes.data : [];
+
+      if (!items || items.length === 0) {
+        alert("No items to generate PDF from.");
+        return;
+      }
+
+      // 2. Prepare data for PDF
+      let logoDataUrl = '';
+      if (selectedCompany?.company_logo) {
+        logoDataUrl = await getImageDataUrl(`http://147.79.115.89:3000${selectedCompany.company_logo}`);
+      }
+
+      const formatDate = (isoDate: string | Date | null | undefined) => {
+        if (!isoDate) return '';
+        const date = new Date(isoDate);
+        if (isNaN(date.getTime())) return '';
+        return date.toISOString().split('T')[0];
+      };
+
+      const calculateTotal = () => {
+        return items.reduce((sum, item) => sum + Number(item.total_price), 0);
+      };
+
+      const total = calculateTotal();
+
+      const docDefinition: any = {
+        pageSize: 'A4',
+        pageMargins: [35, 35, 35, 35],
+        content: [
+          // Header
+          {
+            columns: [
+              {
+                width: '*',
+                stack: [
+                  { text: 'BILL', fontSize: 24, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: bill.bill_number, fontSize: 14, bold: true, color: '#1f2937' }
+                ]
+              },
+              logoDataUrl ? {
+                image: logoDataUrl,
+                width: 100,
+                alignment: 'right'
+              } : { text: '', width: 100 }
+            ],
+            margin: [0, 0, 0, 20]
+          },
+          // Info Block
+          {
+            columns: [
+              {
+                width: '48%',
+                stack: [
+                  { text: 'FROM', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
+                  { text: bill.vendor_name || 'Vendor Name', fontSize: 10, bold: true, margin: [0, 0, 0, 3] },
+                  // Add more vendor details if available
+                ]
+              },
+              { width: '4%', text: '' },
+              {
+                width: '48%',
+                stack: [
+                  { text: 'BILL DETAILS', fontSize: 10, bold: true, color: '#1f2937', alignment: 'right', margin: [0, 0, 0, 6] },
+                  {
+                    table: {
+                      widths: ['*', 'auto'],
+                      body: [
+                        [
+                          { text: 'Bill Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                          { text: formatDate(bill.bill_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                        ],
+                        [
+                          { text: 'Due Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                          { text: formatDate(bill.due_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                        ],
+                        [
+                          { text: 'Terms:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                          { text: (bill.terms || '').replace(/_/g, ' ').toUpperCase(), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                        ]
+                      ]
+                    },
+                    layout: 'noBorders'
+                  }
+                ]
+              }
+            ],
+            margin: [0, 0, 0, 20]
+          },
+          // Items Table
+          {
+            table: {
+              headerRows: 1,
+              widths: [30, '*', 40, 60, 70],
+              body: [
+                [
+                  { text: '#', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+                  { text: 'Item & Description', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+                  { text: 'Qty', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [4, 5, 4, 5] },
+                  { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] },
+                  { text: 'Total', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] }
+                ],
+                ...items.map((item, index) => [
+                  { text: (index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+                  {
+                    stack: [
+                      { text: item.product_name || 'Item', fontSize: 9, bold: true },
+                      { text: item.description || '', fontSize: 8.5, color: '#4b5563' }
+                    ],
+                    margin: [3, 4, 3, 4]
+                  },
+                  { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+                  { text: `Rs. ${Number(item.unit_price).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+                  { text: `Rs. ${Number(item.total_price).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
+                ])
+              ]
+            },
+            layout: {
+              hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1.5 : 0.5,
+              vLineWidth: () => 0,
+              hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
+              paddingLeft: () => 0,
+              paddingRight: () => 0,
+              paddingTop: () => 0,
+              paddingBottom: () => 0
+            },
+            margin: [0, 0, 0, 20]
+          },
+          // Totals
+          {
+            columns: [
+              {
+                width: '55%',
+                stack: [
+                  bill.notes ? {
+                    text: 'Notes:',
+                    fontSize: 10,
+                    bold: true,
+                    margin: [0, 0, 0, 4]
+                  } : {},
+                  bill.notes ? {
+                    text: bill.notes,
+                    fontSize: 9,
+                    color: '#4b5563'
+                  } : {}
+                ]
+              },
+              {
+                width: '45%',
+                table: {
+                  widths: ['*', 'auto'],
+                  body: [
+                    [
+                      { text: 'TOTAL:', fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
+                      { text: `Rs. ${total.toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
+                    ]
+                  ]
+                },
+                layout: 'noBorders'
+              }
+            ]
+          }
+        ],
+        defaultStyle: {
+          font: 'Roboto'
+        }
+      };
+
+      const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+      pdfDocGenerator.download(`Bill_${bill.bill_number}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert("Failed to generate PDF");
     }
   };
 
@@ -223,16 +424,17 @@ export default function BillsPage() {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => handleEdit(bill)}
-                          className="text-primary-600 hover:text-primary-900"
+                          className="text-indigo-600 hover:text-indigo-900"
                           title="Edit"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          className="text-blue-600 hover:text-blue-900"
-                          title="View"
+                          onClick={() => handlePrintBill(bill)}
+                          className="text-gray-600 hover:text-gray-900"
+                          title="Print PDF"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Printer className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleAddPayment(bill)}
