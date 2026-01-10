@@ -306,7 +306,7 @@ export default function InvoicesPage() {
               {
                 width: '*',
                 stack: [
-                  { text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE', fontSize: 28, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
                   { text: printingInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937' }
                 ]
               },
@@ -432,9 +432,9 @@ export default function InvoicesPage() {
           body: tableBody
         },
         layout: {
-          hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1.5 : 0.5,
+          hLineWidth: (i: number, node: any) => 0.5,
           vLineWidth: () => 0,
-          hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
+          hLineColor: (i: number) => '#e5e7eb',
           paddingLeft: () => 0,
           paddingRight: () => 0,
           paddingTop: () => 0,
@@ -499,12 +499,14 @@ export default function InvoicesPage() {
                   { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 0, 3] }
                 ],
                 [
-                  { text: 'BALANCE DUE:', fontSize: 10, bold: true, fillColor: '#fef3c7', color: '#92400e', alignment: 'right', margin: [0, 6, 10, 6] },
-                  { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, fontSize: 10, bold: true, fillColor: '#fef3c7', color: '#92400e', alignment: 'right', margin: [0, 6, 0, 6] }
+                  { text: 'BALANCE DUE:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
+                  { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                 ]
               ]
             },
             layout: {
+              hLineWidth: () => 0,
+              vLineWidth: () => 0,
               paddingLeft: () => 10,
               paddingRight: () => 10,
               paddingTop: () => 0,

@@ -291,7 +291,7 @@ export default function EstimatesPage() {
               {
                 width: '*',
                 stack: [
-                  { text: selectedCompany?.is_taxable ? 'TAX ESTIMATE' : 'ESTIMATE', fontSize: 28, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: selectedCompany?.is_taxable ? 'TAX ESTIMATE' : 'ESTIMATE', fontSize: 28, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
                   { text: estimate.estimate_number, fontSize: 16, bold: true, color: '#1f2937' }
                 ]
               },
@@ -409,9 +409,9 @@ export default function EstimatesPage() {
           body: tableBody
         },
         layout: {
-          hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1.5 : 0.5,
+          hLineWidth: (i: number, node: any) => 0.5,
           vLineWidth: () => 0,
-          hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
+          hLineColor: (i: number) => '#e5e7eb',
           paddingLeft: () => 0,
           paddingRight: () => 0,
           paddingTop: () => 0,
@@ -474,6 +474,8 @@ export default function EstimatesPage() {
               ]
             },
             layout: {
+              hLineWidth: () => 0,
+              vLineWidth: () => 0,
               paddingLeft: () => 10,
               paddingRight: () => 10,
               paddingTop: () => 0,

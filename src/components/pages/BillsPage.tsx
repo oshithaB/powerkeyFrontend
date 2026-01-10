@@ -112,7 +112,7 @@ export default function BillsPage() {
               {
                 width: '*',
                 stack: [
-                  { text: 'BILL', fontSize: 24, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                  { text: 'BILL', fontSize: 24, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
                   { text: bill.bill_number, fontSize: 14, bold: true, color: '#1f2937' }
                 ]
               },
@@ -194,9 +194,9 @@ export default function BillsPage() {
               ]
             },
             layout: {
-              hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1.5 : 0.5,
+              hLineWidth: (i: number, node: any) => 0.5,
               vLineWidth: () => 0,
-              hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
+              hLineColor: (i: number) => '#e5e7eb',
               paddingLeft: () => 0,
               paddingRight: () => 0,
               paddingTop: () => 0,
