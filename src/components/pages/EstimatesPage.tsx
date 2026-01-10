@@ -379,12 +379,12 @@ export default function EstimatesPage() {
     const createItemsTable = (items: EstimateItem[], startIndex: number) => {
       const tableBody: any[][] = [
         [
-          { text: '#', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
-          { text: 'Product', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
-          { text: 'Description', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
-          { text: 'Qty', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [4, 5, 4, 5] },
-          { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] },
-          { text: 'Total', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] }
+          { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+          { text: 'Product', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+          { text: 'Description', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+          { text: 'Qty', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [4, 5, 4, 5] },
+          { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] },
+          { text: 'Total', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] }
         ]
       ];
 
@@ -468,8 +468,8 @@ export default function EstimatesPage() {
                   { text: `Rs. ${Number(estimate.tax_amount || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 0, 6] }
                 ],
                 [
-                  { text: 'TOTAL:', fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
-                  { text: `Rs. ${Number(estimate.total_amount || 0).toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
+                  { text: 'TOTAL:', fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
+                  { text: `Rs. ${Number(estimate.total_amount || 0).toFixed(2)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                 ]
               ]
             },

@@ -172,11 +172,11 @@ export default function BillsPage() {
               widths: [30, '*', 40, 60, 70],
               body: [
                 [
-                  { text: '#', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
-                  { text: 'Item & Description', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
-                  { text: 'Qty', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [4, 5, 4, 5] },
-                  { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] },
-                  { text: 'Total', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] }
+                  { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+                  { text: 'Item & Description', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+                  { text: 'Qty', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [4, 5, 4, 5] },
+                  { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] },
+                  { text: 'Total', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] }
                 ],
                 ...items.map((item, index) => [
                   { text: (index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
@@ -229,8 +229,8 @@ export default function BillsPage() {
                   widths: ['*', 'auto'],
                   body: [
                     [
-                      { text: 'TOTAL:', fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
-                      { text: `Rs. ${total.toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
+                      { text: 'TOTAL:', fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
+                      { text: `Rs. ${total.toFixed(2)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                     ]
                   ]
                 },
