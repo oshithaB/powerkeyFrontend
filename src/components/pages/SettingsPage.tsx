@@ -1,9 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCompany } from '../../contexts/CompanyContext';
-import { Settings, Building2, Users, CreditCard, Bell } from 'lucide-react';
+import { Settings, Building2, Users, CreditCard, Bell, Edit2, Save, X } from 'lucide-react';
+import axiosInstance from '../../axiosInstance';
 
 export default function SettingsPage() {
-  const { selectedCompany } = useCompany();
+  const { selectedCompany, refreshCompany } = useCompany();
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    invoice_prefix: '',
+    current_invoice_number: ''
+  });
+
+  useEffect(() => {
+    if (selectedCompany) {
+      setFormData({
+        invoice_prefix: selectedCompany.invoice_prefix || '',
+        current_invoice_number: selectedCompany.current_invoice_number?.toString() || ''
+      });
+    }
+  }, [selectedCompany]);
+
+  const handleSave = async () => {
+    if (!selectedCompany) return;
+
+    try {
+      // The endpoint expects a FormData object or JSON? The user example used FormData.
+      // "const formData = new FormData(); ... await axios.put(..., formData);"
+      // Depending on the backend, JSON might also work, but I will stick to the user's example or standard JSON if unsure.
+      // Given the `ProductsPage` uses FormData for file uploads, but `company/update` often takes JSON unless there's a logo.
+      // I'll try JSON first if I'm not uploading a file, or check if the backend handles both.
+      // Actually, looking at the user prompt: "const formData = new FormData(); ... formData.append('invoice_prefix', 'PWK');"
+      // I will use FormData to be safe and consistent with the user guide.
+
+      const data = new FormData();
+      data.append('invoice_prefix', formData.invoice_prefix);
+      data.append('current_invoice_number', formData.current_invoice_number);
+      // We are only updating these two for now, but the endpoint might expect other fields or just update what's present.
+      // To avoid overwriting other fields with nulls if the backend is strict, I should act carefully.
+      // But typically PUT updates provided fields.
+
+      await axiosInstance.put(`http://147.79.115.89:3000/api/company/update/${selectedCompany.company_id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' } // Optional explicitly, axios sets it for FormData
+      });
+
+      setIsEditing(false);
+      // Refresh company context to show new values
+      if (refreshCompany) refreshCompany();
+      alert('Settings saved successfully');
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      alert('Failed to update settings');
+    }
+  };
 
   const settingsSections = [
     {
@@ -40,32 +88,95 @@ export default function SettingsPage() {
 
       {/* Company Info */}
       <div className="card">
-        <div className="card-header">
+        <div className="card-header flex justify-between items-center">
           <h2 className="text-lg font-semibold">Company Information</h2>
+          {!isEditing ? (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors"
+            >
+              <Edit2 size={20} />
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleSave}
+                className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                title="Save"
+              >
+                <Save size={20} />
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                title="Cancel"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          )}
         </div>
         <div className="card-content">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-start space-x-6">
             {selectedCompany?.company_logo ? (
               <img
                 src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
                 alt={selectedCompany.name}
-                className="h-16 w-16 rounded-lg object-cover"
+                className="h-24 w-24 rounded-lg object-contain bg-gray-50"
               />
             ) : (
-              <div className="h-16 w-16 bg-primary-100 rounded-lg flex items-center justify-center">
-                <Building2 className="h-8 w-8 text-primary-600" />
+              <div className="h-24 w-24 bg-primary-100 rounded-lg flex items-center justify-center">
+                <Building2 className="h-12 w-12 text-primary-600" />
               </div>
             )}
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900">
-                {selectedCompany?.name}
-              </h3>
-              <p className="text-gray-600">
-                {selectedCompany?.address || 'No address provided'}
-              </p>
-              <p className="text-sm text-gray-500">
-                Contact Number: {selectedCompany?.contact_number}
-              </p>
+
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {selectedCompany?.name}
+                </h3>
+                <div className="space-y-1 text-gray-600">
+                  <p>{selectedCompany?.address || 'No address provided'}</p>
+                  <p>Contact: {selectedCompany?.contact_number}</p>
+                  <p>Email: {selectedCompany?.email}</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Invoice Settings</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Prefix</label>
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          value={formData.invoice_prefix}
+                          onChange={(e) => setFormData({ ...formData, invoice_prefix: e.target.value })}
+                          className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-blue-500"
+                          placeholder="e.g. INV-"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium">{selectedCompany?.invoice_prefix || '-'}</span>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Current Number</label>
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          value={formData.current_invoice_number}
+                          onChange={(e) => setFormData({ ...formData, current_invoice_number: e.target.value })}
+                          className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-blue-500"
+                          placeholder="e.g. 100"
+                        />
+                      ) : (
+                        <span className="text-sm font-medium">{selectedCompany?.current_invoice_number || '-'}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

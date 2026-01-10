@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
-import { Plus, Edit, Trash2, DollarSign, Filter, Printer, X } from 'lucide-react';
+import { Plus, Edit, Trash2, DollarSign, Filter, Printer, X, Ban } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
@@ -230,6 +230,24 @@ export default function InvoicesPage() {
         fetchInvoices();
       } catch (error) {
         console.error('Error deleting invoice:', error);
+      }
+    }
+  };
+
+  const handleCancelInvoice = async (invoice: Invoice) => {
+    if (invoice.status === 'cancelled') return;
+
+    if (window.confirm('Are you sure you want to cancel this invoice? This will reverse stock, payments, and customer balance.')) {
+      try {
+        await axiosInstance.post(`http://147.79.115.89:3000/api/invoice/cancelInvoice/${selectedCompany?.company_id}`, {
+          invoiceId: invoice.id,
+          companyId: selectedCompany?.company_id
+        });
+        alert('Invoice cancelled successfully');
+        fetchInvoices();
+      } catch (error: any) {
+        console.error('Error cancelling invoice:', error);
+        alert(error.response?.data?.error || 'Failed to cancel invoice');
       }
     }
   };
@@ -968,6 +986,14 @@ export default function InvoicesPage() {
                             disabled={!invoice.customer_id}
                           >
                             <DollarSign className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleCancelInvoice(invoice)}
+                            className="text-red-600 hover:text-red-900"
+                            style={{ display: invoice.status === 'cancelled' ? 'none' : undefined }}
+                            title="Cancel Invoice"
+                          >
+                            <Ban className="h-4 w-4" />
                           </button>
                           {/* Delete button removed as per user request */}
                         </div>
