@@ -65,7 +65,6 @@ export default function EditBill() {
         vendor_name: bill ? bill.vendor_name : '',
         vendor_id: bill ? bill.vendor_id : '',
         bill_date: bill ? bill.bill_date.split('T')[0] : new Date().toISOString().split('T')[0],
-        bill_date: bill ? bill.bill_date.split('T')[0] : new Date().toISOString().split('T')[0],
         payment_method: bill ? bill.payment_method_id : '',
         employee_id: bill ? bill.employee_id : '',
         due_date: bill ? (bill.due_date ? bill.due_date.split('T')[0] : '') : '',
@@ -336,7 +335,7 @@ export default function EditBill() {
             });
             const newMethod = response.data.name;
             setPaymentMethods((prev) => [...prev, newMethod]);
-            setFormData({ ...formData, payment_method_id: newMethod.id });
+            setFormData({ ...formData, payment_method: newMethod.id });
             setIsCreatePaymentMethodModalOpen(false);
             alert('Payment method created successfully.');
         } catch (error) {
@@ -1227,12 +1226,12 @@ export default function EditBill() {
                                 </label>
                                 <select
                                     name="payment_method"
-                                    value={formData.payment_method_id || ''}
+                                    value={formData.payment_method || ''}
                                     onChange={(e) => {
                                         if (e.target.value === 'create_new') {
                                             setIsCreatePaymentMethodModalOpen(true);
                                         } else {
-                                            setFormData({ ...formData, payment_method_id: e.target.value });
+                                            setFormData({ ...formData, payment_method: e.target.value });
                                         }
                                     }}
                                     className="input w-full"
