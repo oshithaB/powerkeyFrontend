@@ -174,28 +174,19 @@ const StockTakeWorksheet: React.FC = () => {
   const handleDownloadExcel = async () => {
     try {
       const companyId = selectedCompany?.company_id;
-      const token = localStorage.getItem('token');
       if (!companyId) return;
 
-      const response = await fetch(`http://147.79.115.89:3000/api/stock-take-worksheet-excel/${companyId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/stock-take-worksheet-excel/${companyId}`, {
+        responseType: 'blob',
       });
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'stock_take_worksheet.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      } else {
-        alert('Failed to download Excel');
-      }
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'stock_take_worksheet.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (error) {
       console.error('Download error:', error);
       alert('Error downloading Excel');
