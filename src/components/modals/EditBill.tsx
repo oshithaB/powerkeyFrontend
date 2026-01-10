@@ -20,6 +20,11 @@ interface BillItem {
     total_price: number;
 }
 
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+(pdfMake as any).vfs = pdfFonts;
+
 interface Role {
     role_id: number;
     name: string;
@@ -63,11 +68,13 @@ export default function EditBill() {
         vendor_name: bill ? bill.vendor_name : '',
         vendor_id: bill ? bill.vendor_id : '',
         bill_date: bill ? bill.bill_date.split('T')[0] : new Date().toISOString().split('T')[0],
-        payment_method_id: bill ? bill.payment_method_id : '',
+        bill_date: bill ? bill.bill_date.split('T')[0] : new Date().toISOString().split('T')[0],
+        payment_method: bill ? bill.payment_method_id : '',
         employee_id: bill ? bill.employee_id : '',
         due_date: bill ? (bill.due_date ? bill.due_date.split('T')[0] : '') : '',
         notes: bill ? bill.notes : '',
         terms: bill ? bill.terms : '',
+        mark_as_paid: bill ? (bill.status === 'paid' || bill.paid_amount >= bill.total_amount) : false,
     };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -261,10 +268,38 @@ export default function EditBill() {
 
             const total = calculateTotal();
 
+            // Always ensure a payment method is selected to satisfy DB constraint
+            let paymentMethodToUse = formData.payment_method;
+
+            if (!paymentMethodToUse) {
+                const cashMethod = paymentMethods.find(method => method.name.toLowerCase() === 'cash');
+                if (cashMethod) {
+                    paymentMethodToUse = cashMethod.id.toString();
+                } else if (paymentMethods.length > 0) {
+                    // Fallback to first available method if Cash not found
+                    paymentMethodToUse = paymentMethods[0].id.toString();
+                } else {
+                    // No payment methods exist at all - try to create 'Cash' transparently
+                    try {
+                        const createRes = await axiosInstance.post('http://147.79.115.89:3000/api/createPaymentMethod', { name: 'Cash' });
+                        if (createRes.data && createRes.data.id) {
+                            paymentMethodToUse = createRes.data.id.toString();
+                        } else {
+                            paymentMethodToUse = '1';
+                        }
+                    } catch (error) {
+                        console.error('Failed to auto-create Cash payment method:', error);
+                        paymentMethodToUse = '1'; // Last resort fallback
+                    }
+                }
+            }
+
             const submitData = {
                 ...formData,
                 company_id: selectedCompany?.company_id,
                 total_amount: Number(total),
+                mark_as_paid: formData.mark_as_paid || false,
+                payment_method: paymentMethodToUse ? parseInt(paymentMethodToUse as any) : 1,
                 items: items.map(item => ({
                     ...item,
                     product_id: parseInt(item.product_id as any) || null,
@@ -309,6 +344,194 @@ export default function EditBill() {
             console.error('Error creating payment method:', error);
             alert('Failed to create payment method.');
         }
+    };
+
+    const getImageDataUrl = async (url: string): Promise<string> => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Error loading image:', error);
+            return '';
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        if (!items || items.length === 0) {
+            alert("No items to generate PDF from.");
+            return;
+        }
+
+        let logoDataUrl = '';
+        if (selectedCompany?.company_logo) {
+            logoDataUrl = await getImageDataUrl(`http://147.79.115.89:3000${selectedCompany.company_logo}`);
+        }
+
+        const formatDate = (isoDate: string | Date | null | undefined) => {
+            if (!isoDate) return '';
+            const date = new Date(isoDate);
+            if (isNaN(date.getTime())) return '';
+            return date.toISOString().split('T')[0];
+        };
+
+        const total = calculateTotal();
+
+        const docDefinition: any = {
+            pageSize: 'A4',
+            pageMargins: [35, 35, 35, 35],
+            content: [
+                // Header
+                {
+                    columns: [
+                        {
+                            width: '*',
+                            stack: [
+                                { text: 'BILL', fontSize: 24, bold: true, color: '#2563eb', margin: [0, 0, 0, 4] },
+                                { text: formData.bill_number, fontSize: 14, bold: true, color: '#1f2937' }
+                            ]
+                        },
+                        logoDataUrl ? {
+                            image: logoDataUrl,
+                            width: 100,
+                            alignment: 'right'
+                        } : { text: '', width: 100 }
+                    ],
+                    margin: [0, 0, 0, 20]
+                },
+                // Info Block
+                {
+                    columns: [
+                        {
+                            width: '48%',
+                            stack: [
+                                { text: 'FROM', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
+                                { text: formData.vendor_name || 'Vendor Name', fontSize: 10, bold: true, margin: [0, 0, 0, 3] },
+                                // Add more vendor details if available in formData or via lookup
+                            ]
+                        },
+                        { width: '4%', text: '' },
+                        {
+                            width: '48%',
+                            stack: [
+                                { text: 'BILL DETAILS', fontSize: 10, bold: true, color: '#1f2937', alignment: 'right', margin: [0, 0, 0, 6] },
+                                {
+                                    table: {
+                                        widths: ['*', 'auto'],
+                                        body: [
+                                            [
+                                                { text: 'Bill Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                                                { text: formatDate(formData.bill_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                                            ],
+                                            [
+                                                { text: 'Due Date:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                                                { text: formatDate(formData.due_date), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                                            ],
+                                            [
+                                                { text: 'Terms:', fontSize: 9, bold: true, border: [false, false, false, false] },
+                                                { text: formData.terms.replace(/_/g, ' ').toUpperCase(), fontSize: 9, alignment: 'right', border: [false, false, false, false] }
+                                            ]
+                                        ]
+                                    },
+                                    layout: 'noBorders'
+                                }
+                            ]
+                        }
+                    ],
+                    margin: [0, 0, 0, 20]
+                },
+                // Items Table
+                {
+                    table: {
+                        headerRows: 1,
+                        widths: [30, '*', 40, 60, 70],
+                        body: [
+                            [
+                                { text: '#', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+                                { text: 'Item & Description', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', margin: [4, 5, 4, 5] },
+                                { text: 'Qty', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'center', margin: [4, 5, 4, 5] },
+                                { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] },
+                                { text: 'Total', fontSize: 10, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [4, 5, 4, 5] }
+                            ],
+                            ...items.map((item, index) => [
+                                { text: (index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+                                {
+                                    stack: [
+                                        { text: item.product_name || 'Item', fontSize: 9, bold: true },
+                                        { text: item.description || '', fontSize: 8.5, color: '#4b5563' }
+                                    ],
+                                    margin: [3, 4, 3, 4]
+                                },
+                                { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+                                { text: `Rs. ${Number(item.unit_price).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+                                { text: `Rs. ${Number(item.total_price).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
+                            ])
+                        ]
+                    },
+                    layout: {
+                        hLineWidth: (i: number, node: any) => (i === 0 || i === 1 || i === node.table.body.length) ? 1.5 : 0.5,
+                        vLineWidth: () => 0,
+                        hLineColor: (i: number) => (i === 0 || i === 1) ? '#1f2937' : '#e5e7eb',
+                        paddingLeft: () => 0,
+                        paddingRight: () => 0,
+                        paddingTop: () => 0,
+                        paddingBottom: () => 0
+                    },
+                    margin: [0, 0, 0, 20]
+                },
+                // Totals
+                {
+                    columns: [
+                        {
+                            width: '55%',
+                            stack: [
+                                formData.notes ? {
+                                    text: 'Notes:',
+                                    fontSize: 10,
+                                    bold: true,
+                                    margin: [0, 0, 0, 4]
+                                } : {},
+                                formData.notes ? {
+                                    text: formData.notes,
+                                    fontSize: 9,
+                                    color: '#4b5563'
+                                } : {}
+                            ]
+                        },
+                        {
+                            width: '45%',
+                            table: {
+                                widths: ['*', 'auto'],
+                                body: [
+                                    [
+                                        { text: 'TOTAL:', fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
+                                        { text: `Rs. ${total.toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
+                                    ]
+                                ]
+                            },
+                            layout: 'noBorders'
+                        }
+                    ]
+                }
+            ],
+            defaultStyle: {
+                font: 'Roboto'
+            }
+        };
+
+        try {
+            const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+            pdfDocGenerator.download(`Bill_${formData.bill_number}.pdf`);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please try again.');
+        }
+
     };
 
     const total = calculateTotal();
@@ -1068,12 +1291,22 @@ export default function EditBill() {
                         <h3 className="text-lg font-medium text-gray-900">
                             Edit Bill
                         </h3>
-                        <button
-                            onClick={() => navigate("/dashboard/expenses", { state: { activeTab: 'bills' } })}
-                            className="text-gray-400 hover:text-gray-600"
-                        >
-                            <X className="h-6 w-6" />
-                        </button>
+                        <div className="flex space-x-2">
+                            <button
+                                type="button"
+                                onClick={handleDownloadPDF}
+                                className="text-gray-400 hover:text-gray-600"
+                                title="Download PDF"
+                            >
+                                <Printer className="h-6 w-6" />
+                            </button>
+                            <button
+                                onClick={() => navigate("/dashboard/expenses", { state: { activeTab: 'bills' } })}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="h-6 w-6" />
+                            </button>
+                        </div>
                     </div>
 
                     {error && (
@@ -1259,6 +1492,53 @@ export default function EditBill() {
                         <option value="Net 60">Net 60</option>
                     </select>
                 </div> */}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <div className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    id="mark_as_paid"
+                                    checked={formData.mark_as_paid}
+                                    onChange={(e) => {
+                                        const newMarkAsPaid = e.target.checked;
+                                        setFormData({
+                                            ...formData,
+                                            mark_as_paid: newMarkAsPaid,
+                                            // Clear payment method if unchecking
+                                            payment_method: newMarkAsPaid ? formData.payment_method : ''
+                                        });
+                                    }}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                />
+                                <label htmlFor="mark_as_paid" className="ml-2 block text-sm font-medium text-gray-700">
+                                    Mark as Paid
+                                </label>
+                            </div>
+
+                            {formData.mark_as_paid && (
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method (defaults to Cash)</label>
+                                    <select
+                                        name="payment_method"
+                                        value={formData.payment_method}
+                                        onChange={(e) => {
+                                            if (e.target.value === 'create_new') {
+                                                setIsCreatePaymentMethodModalOpen(true);
+                                            } else {
+                                                setFormData({ ...formData, payment_method: e.target.value });
+                                            }
+                                        }}
+                                        className="input w-full"
+                                    >
+                                        <option value="" disabled>Select Payment Method</option>
+                                        <option value="create_new" className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-blue-600 font-semibold flex items-center border-t">+ Create New Payment Method</option>
+                                        {paymentMethods.map((method, index) => (
+                                            <option key={index} value={method.id}>{method.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                         </div>
 
                         <div>
