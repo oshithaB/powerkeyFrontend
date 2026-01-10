@@ -275,7 +275,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       due.setDate(due.getDate() + 60);
       setFormData((prev: typeof initialFormData) => ({ ...prev, due_date: due.toISOString().split('T')[0] }));
     } else {
-      setFormData((prev: typeof initialFormData) => ({ ...prev, due_date: '' }));
+      // Default to today's date (bill_date) if no terms are selected
+      setFormData((prev: typeof initialFormData) => ({ ...prev, due_date: formData.bill_date }));
     }
   }, [formData.bill_date, formData.terms, formData.vendor_id]);
 
@@ -341,22 +342,44 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     setError(null);
 
     try {
-      if (!formData.bill_number) {
-        throw new Error('Bill number is required');
-      }
-      if (!formData.bill_date) {
-        throw new Error('Bill date is required');
+      // Only validate vendor and items - everything else is optional
+      if (!formData.vendor_name && !formData.vendor_id) {
+        throw new Error('Vendor is required');
       }
       if (!items.some(item => item.product_id !== 0)) {
         throw new Error('At least one valid item is required');
       }
 
-      // Validate payment method if mark_as_paid is checked
-      if (formData.mark_as_paid && !formData.payment_method) {
-        throw new Error('Payment method is required when marking a bill as paid');
-      }
-
       const { subtotal, totalTax, total } = calculateTotals();
+
+      // Always ensure a payment method is selected to satisfy DB constraint
+      let paymentMethodToUse = formData.payment_method;
+
+      if (!paymentMethodToUse) {
+        const cashMethod = paymentMethods.find(method => method.name.toLowerCase() === 'cash');
+        if (cashMethod) {
+          paymentMethodToUse = cashMethod.id.toString();
+        } else if (paymentMethods.length > 0) {
+          // Fallback to first available method if Cash not found
+          paymentMethodToUse = paymentMethods[0].id.toString();
+        } else {
+          // No payment methods exist at all - try to create 'Cash' transparently
+          try {
+            // We need to create it
+            const createRes = await axiosInstance.post('http://147.79.115.89:3000/api/createPaymentMethod', { name: 'Cash' });
+            if (createRes.data && createRes.data.id) {
+              paymentMethodToUse = createRes.data.id.toString();
+              // Intentionally not updating state here to avoid re-renders during submit, 
+              // but next fetch will get it.
+            } else {
+              paymentMethodToUse = '1';
+            }
+          } catch (error) {
+            console.error('Failed to auto-create Cash payment method:', error);
+            paymentMethodToUse = '1'; // Last resort fallback
+          }
+        }
+      }
 
       const submitData: any = {
         ...formData,
@@ -365,6 +388,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
         tax_amount: Number(totalTax),
         total_amount: Number(total),
         mark_as_paid: formData.mark_as_paid || false,
+        payment_method: paymentMethodToUse ? parseInt(paymentMethodToUse as any) : 1, // Fallback to 1 if absolutely nothing found
         items: items.map(item => ({
           ...item,
           product_id: parseInt(item.product_id as any) || null,
@@ -376,11 +400,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           total_price: Number(item.total_price),
         })),
       };
-
-      // Only include payment_method if mark_as_paid is true
-      if (formData.mark_as_paid && formData.payment_method) {
-        submitData.payment_method = parseInt(formData.payment_method as any);
-      }
 
       if (expense) {
         await axiosInstance.put(`http://147.79.115.89:3000/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
@@ -1087,14 +1106,13 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bill Number *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bill Number</label>
                 <input
                   type="text"
                   className="input"
                   value={formData.bill_number}
                   onChange={(e) => setFormData({ ...formData, bill_number: e.target.value })}
                   placeholder="Enter Bill number"
-                  required
                 />
               </div>
 
@@ -1150,13 +1168,12 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bill Date *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Bill Date</label>
                 <input
                   type="date"
                   className="input"
                   value={formData.bill_date}
                   onChange={(e) => setFormData({ ...formData, bill_date: e.target.value })}
-                  required
                 />
               </div>
 
@@ -1167,7 +1184,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                   className="input"
                   value={formData.due_date}
                   disabled
-                  required
                 />
               </div>
 
@@ -1236,7 +1252,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
               {formData.mark_as_paid && (
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method (defaults to Cash)</label>
                   <select
                     name="payment_method"
                     value={formData.payment_method}
@@ -1248,7 +1264,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                       }
                     }}
                     className="input w-full"
-                    required={formData.mark_as_paid}
                   >
                     <option value="" disabled>Select Payment Method</option>
                     <option value="create_new" className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-blue-600 font-semibold flex items-center border-t">+ Create New Payment Method</option>
