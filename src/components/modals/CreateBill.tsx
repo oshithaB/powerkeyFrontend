@@ -79,6 +79,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     due_date: '',
     notes: '',
     terms: '',
+    mark_as_paid: false,
   };
 
   const [formData, setFormData] = useState(expense ? {
@@ -350,14 +351,20 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
         throw new Error('At least one valid item is required');
       }
 
+      // Validate payment method if mark_as_paid is checked
+      if (formData.mark_as_paid && !formData.payment_method) {
+        throw new Error('Payment method is required when marking a bill as paid');
+      }
+
       const { subtotal, totalTax, total } = calculateTotals();
 
-      const submitData = {
+      const submitData: any = {
         ...formData,
         company_id: selectedCompany?.company_id,
         subtotal: Number(subtotal),
         tax_amount: Number(totalTax),
         total_amount: Number(total),
+        mark_as_paid: formData.mark_as_paid || false,
         items: items.map(item => ({
           ...item,
           product_id: parseInt(item.product_id as any) || null,
@@ -369,6 +376,11 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           total_price: Number(item.total_price),
         })),
       };
+
+      // Only include payment_method if mark_as_paid is true
+      if (formData.mark_as_paid && formData.payment_method) {
+        submitData.payment_method = parseInt(formData.payment_method as any);
+      }
 
       if (expense) {
         await axiosInstance.put(`http://147.79.115.89:3000/api/createBill/${selectedCompany?.company_id}/${expense.id}`, submitData);
@@ -1160,25 +1172,18 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Terms</label>
                 <select
-                  name="payment_method"
-                  value={formData.payment_method}
-                  onChange={(e) => {
-                    if (e.target.value === 'create_new') {
-                      setIsCreatePaymentMethodModalOpen(true);
-                    } else {
-                      setFormData({ ...formData, payment_method: e.target.value });
-                    }
-                  }}
-                  className="input w-full"
-                  required
+                  name="terms"
+                  value={formData.terms}
+                  onChange={(e) => setFormData({ ...formData, terms: e.target.value })}
+                  className="input"
                 >
-                  <option value="" disabled>Select Payment Method</option>
-                  <option value="create_new" className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-blue-600 font-semibold flex items-center border-t">+ Create New Payment Method</option>
-                  {paymentMethods.map((method, index) => (
-                    <option key={index} value={method.id}>{method.name}</option>
-                  ))}
+                  <option value="">Select Terms</option>
+                  <option value="due_on_receipt">Due on Receipt</option>
+                  <option value="net_15">Net 15</option>
+                  <option value="net_30">Net 30</option>
+                  <option value="net_60">Net 60</option>
                 </select>
               </div>
 
@@ -1207,6 +1212,56 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
 
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="mark_as_paid"
+                  checked={formData.mark_as_paid}
+                  onChange={(e) => {
+                    const newMarkAsPaid = e.target.checked;
+                    setFormData({
+                      ...formData,
+                      mark_as_paid: newMarkAsPaid,
+                      // Clear payment method if unchecking
+                      payment_method: newMarkAsPaid ? formData.payment_method : ''
+                    });
+                  }}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="mark_as_paid" className="ml-2 block text-sm font-medium text-gray-700">
+                  Mark as Paid (Record payment immediately)
+                </label>
+              </div>
+
+              {formData.mark_as_paid && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method *</label>
+                  <select
+                    name="payment_method"
+                    value={formData.payment_method}
+                    onChange={(e) => {
+                      if (e.target.value === 'create_new') {
+                        setIsCreatePaymentMethodModalOpen(true);
+                      } else {
+                        setFormData({ ...formData, payment_method: e.target.value });
+                      }
+                    }}
+                    className="input w-full"
+                    required={formData.mark_as_paid}
+                  >
+                    <option value="" disabled>Select Payment Method</option>
+                    <option value="create_new" className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-blue-600 font-semibold flex items-center border-t">+ Create New Payment Method</option>
+                    {paymentMethods.map((method, index) => (
+                      <option key={index} value={method.id}>{method.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+
+            </div>
+
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h4 className="text-lg font-medium text-gray-900">Items</h4>
@@ -1219,6 +1274,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                   <Plus className="h-4 w-4 mr-2" /> Add Item
                 </button>
               </div>
+
 
               <div className="overflow-x-auto">
                 <table className="min-w-full border border-gray-200">
