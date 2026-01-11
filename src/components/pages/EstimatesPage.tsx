@@ -508,7 +508,7 @@ export default function EstimatesPage() {
                 body: [
                   [
                     { text: 'Created by:', fontSize: 8, color: '#6b7280', border: [false, false, false, false], margin: [0, 5, 0, 0] },
-                    { text: estimate.employee_name || 'N/A', fontSize: 8, color: '#1f2937', border: [false, false, false, true], borderColor: ['#9ca3af', '#9ca3af', '#9ca3af', '#d1d5db'], margin: [0, 5, 0, 0] }
+                    { text: JSON.parse(localStorage.getItem('user') || '{}')?.fullname || 'N/A', fontSize: 8, color: '#1f2937', border: [false, false, false, true], borderColor: ['#9ca3af', '#9ca3af', '#9ca3af', '#d1d5db'], margin: [0, 5, 0, 0] }
                   ]
                 ]
               },
