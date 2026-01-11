@@ -15,6 +15,8 @@ interface Company {
   notes?: string | null;
   invoice_prefix?: string;
   current_invoice_number?: number;
+  current_estimate_number?: number;
+  invoice_separators?: boolean;
 }
 
 

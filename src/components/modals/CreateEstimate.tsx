@@ -166,8 +166,23 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
         terms: estimate?.terms || selectedCompany.terms_and_conditions || ''
       }));
       fetchData();
+      if (!estimate) {
+        fetchNextNumber();
+      }
     }
   }, [selectedCompany, estimate]);
+
+  const fetchNextNumber = async () => {
+    if (!selectedCompany?.company_id) return;
+    try {
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/company/next-numbers/${selectedCompany.company_id}`);
+      if (response.data.success && response.data.next_estimate_number) {
+        setFormData(prev => ({ ...prev, estimate_number: response.data.next_estimate_number }));
+      }
+    } catch (error) {
+      console.error("Error fetching next number:", error);
+    }
+  };
 
   useEffect(() => {
     const selectedCustomer = customers.find(customer => customer.id === parseInt(formData.customer_id));

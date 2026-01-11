@@ -8,14 +8,19 @@ export default function SettingsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     invoice_prefix: '',
-    current_invoice_number: ''
+    current_invoice_number: '',
+    current_estimate_number: '', // [NEW]
+    invoice_separators: true     // [NEW]
   });
 
   useEffect(() => {
     if (selectedCompany) {
       setFormData({
         invoice_prefix: selectedCompany.invoice_prefix || '',
-        current_invoice_number: selectedCompany.current_invoice_number?.toString() || ''
+        current_invoice_number: selectedCompany.current_invoice_number?.toString() || '',
+        current_estimate_number: selectedCompany.current_estimate_number?.toString() || '', // [NEW]
+        // server sends 1/0, convert to boolean
+        invoice_separators: (selectedCompany.invoice_separators !== undefined && selectedCompany.invoice_separators !== false && Number(selectedCompany.invoice_separators) !== 0) // [NEW]
       });
     }
   }, [selectedCompany]);
@@ -24,27 +29,17 @@ export default function SettingsPage() {
     if (!selectedCompany) return;
 
     try {
-      // The endpoint expects a FormData object or JSON? The user example used FormData.
-      // "const formData = new FormData(); ... await axios.put(..., formData);"
-      // Depending on the backend, JSON might also work, but I will stick to the user's example or standard JSON if unsure.
-      // Given the `ProductsPage` uses FormData for file uploads, but `company/update` often takes JSON unless there's a logo.
-      // I'll try JSON first if I'm not uploading a file, or check if the backend handles both.
-      // Actually, looking at the user prompt: "const formData = new FormData(); ... formData.append('invoice_prefix', 'PWK');"
-      // I will use FormData to be safe and consistent with the user guide.
-
       const data = new FormData();
       data.append('invoice_prefix', formData.invoice_prefix);
       data.append('current_invoice_number', formData.current_invoice_number);
-      // We are only updating these two for now, but the endpoint might expect other fields or just update what's present.
-      // To avoid overwriting other fields with nulls if the backend is strict, I should act carefully.
-      // But typically PUT updates provided fields.
+      data.append('current_estimate_number', formData.current_estimate_number); // [NEW]
+      data.append('invoice_separators', formData.invoice_separators ? '1' : '0'); // [NEW] (send as 1/0)
 
       await axiosInstance.put(`http://147.79.115.89:3000/api/company/update/${selectedCompany.company_id}`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' } // Optional explicitly, axios sets it for FormData
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       setIsEditing(false);
-      // Refresh company context to show new values
       if (refreshCompany) refreshCompany();
       alert('Settings saved successfully');
     } catch (error) {
@@ -137,14 +132,12 @@ export default function SettingsPage() {
                 </h3>
                 <div className="space-y-1 text-gray-600">
                   <p>{selectedCompany?.address || 'No address provided'}</p>
-                  <p>Contact: {selectedCompany?.contact_number}</p>
-                  <p>Email: {selectedCompany?.email}</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Invoice Settings</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Invoice & Estimate Settings</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Prefix</label>
@@ -160,8 +153,18 @@ export default function SettingsPage() {
                         <span className="text-sm font-medium">{selectedCompany?.invoice_prefix || '-'}</span>
                       )}
                     </div>
+                    {/* Separator Toggle [NEW] */}
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Current Number</label>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Use Separators (-)</label>
+                      {isEditing ? (
+                        <input type="checkbox" checked={formData.invoice_separators} onChange={(e) => setFormData({ ...formData, invoice_separators: e.target.checked })} className="mt-1" />
+                      ) : (
+                        <span className="text-sm font-medium">{formData.invoice_separators ? 'Yes' : 'No'}</span>
+                      )}
+                    </div>
+                    {/* Invoice Start [Renamed label] */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Inv. Current Seq</label>
                       {isEditing ? (
                         <input
                           type="number"
@@ -172,6 +175,15 @@ export default function SettingsPage() {
                         />
                       ) : (
                         <span className="text-sm font-medium">{selectedCompany?.current_invoice_number || '-'}</span>
+                      )}
+                    </div>
+                    {/* Estimate Start [NEW] */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Est. Current Seq</label>
+                      {isEditing ? (
+                        <input type="number" value={formData.current_estimate_number} onChange={(e) => setFormData({ ...formData, current_estimate_number: e.target.value })} className="w-full px-2 py-1 text-sm border rounded" placeholder="e.g. 0" />
+                      ) : (
+                        <span className="text-sm font-medium">{selectedCompany?.current_estimate_number || '0'}</span>
                       )}
                     </div>
                   </div>
