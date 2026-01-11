@@ -194,8 +194,23 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         terms: invoice?.terms || selectedCompany.terms_and_conditions || ''
       }));
       fetchData();
+      if (!invoice) {
+        fetchNextNumber();
+      }
     }
   }, [selectedCompany, invoice]);
+
+  const fetchNextNumber = async () => {
+    if (!selectedCompany?.company_id) return;
+    try {
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/company/next-numbers/${selectedCompany.company_id}`);
+      if (response.data.success && response.data.next_invoice_number) {
+        setFormData(prev => ({ ...prev, invoice_number: response.data.next_invoice_number }));
+      }
+    } catch (error) {
+      console.error("Error fetching next number:", error);
+    }
+  };
 
   useEffect(() => {
     if (selectedCompany && location.state?.estimateId) {
