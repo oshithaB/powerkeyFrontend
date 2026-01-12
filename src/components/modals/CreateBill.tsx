@@ -16,7 +16,6 @@ interface BillItem {
   description: string;
   quantity: number;
   cost_price: number;
-  actual_unit_price: number;
   tax_rate: number;
   tax_amount: number;
   total_price: number;
@@ -94,7 +93,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
     description: '',
     quantity: 0,
     cost_price: 0,
-    actual_unit_price: 0,
     tax_rate: 0,
     tax_amount: 0,
     total_price: 0,
@@ -301,9 +299,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       const taxRate = Number(item.tax_rate) || 0;
 
       const subtotal = quantity * unitPrice;
-      item.actual_unit_price = Number((unitPrice / (1 + taxRate / 100)).toFixed(2));
-      item.tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
-      item.total_price = Number((subtotal).toFixed(2));
+      item.tax_amount = Number(((subtotal * taxRate) / 100).toFixed(2));
+      item.total_price = Number((subtotal + item.tax_amount).toFixed(2));
     }
 
     setItems(updatedItems);
@@ -317,7 +314,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       description: '',
       quantity: 0,
       cost_price: 0,
-      actual_unit_price: 0,
       tax_rate: defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0,
       tax_amount: 0,
       total_price: 0,
@@ -330,8 +326,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
   };
 
   const calculateTotals = () => {
-    const subtotal = Number(items.reduce((sum, item) => sum + (item.quantity * item.actual_unit_price), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + (item.quantity * item.tax_amount), 0).toFixed(2));
+    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.cost_price)), 0).toFixed(2));
+    const totalTax = Number(items.reduce((sum, item) => sum + Number(item.tax_amount), 0).toFixed(2));
     const total = Number((subtotal + totalTax).toFixed(2));
     return { subtotal, totalTax, total };
   };
@@ -394,7 +390,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
           product_id: parseInt(item.product_id as any) || null,
           quantity: Number(item.quantity),
           cost_price: Number(item.cost_price),
-          actual_unit_price: Number(item.actual_unit_price),
+          unit_price: Number(item.cost_price),
           tax_rate: Number(item.tax_rate),
           tax_amount: Number(item.tax_amount),
           total_price: Number(item.total_price),
@@ -1299,7 +1295,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unit Price</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actual Unit Price</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tax %</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
@@ -1343,9 +1338,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                                     const quantity = 1;
                                     const costPrice = Number(product.cost_price) || 0;
                                     const taxRate = Number(updatedItems[index].tax_rate) || 0;
-                                    const actualUnitPrice = Number((costPrice / (1 + taxRate / 100)).toFixed(2)) || 0;
-                                    const taxAmount = Number((actualUnitPrice * taxRate / 100).toFixed(2)) || 0;
-                                    const totalPrice = Number((quantity * costPrice).toFixed(2)) || 0;
+                                    const taxAmount = Number(((costPrice * taxRate) / 100).toFixed(2)) || 0;
+                                    const totalPrice = Number((quantity * costPrice + taxAmount).toFixed(2)) || 0;
 
                                     updatedItems[index] = {
                                       ...updatedItems[index],
@@ -1354,7 +1348,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                                       description: product.description || '',
                                       quantity,
                                       cost_price: costPrice,
-                                      actual_unit_price: actualUnitPrice,
+                                      tax_rate: taxRate,
                                       tax_amount: taxAmount,
                                       total_price: totalPrice,
                                     };
@@ -1408,7 +1402,6 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                             required
                           />
                         </td>
-                        <td className="px-4 py-2 text-center">Rs. {(item.actual_unit_price ?? 0).toFixed(2)}</td>
                         <td className="px-4 py-2">
                           <select
                             className="input w-20"

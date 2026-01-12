@@ -17,10 +17,18 @@ interface BillItem {
     description: string;
     quantity: number;
     unit_price: number;
+    tax_rate: number;
+    tax_amount: number;
     total_price: number;
 }
 
-
+interface TaxRate {
+    tax_rate_id: number;
+    company_id: number;
+    name: string;
+    rate: string;
+    is_default: number;
+}
 
 interface Role {
     role_id: number;
@@ -47,6 +55,7 @@ export default function EditBill() {
     const [products, setProducts] = useState<any[]>([]);
     const [employees, setEmployees] = useState<any[]>([]);
     const [paymentMethods, setPaymentMethods] = useState<paymentMethod[]>([]);
+    const [taxRates, setTaxRates] = useState<TaxRate[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [productSuggestions, setProductSuggestions] = useState<any[]>([]);
@@ -81,12 +90,27 @@ export default function EditBill() {
         description: '',
         quantity: 1,
         unit_price: 0,
+        tax_rate: 0,
+        tax_amount: 0,
         total_price: 0,
     }];
 
     const [items, setItems] = useState<BillItem[]>(initialItems);
 
     console.log('Initial items:', initialItems);
+
+    const fetchTaxRates = async () => {
+        try {
+            const response = await axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`);
+            const taxRatesData = Array.isArray(response.data) && Array.isArray(response.data[0])
+                ? response.data[0]
+                : Array.isArray(response.data) ? response.data : [];
+            setTaxRates(taxRatesData);
+        } catch (error) {
+            console.error('Error fetching tax rates:', error);
+            setError('Failed to fetch tax rates');
+        }
+    };
 
     const fetchVendors = async () => {
         try {
@@ -133,9 +157,35 @@ export default function EditBill() {
     const fetchBillItems = async (billId: number) => {
         try {
             const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getBillItems/${selectedCompany?.company_id}/${billId}`);
-            console.log('Fetched bill items:', response.data);
-            setItems(Array.isArray(response.data) ? response.data : []);
-            console.log('Set items state:', items);
+            setItems(response.data.map((item: any) => {
+                const qty = Number(item.quantity) || 0;
+                const unit = Number(item.unit_price) || 0;
+                const total = Number(item.total_price) || 0;
+
+                let taxRate = 0;
+                let taxAmount = 0;
+
+                if (qty > 0 && unit > 0) {
+                    const subtotal = qty * unit;
+                    taxAmount = total - subtotal;
+                    if (taxAmount > 0.01) {
+                        // Infer tax rate
+                        const calculatedRate = (taxAmount / subtotal) * 100;
+                        taxRate = Number(calculatedRate.toFixed(2));
+                    }
+                }
+
+                return {
+                    product_id: item.product_id || 0,
+                    product_name: item.product_name || '',
+                    description: item.description || '',
+                    quantity: qty,
+                    unit_price: unit,
+                    tax_rate: taxRate,
+                    tax_amount: taxAmount,
+                    total_price: total
+                };
+            }));
         } catch (error) {
             console.error('Error fetching bill items:', error);
             setError('Failed to fetch bill items');
@@ -149,7 +199,8 @@ export default function EditBill() {
             fetchProducts();
             fetchPaymentMethods();
             fetchEmployees();
-            fetchBillItems(bill.id);
+            fetchTaxRates();
+            if (bill && bill.id) fetchBillItems(bill.id);
         }
     }, [selectedCompany]);
 
@@ -217,9 +268,15 @@ export default function EditBill() {
             }
         }
 
-        if (field === 'quantity' || field === 'unit_price') {
+        if (field === 'quantity' || field === 'unit_price' || field === 'tax_rate') {
             const item = updatedItems[index];
-            item.total_price = Number((item.quantity * item.unit_price).toFixed(2));
+            const quantity = Number(item.quantity) || 0;
+            const unitPrice = Number(item.unit_price) || 0;
+            const taxRate = Number(item.tax_rate) || 0;
+
+            const subtotal = quantity * unitPrice;
+            item.tax_amount = Number(((subtotal * taxRate) / 100).toFixed(2));
+            item.total_price = Number((subtotal + item.tax_amount).toFixed(2));
         }
 
         setItems(updatedItems);
@@ -232,6 +289,8 @@ export default function EditBill() {
             description: '',
             quantity: 0,
             unit_price: 0,
+            tax_rate: 0,
+            tax_amount: 0,
             total_price: 0,
         }]);
         setProductSuggestions(products);
@@ -242,7 +301,10 @@ export default function EditBill() {
     };
 
     const calculateTotal = () => {
-        return Number(items.reduce((sum, item) => sum + Number(item.total_price), 0).toFixed(2));
+        const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unit_price)), 0).toFixed(2));
+        const totalTax = Number(items.reduce((sum, item) => sum + Number(item.tax_amount), 0).toFixed(2));
+        const total = Number((subtotal + totalTax).toFixed(2));
+        return { subtotal, totalTax, total };
     };
 
     const total = calculateTotal();
@@ -264,7 +326,7 @@ export default function EditBill() {
                 throw new Error('At least one valid item is required');
             }
 
-            const total = calculateTotal();
+            const { subtotal, totalTax, total } = calculateTotal();
 
             // Always ensure a payment method is selected to satisfy DB constraint
             let paymentMethodToUse = formData.payment_method;
@@ -302,7 +364,10 @@ export default function EditBill() {
                     ...item,
                     product_id: parseInt(item.product_id as any) || null,
                     quantity: Number(item.quantity),
+                    cost_price: Number(item.unit_price), // Map unit_price to cost_price for backend
                     unit_price: Number(item.unit_price),
+                    tax_rate: Number(item.tax_rate),
+                    tax_amount: Number(item.tax_amount),
                     total_price: Number(item.total_price),
                 })),
             };
@@ -1360,6 +1425,7 @@ export default function EditBill() {
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unit Price</th>
+                                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tax %</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
                                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                                         </tr>
@@ -1470,8 +1536,25 @@ export default function EditBill() {
                                                         value={item.unit_price}
                                                         onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
                                                         required
-                                                    // disabled={!!formData.order_id}
                                                     />
+                                                </td>
+                                                <td className="px-4 py-2">
+                                                    <select
+                                                        className="input w-20"
+                                                        value={item.tax_rate}
+                                                        onChange={(e) => updateItem(index, 'tax_rate', parseFloat(e.target.value) || 0)}
+                                                    >
+                                                        {taxRates.length > 0 ? (
+                                                            <>
+                                                                {taxRates.map((tax) => (
+                                                                    <option key={tax.tax_rate_id} value={parseFloat(tax.rate)}>{tax.name} ({tax.rate}%)</option>
+                                                                ))}
+                                                                <option value={0}>0% No Tax</option>
+                                                            </>
+                                                        ) : (
+                                                            <option value={0} disabled>No tax rates available</option>
+                                                        )}
+                                                    </select>
                                                 </td>
                                                 <td className="px-4 py-2 text-center border border-gray-200">
                                                     Rs. {Number(item.total_price).toFixed(2)}
@@ -1511,10 +1594,25 @@ export default function EditBill() {
                             <div className="space-y-4">
                                 <div className="bg-gray-50 p-4 rounded-lg">
                                     <div className="space-y-2">
-                                        <div className="flex justify-between font-bold text-lg border-t pt-2">
-                                            <span>Total:</span>
-                                            <span>Rs. {total.toFixed(2)}</span>
-                                        </div>
+                                        {(() => {
+                                            const { subtotal, totalTax, total } = calculateTotal();
+                                            return (
+                                                <>
+                                                    <div className="flex justify-between">
+                                                        <span>Subtotal:</span>
+                                                        <span>Rs. {subtotal.toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="flex justify-between">
+                                                        <span>Tax:</span>
+                                                        <span>Rs. {totalTax.toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="flex justify-between font-bold text-lg border-t pt-2">
+                                                        <span>Total:</span>
+                                                        <span>Rs. {total.toFixed(2)}</span>
+                                                    </div>
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>

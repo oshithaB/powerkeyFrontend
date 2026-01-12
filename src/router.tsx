@@ -133,7 +133,9 @@ export const router = createBrowserRouter([
                 path: "estimates/create",
                 element: (
                     <ProtectedRoute>
-                        <CreateEstimate />
+                        <Layout>
+                            <CreateEstimate />
+                        </Layout>
                     </ProtectedRoute>
                 ),
             },
@@ -142,7 +144,9 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <SocketProvider>
-                            <EditEstimate />
+                            <Layout>
+                                <EditEstimate />
+                            </Layout>
                         </SocketProvider>
                     </ProtectedRoute>
                 ),
@@ -159,7 +163,9 @@ export const router = createBrowserRouter([
                 path: "invoices/create",
                 element: (
                     <ProtectedRoute>
-                        <CreateInvoice />
+                        <Layout>
+                            <CreateInvoice />
+                        </Layout>
                     </ProtectedRoute>
                 ),
             },
@@ -168,7 +174,9 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <SocketProvider>
-                            <EditInvoice />
+                            <Layout>
+                                <EditInvoice />
+                            </Layout>
                         </SocketProvider>
                     </ProtectedRoute>
                 ),

@@ -5,7 +5,14 @@ import { Plus, Search, Edit, Trash2, Receipt, Printer, DollarSign } from 'lucide
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 
-(pdfMake as any).vfs = pdfFonts;
+// Initialize vfs
+if (pdfFonts && (pdfFonts as any).pdfMake && (pdfFonts as any).pdfMake.vfs) {
+  (pdfMake as any).vfs = (pdfFonts as any).pdfMake.vfs;
+} else if (pdfFonts && (pdfFonts as any).vfs) {
+  (pdfMake as any).vfs = (pdfFonts as any).vfs;
+} else {
+  (pdfMake as any).vfs = pdfFonts;
+}
 import { format } from 'date-fns';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -96,11 +103,14 @@ export default function BillsPage() {
         return date.toISOString().split('T')[0];
       };
 
-      const calculateTotal = () => {
-        return items.reduce((sum, item) => sum + Number(item.total_price), 0);
+      const calculateTotals = () => {
+        const subtotal = items.reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.unit_price || 0)), 0);
+        const total = items.reduce((sum, item) => sum + Number(item.total_price || 0), 0);
+        const totalTax = total - subtotal;
+        return { subtotal, totalTax, total };
       };
 
-      const total = calculateTotal();
+      const { subtotal, totalTax, total } = calculateTotals();
 
       const docDefinition: any = {
         pageSize: 'A4',
@@ -179,7 +189,7 @@ export default function BillsPage() {
                   { text: 'Total', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] }
                 ],
                 ...items.map((item, index) => [
-                  { text: (index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+                  { text: '#' + (index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
                   {
                     stack: [
                       { text: item.product_name || 'Item', fontSize: 9, bold: true },
@@ -187,9 +197,9 @@ export default function BillsPage() {
                     ],
                     margin: [3, 4, 3, 4]
                   },
-                  { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
-                  { text: `Rs. ${Number(item.unit_price).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
-                  { text: `Rs. ${Number(item.total_price).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
+                  { text: (item.quantity || 0).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+                  { text: `Rs. ${Number(item.unit_price || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+                  { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
                 ])
               ]
             },
@@ -228,6 +238,14 @@ export default function BillsPage() {
                 table: {
                   widths: ['*', 'auto'],
                   body: [
+                    [
+                      { text: 'Subtotal:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
+                      { text: `Rs. ${subtotal.toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 0, 2] }
+                    ],
+                    [
+                      { text: 'Tax:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
+                      { text: `Rs. ${totalTax.toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 0, 2] }
+                    ],
                     [
                       { text: 'TOTAL:', fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
                       { text: `Rs. ${total.toFixed(2)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
