@@ -75,6 +75,11 @@ interface User {
   role: string;
 }
 
+const formatCurrency = (amount: number | string | undefined | null) => {
+  const value = Number(amount) || 0;
+  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 export default function InvoicesPage() {
   const navigate = useNavigate();
   const { selectedCompany } = useCompany();
@@ -399,6 +404,8 @@ export default function InvoicesPage() {
       }
     };
 
+
+
     const createItemsTable = (items: InvoiceItem[], startIndex: number) => {
       const tableBody: any[][] = [
         [
@@ -420,8 +427,8 @@ export default function InvoicesPage() {
           { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9, margin: [3, 4, 3, 4] },
           { text: item.description || '-', fontSize: 8.5, color: '#4b5563', margin: [3, 4, 3, 4] },
           { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
-          { text: `Rs. ${Number(item.actual_unit_price || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
-          { text: `Rs. ${exclusiveTotal.toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
+          { text: `Rs. ${formatCurrency(item.actual_unit_price)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+          { text: `Rs. ${formatCurrency(exclusiveTotal)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
         ]);
       });
 
@@ -476,31 +483,31 @@ export default function InvoicesPage() {
               body: [
                 [
                   { text: 'Subtotal:', fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                  { text: `Rs. ${exclusiveSubtotal.toFixed(2)}`, fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                  { text: `Rs. ${formatCurrency(exclusiveSubtotal)}`, fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 0, 3] }
                 ],
                 [
                   { text: 'Discount:', fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                  { text: `Rs. ${Number(printingInvoice.discount_amount || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', color: '#dc2626', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                  { text: `Rs. ${formatCurrency(printingInvoice.discount_amount)}`, fontSize: 9, alignment: 'right', color: '#dc2626', border: [false, false, false, false], margin: [0, 3, 0, 3] }
                 ],
                 [
                   { text: 'Shipping:', fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                  { text: `Rs. ${Number(printingInvoice.shipping_cost || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                  { text: `Rs. ${formatCurrency(printingInvoice.shipping_cost)}`, fontSize: 9, alignment: 'right', border: [false, false, false, false], margin: [0, 3, 0, 3] }
                 ],
                 [
                   { text: 'Tax:', fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 10, 6] },
-                  { text: `Rs. ${Number(printingInvoice.tax_amount || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 0, 6] }
+                  { text: `Rs. ${formatCurrency(printingInvoice.tax_amount)}`, fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 0, 6] }
                 ],
                 [
                   { text: 'TOTAL:', fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
-                  { text: `Rs. ${Number(printingInvoice.total_amount || 0).toFixed(2)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
+                  { text: `Rs. ${formatCurrency(printingInvoice.total_amount)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                 ],
                 [
                   { text: 'Paid:', fontSize: 9, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 10, 3] },
-                  { text: `Rs. ${Number(printingInvoice.paid_amount || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 0, 3] }
+                  { text: `Rs. ${formatCurrency(printingInvoice.paid_amount)}`, fontSize: 9, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 0, 3] }
                 ],
                 [
                   { text: 'BALANCE DUE:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
-                  { text: `Rs. ${Number(printingInvoice.balance_due || 0).toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
+                  { text: `Rs. ${formatCurrency(printingInvoice.balance_due)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                 ]
               ]
             },
@@ -562,6 +569,10 @@ export default function InvoicesPage() {
               table: {
                 widths: [60, '*'],
                 body: [
+                  [
+                    { text: 'Prepared by:', fontSize: 8, color: '#6b7280', border: [false, false, false, false], margin: [0, 5, 0, 0] },
+                    { text: '', fontSize: 8, color: '#1f2937', border: [false, false, false, true], borderColor: ['#9ca3af', '#9ca3af', '#9ca3af', '#d1d5db'], margin: [0, 5, 0, 0] }
+                  ],
                   [
                     { text: 'Created by:', fontSize: 8, color: '#6b7280', border: [false, false, false, false], margin: [0, 5, 0, 0] },
                     { text: JSON.parse(localStorage.getItem('user') || '{}')?.fullname || 'N/A', fontSize: 8, color: '#1f2937', border: [false, false, false, true], borderColor: ['#9ca3af', '#9ca3af', '#9ca3af', '#d1d5db'], margin: [0, 5, 0, 0] }
@@ -649,6 +660,10 @@ export default function InvoicesPage() {
     if (isNaN(date.getTime())) return '';
     return date.toISOString().split('T')[0];
   };
+
+
+
+
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -948,14 +963,14 @@ export default function InvoicesPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          Rs. {invoice.total_amount?.toLocaleString() || '0.00'}
+                          Rs. {formatCurrency(invoice.total_amount)}
                         </div>
                         <div className="text-sm text-gray-500">
-                          Paid: Rs. {invoice.paid_amount?.toLocaleString() || '0.00'}
+                          Paid: Rs. {formatCurrency(invoice.paid_amount)}
                         </div>
                         {invoice.balance_due > 0 && (
                           <div className="text-sm text-red-600">
-                            Due: Rs. {invoice.balance_due?.toLocaleString() || '0.00'}
+                            Due: Rs. {formatCurrency(invoice.balance_due)}
                           </div>
                         )}
                       </td>

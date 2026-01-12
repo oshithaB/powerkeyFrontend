@@ -750,6 +750,22 @@ export default function EditInvoice() {
                                     updatedItems[index].tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
                                     updatedItems[index].actual_unit_price = Number(((updatedItems[index].unit_price * 100) / (100 + taxRate)).toFixed(2));
                                     updatedItems[index].total_price = Number(subtotal.toFixed(2));
+
+                                    // Auto-add new item row if this is the last row
+                                    if (index === items.length - 1) {
+                                      updatedItems.push({
+                                        product_id: 0,
+                                        product_name: '',
+                                        description: '',
+                                        quantity: '',
+                                        unit_price: 0,
+                                        actual_unit_price: 0,
+                                        tax_rate: defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0,
+                                        tax_amount: 0,
+                                        total_price: 0
+                                      });
+                                    }
+
                                     setItems(updatedItems);
                                     setProductSuggestions([]);
                                     setActiveSuggestionIndex(null);
