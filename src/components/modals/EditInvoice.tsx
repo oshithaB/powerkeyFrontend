@@ -779,6 +779,14 @@ export default function EditInvoice() {
                           />
                         </td>
                         <td className="px-4 py-2">
+                          {(() => {
+                            const product = products.find(p => p.id === item.product_id);
+                            return product ? (
+                              <div className="text-xs text-gray-500 mb-1">
+                                Avail: {product.quantity_on_hand}
+                              </div>
+                            ) : null;
+                          })()}
                           <input
                             type="number"
                             step="0"
