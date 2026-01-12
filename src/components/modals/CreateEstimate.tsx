@@ -780,7 +780,7 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
                             const product = products.find(p => p.id === item.product_id);
                             return product ? (
                               <div className="text-xs text-gray-500 mb-1">
-                                Avail: {product.quantity}
+                                Avail: {product.quantity_on_hand}
                               </div>
                             ) : null;
                           })()}
