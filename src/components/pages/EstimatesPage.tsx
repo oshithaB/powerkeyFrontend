@@ -77,7 +77,6 @@ export default function EstimatesPage() {
   const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
   const socketRef = useSocket();
   const [lockedEstimates, setLockedEstimates] = useState<{ [key: number]: User }>({});
-  const [showPrintPreview, setShowPrintPreview] = useState(false);
 
 
   useEffect(() => {
@@ -238,13 +237,21 @@ export default function EstimatesPage() {
 
   const handlePrint = async (estimate: Estimate) => {
     try {
-      setPrintingEstimate(estimate);
       const fetchedItems = await fetchEstimateItems(estimate.id);
-      setPrintItems(fetchedItems);
-      setShowPrintPreview(true);
+      await handleDownloadPDF('print', estimate, fetchedItems);
     } catch (error) {
-      console.error('Error preparing print preview:', error);
-      alert('Failed to load print preview');
+      console.error('Error preparing print:', error);
+      alert('Failed to prepare print');
+    }
+  };
+
+  const handleDownload = async (estimate: Estimate) => {
+    try {
+      const fetchedItems = await fetchEstimateItems(estimate.id);
+      await handleDownloadPDF('download', estimate, fetchedItems);
+    } catch (error) {
+      console.error('Error preparing download:', error);
+      alert('Failed to prepare download');
     }
   };
 
@@ -264,7 +271,7 @@ export default function EstimatesPage() {
     }
   };
 
-  const handleDownloadPDF = async (estimateOverride?: Estimate, itemsOverride?: EstimateItem[]) => {
+  const handleDownloadPDF = async (action: 'download' | 'print' = 'download', estimateOverride?: Estimate, itemsOverride?: EstimateItem[]) => {
     const estimate = estimateOverride || printingEstimate;
     const items = itemsOverride || printItems;
 
@@ -424,7 +431,7 @@ export default function EstimatesPage() {
 
     const createSummarySection = () => {
       // Calculate subtotal from exclusive item totals
-      const exclusiveSubtotal = printItems.reduce((acc, item) => {
+      const exclusiveSubtotal = items.reduce((acc, item) => {
         return acc + ((Number(item.quantity) || 0) * (Number(item.actual_unit_price) || 0));
       }, 0);
 
@@ -575,7 +582,13 @@ export default function EstimatesPage() {
 
     try {
       const pdfDocGenerator = pdfMake.createPdf(docDefinition);
-      pdfDocGenerator.download(`Estimate_${estimate.estimate_number}_${formatDateLocal(estimate.estimate_date)}.pdf`);
+      if (action === 'download') {
+        pdfDocGenerator.download(`Estimate_${estimate.estimate_number}_${formatDateLocal(estimate.estimate_date)}.pdf`);
+      } else {
+        pdfDocGenerator.print();
+      }
+      setPrintingEstimate(null);
+      setPrintItems([]);
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -847,9 +860,16 @@ export default function EstimatesPage() {
                           <button
                             onClick={() => handlePrint(estimate)}
                             className="text-gray-600 hover:text-gray-900"
-                            title="Download PDF"
+                            title="Print"
                           >
                             <Printer className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDownload(estimate)}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="Download PDF"
+                          >
+                            <FileText className="h-4 w-4" />
                           </button>
                           {(estimate.status !== "converted" && estimate.status !== "closed") && (
                             <button
@@ -874,146 +894,6 @@ export default function EstimatesPage() {
         </div>
       </div>
 
-      {
-        showPrintPreview && printingEstimate && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto w-full z-50">
-            <div className="relative top-4 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Print Preview - Estimate {printingEstimate.estimate_number}
-                </h3>
-                <button
-                  onClick={() => {
-                    setShowPrintPreview(false);
-                    setPrintingEstimate(null);
-                    setPrintItems([]);
-                  }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-                <p className="text-sm text-blue-700">
-                  <strong>PDF Preview:</strong> This estimate will be generated with pdfMake.
-                </p>
-                <p className="text-sm text-blue-700 mt-1">
-                  <strong>Total Items:</strong> {printItems.length} | <strong>Pages:</strong> {Math.ceil(printItems.length / 20)} (20 items per page)
-                </p>
-              </div>
-
-              <div className="overflow-y-auto max-h-[60vh] bg-gray-100 p-4">
-                <div className="bg-white p-8 shadow-lg">
-                  <div className="flex justify-between items-start border-b-2 border-blue-600 pb-4 mb-6">
-                    <div>
-                      <h1 className="text-4xl font-bold text-blue-600">{selectedCompany?.is_taxable ? 'TAX ESTIMATE' : 'ESTIMATE'}</h1>
-                      <p className="text-xl font-semibold text-gray-800 mt-2">
-                        {printingEstimate.estimate_number}
-                      </p>
-                    </div>
-                    {selectedCompany?.company_logo && (
-                      <img
-                        src={`http://147.79.115.89:3000${selectedCompany.company_logo}`}
-                        alt="Company Logo"
-                        className="h-20 w-auto object-contain"
-                      />
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-8 mb-6">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700 uppercase mb-2">Bill To</h3>
-                      <p className="font-semibold">{printingEstimate.customer_name || 'Unknown'}</p>
-                      <p className="text-sm text-gray-600">{printingEstimate.billing_address || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700 uppercase mb-2">Estimate Details</h3>
-                      <p className="text-sm">Estimate Date: {formatDate(printingEstimate.estimate_date)}</p>
-                      <p className="text-sm">Expiry Date: {formatDate(printingEstimate.expiry_date)}</p>
-                      <p className="text-sm">Status: <span className="font-semibold">{printingEstimate.status.toUpperCase()}</span></p>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-gray-600 mb-4 bg-yellow-50 p-2 rounded">
-                    📄 Preview showing first 20 items. PDF will contain all {printItems.length} items across {Math.ceil(printItems.length / 20)} page(s)
-                  </p>
-
-                  <table className="w-full text-sm border-collapse mb-6">
-                    <thead>
-                      <tr className="bg-gray-800 text-white">
-                        <th className="px-2 py-2 text-left">#</th>
-                        <th className="px-2 py-2 text-left">Product</th>
-                        <th className="px-2 py-2 text-left">Description</th>
-                        <th className="px-2 py-2 text-center">Qty</th>
-                        <th className="px-2 py-2 text-right">Price</th>
-                        <th className="px-2 py-2 text-right">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {printItems.slice(0, 20).map((item, index) => (
-                        <tr key={index} className="border-b hover:bg-gray-50">
-                          <td className="px-2 py-2">{index + 1}</td>
-                          <td className="px-2 py-2">{products.find((p) => p.id === item.product_id)?.name || 'N/A'}</td>
-                          <td className="px-2 py-2 text-xs text-gray-600">{item.description || '-'}</td>
-                          <td className="px-2 py-2 text-center">{item.quantity}</td>
-                          <td className="px-2 py-2 text-right">Rs. {formatCurrency(item.actual_unit_price)}</td>
-                          <td className="px-2 py-2 text-right font-semibold">Rs. {formatCurrency((item.quantity * item.actual_unit_price))}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-
-                  <div className="flex justify-end">
-                    <div className="w-64 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Subtotal:</span>
-                        <span>Rs. {formatCurrency(printingEstimate.subtotal)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Discount:</span>
-                        <span className="text-red-600">Rs. {formatCurrency(printingEstimate.discount_amount)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Shipping:</span>
-                        <span>Rs. {formatCurrency(printingEstimate.shipping_cost)}</span>
-                      </div>
-                      <div className="flex justify-between text-sm border-b pb-2">
-                        <span>Tax:</span>
-                        <span>Rs. {formatCurrency(printingEstimate.tax_amount)}</span>
-                      </div>
-                      <div className="flex justify-between font-bold bg-gray-800 text-white p-2 rounded">
-                        <span>TOTAL:</span>
-                        <span>Rs. {formatCurrency(printingEstimate.total_amount)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  onClick={() => {
-                    setShowPrintPreview(false);
-                    setPrintingEstimate(null);
-                    setPrintItems([]);
-                  }}
-                  className="btn btn-secondary btn-md"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDownloadPDF(printingEstimate, printItems)}
-                  className="btn btn-primary btn-md"
-                >
-                  <Printer className="h-4 w-4 mr-2" />
-                  Download PDF (20 items/page)
-                </button>
-              </div>
-            </div>
-          </div>
-        )
-      }
     </div >
   );
 }

@@ -198,8 +198,8 @@ export default function BillsPage() {
                     margin: [3, 4, 3, 4]
                   },
                   { text: (item.quantity || 0).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
-                  { text: `Rs. ${Number(item.unit_price || 0).toFixed(2)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
-                  { text: `Rs. ${Number(item.total_price || 0).toFixed(2)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
+                  { text: `Rs. ${Number(item.unit_price || 0).toFixed(4)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+                  { text: `Rs. ${Number(item.total_price || 0).toFixed(4)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
                 ])
               ]
             },
@@ -240,15 +240,15 @@ export default function BillsPage() {
                   body: [
                     [
                       { text: 'Subtotal:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
-                      { text: `Rs. ${subtotal.toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 0, 2] }
+                      { text: `Rs. ${subtotal.toFixed(4)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 0, 2] }
                     ],
                     [
                       { text: 'Tax:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
-                      { text: `Rs. ${totalTax.toFixed(2)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 0, 2] }
+                      { text: `Rs. ${totalTax.toFixed(4)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 0, 2] }
                     ],
                     [
                       { text: 'TOTAL:', fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
-                      { text: `Rs. ${total.toFixed(2)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
+                      { text: `Rs. ${total.toFixed(4)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                     ]
                   ]
                 },
@@ -422,14 +422,14 @@ export default function BillsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        Rs. {bill.total_amount?.toLocaleString() || '0.00'}
+                        Rs. {bill.total_amount?.toFixed(4) || '0.0000'}
                       </div>
                       <div className="text-sm text-gray-500">
-                        Paid: Rs. {bill.paid_amount?.toLocaleString() || '0.00'}
+                        Paid: Rs. {bill.paid_amount?.toFixed(4) || '0.0000'}
                       </div>
                       {bill.balance_due > 0 && (
                         <div className="text-sm text-red-600">
-                          Due: Rs. {bill.balance_due?.toLocaleString() || '0.00'}
+                          Due: Rs. {bill.balance_due?.toFixed(4) || '0.0000'}
                         </div>
                       )}
                     </td>
