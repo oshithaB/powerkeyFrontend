@@ -332,10 +332,10 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
 
     if (field === 'quantity' || field === 'unit_price' || field === 'tax_rate') {
       const item = updatedItems[index];
-      const shippingCost = Number(formData.shipping_cost);
+      // FIX: tax_amount should only be based on item price, not global shipping cost
       const subtotal = Number(item.quantity || 0) * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
-      item.tax_amount = Number((item.actual_unit_price + shippingCost) * item.tax_rate / 100);
+      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100).toFixed(2));
       item.total_price = Number((subtotal).toFixed(2));
     }
 
@@ -1041,7 +1041,6 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                             className="input w-24"
                             value={item.unit_price}
                             onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                            required
                           />
                         </td>
                         <td className="px-4 py-2 text-center">

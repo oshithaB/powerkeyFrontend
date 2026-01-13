@@ -817,7 +817,6 @@ export default function EstimateModal({ estimate, onSave }: EstimateModalProps) 
                             className="input w-24"
                             value={item.unit_price}
                             onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                            required
                           />
                         </td>
                         <td className="px-4 py-2 text-center">
