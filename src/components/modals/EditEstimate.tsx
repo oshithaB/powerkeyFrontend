@@ -275,9 +275,10 @@ export default function EditEstimate() {
 
     if (field === 'quantity' || field === 'unit_price' || field === 'tax_rate') {
       const item = updatedItems[index];
-      const subtotal = Number(item.quantity) * item.unit_price;
+      const quantity = Number(item.quantity) || 0;
+      const subtotal = quantity * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
-      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100 * Number(item.quantity)).toFixed(2));
+      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100).toFixed(2));
       item.total_price = Number(subtotal.toFixed(2));
     }
 
@@ -306,7 +307,7 @@ export default function EditEstimate() {
 
   const calculateTotals = () => {
     const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + item.tax_amount, 0).toFixed(2));
+    const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.tax_amount), 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
 
     let discountAmount = 0;
@@ -780,7 +781,6 @@ export default function EditEstimate() {
                             className="input w-24"
                             value={item.unit_price}
                             onChange={(e) => updateItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                            required
                           />
                         </td>
                         <td className="px-4 py-2 text-center">

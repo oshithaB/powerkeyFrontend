@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
-import { Plus, Edit, Trash2, DollarSign, Filter, Printer, X, Ban, FileText } from 'lucide-react';
+import { Plus, Edit, Trash2, DollarSign, Filter, Printer, X, Ban, FileText, RotateCcw, Clock } from 'lucide-react';
+import RefundInvoice from '../modals/RefundInvoice';
+import RefundHistory from '../modals/RefundHistory';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
@@ -53,6 +55,7 @@ interface Invoice {
   created_at: string;
   is_locked?: boolean;
   locked_by?: User | null;
+  has_refunds?: boolean;
 }
 
 interface InvoiceItem {
@@ -104,6 +107,10 @@ export default function InvoicesPage() {
   const [printItems, setPrintItems] = useState<InvoiceItem[]>([]);
   const printRef = useRef<HTMLDivElement>(null);
   const socketRef = useSocket();
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [refundInvoice, setRefundInvoice] = useState<Invoice | null>(null);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyInvoice, setHistoryInvoice] = useState<Invoice | null>(null);
   const [lockedInvoices, setLockedInvoices] = useState<{ [key: number]: User }>({});
 
   useEffect(() => {
@@ -263,6 +270,17 @@ export default function InvoicesPage() {
     }
     navigate(`/invoices/receive-payment/${invoice.customer_id}`, { state: { invoice } });
   };
+
+  const handleRefund = (invoice: Invoice) => {
+    setRefundInvoice(invoice);
+    setShowRefundModal(true);
+  };
+
+  const handleRefundHistory = (invoice: Invoice) => {
+    setHistoryInvoice(invoice);
+    setShowHistoryModal(true);
+  };
+
 
   const handlePrint = async (invoice: Invoice) => {
     try {
@@ -1032,6 +1050,24 @@ export default function InvoicesPage() {
                           >
                             <Ban className="h-4 w-4" />
                           </button>
+                          {(invoice.status === 'paid' || invoice.status === 'partially_paid') && (
+                            <button
+                              onClick={() => handleRefund(invoice)}
+                              className="text-orange-600 hover:text-orange-900"
+                              title="Refund"
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </button>
+                          )}
+                          {invoice.has_refunds && (
+                            <button
+                              onClick={() => handleRefundHistory(invoice)}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Refund History"
+                            >
+                              <Clock className="h-4 w-4" />
+                            </button>
+                          )}
                           {/* Delete button removed as per user request */}
                         </div>
                       </td>
@@ -1044,6 +1080,25 @@ export default function InvoicesPage() {
         </div>
       </div>
 
+      <RefundInvoice
+        isOpen={showRefundModal}
+        onClose={() => {
+          setShowRefundModal(false);
+          setRefundInvoice(null);
+        }}
+        invoice={refundInvoice}
+        onSuccess={() => {
+          fetchInvoices();
+        }}
+      />
+      <RefundHistory
+        isOpen={showHistoryModal}
+        onClose={() => {
+          setShowHistoryModal(false);
+          setHistoryInvoice(null);
+        }}
+        invoice={historyInvoice}
+      />
     </div>
   );
 }
