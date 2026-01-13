@@ -422,14 +422,14 @@ export default function BillsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        Rs. {bill.total_amount?.toFixed(4) || '0.0000'}
+                        Rs. {Number(bill.total_amount || 0).toFixed(4)}
                       </div>
                       <div className="text-sm text-gray-500">
-                        Paid: Rs. {bill.paid_amount?.toFixed(4) || '0.0000'}
+                        Paid: Rs. {Number(bill.paid_amount || 0).toFixed(4)}
                       </div>
                       {bill.balance_due > 0 && (
                         <div className="text-sm text-red-600">
-                          Due: Rs. {bill.balance_due?.toFixed(4) || '0.0000'}
+                          Due: Rs. {Number(bill.balance_due || 0).toFixed(4)}
                         </div>
                       )}
                     </td>
