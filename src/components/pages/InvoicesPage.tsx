@@ -77,7 +77,7 @@ interface User {
 
 const formatCurrency = (amount: number | string | undefined | null) => {
   const value = Number(amount) || 0;
-  return value.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 export default function InvoicesPage() {
