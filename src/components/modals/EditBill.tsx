@@ -171,7 +171,7 @@ export default function EditBill() {
                     if (taxAmount > 0.01) {
                         // Infer tax rate
                         const calculatedRate = (taxAmount / subtotal) * 100;
-                        taxRate = Number(calculatedRate.toFixed(2));
+                        taxRate = Number(calculatedRate.toFixed(4));
                     }
                 }
 
@@ -275,8 +275,8 @@ export default function EditBill() {
             const taxRate = Number(item.tax_rate) || 0;
 
             const subtotal = quantity * unitPrice;
-            item.tax_amount = Number(((subtotal * taxRate) / 100).toFixed(2));
-            item.total_price = Number((subtotal + item.tax_amount).toFixed(2));
+            item.tax_amount = Number(((subtotal * taxRate) / 100).toFixed(4));
+            item.total_price = Number((subtotal + item.tax_amount).toFixed(4));
         }
 
         setItems(updatedItems);
@@ -301,9 +301,9 @@ export default function EditBill() {
     };
 
     const calculateTotal = () => {
-        const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unit_price)), 0).toFixed(2));
-        const totalTax = Number(items.reduce((sum, item) => sum + Number(item.tax_amount), 0).toFixed(2));
-        const total = Number((subtotal + totalTax).toFixed(2));
+        const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.unit_price)), 0).toFixed(4));
+        const totalTax = Number(items.reduce((sum, item) => sum + Number(item.tax_amount), 0).toFixed(4));
+        const total = Number((subtotal + totalTax).toFixed(4));
         return { subtotal, totalTax, total };
     };
 
@@ -1530,7 +1530,7 @@ export default function EditBill() {
                                                 <td className="px-4 py-2">
                                                     <input
                                                         type="number"
-                                                        step="0.01"
+                                                        step="0.0001"
                                                         min="0"
                                                         className="input w-24"
                                                         value={item.unit_price}
@@ -1557,7 +1557,7 @@ export default function EditBill() {
                                                     </select>
                                                 </td>
                                                 <td className="px-4 py-2 text-center border border-gray-200">
-                                                    Rs. {Number(item.total_price).toFixed(2)}
+                                                    Rs. {Number(item.total_price).toFixed(4)}
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     <button
@@ -1600,15 +1600,15 @@ export default function EditBill() {
                                                 <>
                                                     <div className="flex justify-between">
                                                         <span>Subtotal:</span>
-                                                        <span>Rs. {subtotal.toFixed(2)}</span>
+                                                        <span>Rs. {subtotal.toFixed(4)}</span>
                                                     </div>
                                                     <div className="flex justify-between">
                                                         <span>Tax:</span>
-                                                        <span>Rs. {totalTax.toFixed(2)}</span>
+                                                        <span>Rs. {totalTax.toFixed(4)}</span>
                                                     </div>
                                                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                                                         <span>Total:</span>
-                                                        <span>Rs. {total.toFixed(2)}</span>
+                                                        <span>Rs. {total.toFixed(4)}</span>
                                                     </div>
                                                 </>
                                             );

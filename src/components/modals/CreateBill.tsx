@@ -163,9 +163,9 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
         description: item.description || '',
         quantity: Number(item.qty) || 1,
         cost_price: Number(item.rate) || 0,
-        actual_unit_price: Number((Number(item.rate) / (1 + (item.tax_rate || 0) / 100)).toFixed(2)) || 0,
+        actual_unit_price: Number((Number(item.rate) / (1 + (item.tax_rate || 0) / 100)).toFixed(4)) || 0,
         tax_rate: Number(item.tax_rate) || 0,
-        tax_amount: Number(((Number(item.rate) / (1 + (item.tax_rate || 0) / 100)) * (item.tax_rate || 0) / 100).toFixed(2)) || 0,
+        tax_amount: Number(((Number(item.rate) / (1 + (item.tax_rate || 0) / 100)) * (item.tax_rate || 0) / 100).toFixed(4)) || 0,
         total_price: Number(item.amount) || 0
       })));
     } catch (error) {
@@ -299,8 +299,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
       const taxRate = Number(item.tax_rate) || 0;
 
       const subtotal = quantity * unitPrice;
-      item.tax_amount = Number(((subtotal * taxRate) / 100).toFixed(2));
-      item.total_price = Number((subtotal + item.tax_amount).toFixed(2));
+      item.tax_amount = Number(((subtotal * taxRate) / 100).toFixed(4));
+      item.total_price = Number((subtotal + item.tax_amount).toFixed(4));
     }
 
     setItems(updatedItems);
@@ -326,9 +326,9 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
   };
 
   const calculateTotals = () => {
-    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.cost_price)), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + Number(item.tax_amount), 0).toFixed(2));
-    const total = Number((subtotal + totalTax).toFixed(2));
+    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.cost_price)), 0).toFixed(4));
+    const totalTax = Number(items.reduce((sum, item) => sum + Number(item.tax_amount), 0).toFixed(4));
+    const total = Number((subtotal + totalTax).toFixed(4));
     return { subtotal, totalTax, total };
   };
 
@@ -1338,8 +1338,8 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                                     const quantity = 1;
                                     const costPrice = Number(product.cost_price) || 0;
                                     const taxRate = Number(updatedItems[index].tax_rate) || 0;
-                                    const taxAmount = Number(((costPrice * taxRate) / 100).toFixed(2)) || 0;
-                                    const totalPrice = Number((quantity * costPrice + taxAmount).toFixed(2)) || 0;
+                                    const taxAmount = Number(((costPrice * taxRate) / 100).toFixed(4)) || 0;
+                                    const totalPrice = Number((quantity * costPrice + taxAmount).toFixed(4)) || 0;
 
                                     updatedItems[index] = {
                                       ...updatedItems[index],
@@ -1394,7 +1394,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                         <td className="px-4 py-2">
                           <input
                             type="number"
-                            step="0.01"
+                            step="0.0001"
                             min="0"
                             className="input w-24"
                             value={item.cost_price}
@@ -1420,7 +1420,7 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                             )}
                           </select>
                         </td>
-                        <td className="px-4 py-2 text-center border border-gray-200">Rs. {(item.total_price ?? 0).toFixed(2)}</td>
+                        <td className="px-4 py-2 text-center border border-gray-200">Rs. {(item.total_price ?? 0).toFixed(4)}</td>
                         <td className="px-4 py-2">
                           <button
                             type="button"
@@ -1460,15 +1460,15 @@ export default function BillModal({ expense, onSave }: BillModalProps) {
                           <>
                             <div className="flex justify-between">
                               <span>Subtotal:</span>
-                              <span>Rs. {subtotal.toFixed(2)}</span>
+                              <span>Rs. {subtotal.toFixed(4)}</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Tax:</span>
-                              <span>Rs. {totalTax.toFixed(2)}</span>
+                              <span>Rs. {totalTax.toFixed(4)}</span>
                             </div>
                             <div className="flex justify-between font-bold text-lg border-t pt-2">
                               <span>Total:</span>
-                              <span>Rs. {total.toFixed(2)}</span>
+                              <span>Rs. {total.toFixed(4)}</span>
                             </div>
                           </>
                         );

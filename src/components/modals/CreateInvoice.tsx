@@ -362,14 +362,14 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const calculateTotals = () => {
+  const calculateTotals = (currentItems: InvoiceItem[] = items) => {
     const shippingCost = Number(formData.shipping_cost || 0);
     const shippingTaxRate = Number(formData.shipping_tax_rate || 0);
     const shippingTaxAmount = Number((shippingCost * shippingTaxRate / 100).toFixed(2));
     const totalShippingWithTax = Number((shippingCost + shippingTaxAmount).toFixed(2));
 
-    const subtotal = Number(items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.actual_unit_price), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.tax_amount), 0).toFixed(2));
+    const subtotal = Number(currentItems.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.actual_unit_price), 0).toFixed(2));
+    const totalTax = Number(currentItems.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.tax_amount), 0).toFixed(2));
 
     let discountAmount = 0;
     if (formData.discount_type === 'percentage') {
@@ -392,6 +392,9 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       // Use the invoiceType parameter if provided, otherwise use the formData value
       const currentInvoiceType = invoiceType || formData.invoice_type;
 
+      // Filter out empty items (where product_id is 0)
+      const validItems = items.filter(item => item.product_id !== 0);
+
       if (!formData.invoice_number) {
         throw new Error('Invoice number is required');
       }
@@ -401,11 +404,11 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       if (!formData.invoice_date) {
         throw new Error('Invoice date is required');
       }
-      if (!items.some(item => item.product_id !== 0)) {
+      if (validItems.length === 0) {
         throw new Error('At least one valid item is required');
       }
 
-      const { subtotal, totalTax, discountAmount, shippingCost, shippingTaxAmount, total } = calculateTotals();
+      const { subtotal, totalTax, discountAmount, shippingCost, shippingTaxAmount, total } = calculateTotals(validItems);
 
       // const selectedCustomer = customers.find(customer => customer.id === parseInt(formData.customer_id));
       // if (selectedCustomer && selectedCustomer.credit_limit < total) {
@@ -426,7 +429,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         shipping_tax_rate: Number(formData.shipping_tax_rate),
         total_amount: Number(total),
         status: currentInvoiceType === 'proforma' ? 'proforma' : 'opened',
-        items: items.map(item => ({
+        items: validItems.map(item => ({
           ...item,
           product_id: parseInt(item.product_id as any) || null,
           quantity: Number(item.quantity),
