@@ -59,11 +59,11 @@ interface Estimate {
   notes: string;
   terms: string;
   is_active: boolean;
-  invoice_id: number | null;
   created_at: string;
   ship_via?: string;
   shipping_date?: string;
   tracking_number?: string;
+  shipping_tax_rate?: number;
 }
 
 export default function EditEstimate() {
@@ -114,7 +114,8 @@ export default function EditEstimate() {
     billing_address: estimate?.billing_address || '',
     ship_via: estimate?.ship_via || '',
     shipping_date: estimate?.shipping_date ? estimate.shipping_date.split('T')[0] : '',
-    tracking_number: estimate?.tracking_number || ''
+    tracking_number: estimate?.tracking_number || '',
+    shipping_tax_rate: estimate?.shipping_tax_rate || 0,
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -131,6 +132,27 @@ export default function EditEstimate() {
       total_price: 0
     }
   ]);
+
+  // Normalize items on load: Ensure actual_unit_price and tax_amount are per-unit values
+  useEffect(() => {
+    if (initialItems && initialItems.length > 0 && products.length > 0) {
+      setItems(initialItems.map((item: any) => {
+        const taxRate = Number(item.tax_rate) || 0;
+        const unitPrice = Number(item.unit_price) || 0;
+        const actualUnitPrice = Number((unitPrice / (1 + taxRate / 100)).toFixed(2));
+        const taxAmountPerUnit = Number((actualUnitPrice * taxRate / 100).toFixed(2));
+
+        return {
+          ...item,
+          quantity: Number(item.quantity) || 0,
+          unit_price: unitPrice,
+          actual_unit_price: actualUnitPrice,
+          tax_amount: taxAmountPerUnit,
+          total_price: Number((Number(item.quantity || 0) * unitPrice).toFixed(2))
+        };
+      }));
+    }
+  }, [initialItems, products]);
 
   const fetchData = async () => {
     try {
@@ -306,9 +328,13 @@ export default function EditEstimate() {
   };
 
   const calculateTotals = () => {
-    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.tax_amount), 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
+    const shippingTaxRate = Number(formData.shipping_tax_rate || 0);
+    const shippingTaxAmount = Number((shippingCost * shippingTaxRate / 100).toFixed(2));
+    const totalShippingWithTax = Number((shippingCost + shippingTaxAmount).toFixed(2));
+
+    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity || 0) * item.actual_unit_price), 0).toFixed(2));
+    const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity || 0) * item.tax_amount), 0).toFixed(2));
 
     let discountAmount = 0;
     const discountValue = Number(formData.discount_value) || 0;
@@ -318,10 +344,10 @@ export default function EditEstimate() {
       discountAmount = Number(discountValue.toFixed(2));
     }
 
-    const total = Number((subtotal + shippingCost + totalTax - discountAmount).toFixed(2));
+    const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
     const balanceDue = Number((total - Number(estimate?.paid_amount || 0)).toFixed(2));
 
-    return { subtotal, totalTax, discountAmount, shippingCost, total, balanceDue };
+    return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total, balanceDue };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -360,6 +386,7 @@ export default function EditEstimate() {
         discount_amount: Number(discountAmount),
         discount_value: Number(formData.discount_value),
         shipping_cost: Number(shippingCost),
+        shipping_tax_rate: Number(formData.shipping_tax_rate),
         total_amount: Number(total),
         status: estimate.status || 'draft',
         is_active: estimate.is_active !== undefined ? estimate.is_active : true,
@@ -884,14 +911,28 @@ export default function EditEstimate() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Shipping Cost:</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="input w-24 text-right"
-                        value={formData.shipping_cost}
-                        onChange={(e) => setFormData({ ...formData, shipping_cost: parseFloat(e.target.value) || 0 })}
-                      />
+                      <div className="flex items-center space-x-2">
+                        <select
+                          className="input w-24"
+                          value={formData.shipping_tax_rate}
+                          onChange={(e) => setFormData({ ...formData, shipping_tax_rate: parseFloat(e.target.value) || 0 })}
+                        >
+                          {taxRates.map((tax) => (
+                            <option key={tax.tax_rate_id} value={parseFloat(tax.rate)}>
+                              {tax.name} ({tax.rate}%)
+                            </option>
+                          ))}
+                          <option value={0}>0% No Tax</option>
+                        </select>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="input w-24 text-right"
+                          value={formData.shipping_cost}
+                          onChange={(e) => setFormData({ ...formData, shipping_cost: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span>Tax:</span>
