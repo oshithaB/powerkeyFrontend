@@ -5,7 +5,6 @@ import { X, Plus, Trash2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSocket } from '../../contexts/SocketContext';
-import { id } from 'date-fns/locale';
 
 interface InvoiceItem {
   id?: number;
@@ -64,6 +63,7 @@ interface Invoice {
   shipping_date?: string;
   tracking_number?: string;
   shipping_cost?: number;
+  shipping_tax_rate?: number;
 }
 
 export default function EditInvoice() {
@@ -106,6 +106,7 @@ export default function EditInvoice() {
     discount_type: invoice?.discount_type || 'fixed' as 'percentage' | 'fixed',
     discount_value: invoice ? (invoice.discount_value || calculateDiscountValue(invoice)) : 0,
     shipping_cost: invoice?.shipping_cost || 0,
+    shipping_tax_rate: invoice?.shipping_tax_rate || 0,
     notes: invoice?.notes || '',
     terms: invoice?.terms || '',
     shipping_address: invoice?.shipping_address || '',
@@ -138,6 +139,27 @@ export default function EditInvoice() {
       total_price: 0
     }
   ]);
+
+  // Normalize items on load: Ensure actual_unit_price and tax_amount are per-unit values
+  useEffect(() => {
+    if (initialItems && initialItems.length > 0 && products.length > 0) {
+      setItems(initialItems.map((item: any) => {
+        const taxRate = Number(item.tax_rate) || 0;
+        const unitPrice = Number(item.unit_price) || 0;
+        const actualUnitPrice = Number((unitPrice / (1 + taxRate / 100)).toFixed(2));
+        const taxAmountPerUnit = Number((actualUnitPrice * taxRate / 100).toFixed(2));
+
+        return {
+          ...item,
+          quantity: Number(item.quantity) || 0,
+          unit_price: unitPrice,
+          actual_unit_price: actualUnitPrice,
+          tax_amount: taxAmountPerUnit,
+          total_price: Number((Number(item.quantity || 0) * unitPrice).toFixed(2))
+        };
+      }));
+    }
+  }, [initialItems, products]);
 
   const fetchData = async () => {
     try {
@@ -176,16 +198,10 @@ export default function EditInvoice() {
     const socket = socketRef.current;
     if (!socket) return;
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    console.log('Socket in edit invoice:', socket);
-    console.log('User in edit invoice:', user);
-    console.log('Invoice in edit invoice:', invoice);
-
     socket.emit('start_edit_invoice', { invoiceId: invoice.id, user });
-    console.log('Socket in edit invoice emit start_edit_invoice', { invoiceId: invoice.id, user });
 
     return () => {
       socket.emit('stop_edit_invoice', { invoiceId: invoice.id, user });
-      console.log('Socket in edit invoice emit stop_edit_invoice', { invoiceId: invoice.id, user });
     };
   }, [invoice.id]);
 
@@ -284,9 +300,13 @@ export default function EditInvoice() {
   };
 
   const calculateTotals = () => {
-    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.actual_unit_price), 0).toFixed(2));
-    const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity) * item.tax_amount), 0).toFixed(2));
     const shippingCost = Number(formData.shipping_cost || 0);
+    const shippingTaxRate = Number(formData.shipping_tax_rate || 0);
+    const shippingTaxAmount = Number((shippingCost * shippingTaxRate / 100).toFixed(2));
+    const totalShippingWithTax = Number((shippingCost + shippingTaxAmount).toFixed(2));
+
+    const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity || 0) * item.actual_unit_price), 0).toFixed(2));
+    const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity || 0) * item.tax_amount), 0).toFixed(2));
 
     let discountAmount = 0;
     const discountValue = Number(formData.discount_value) || 0;
@@ -296,10 +316,10 @@ export default function EditInvoice() {
       discountAmount = Number(discountValue.toFixed(2));
     }
 
-    const total = Number((subtotal + shippingCost + totalTax - discountAmount).toFixed(2));
+    const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
     const balanceDue = Number((total - Number(invoice?.paid_amount || 0)).toFixed(2));
 
-    return { subtotal, totalTax, discountAmount, shippingCost, total, balanceDue };
+    return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total, balanceDue };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -340,6 +360,7 @@ export default function EditInvoice() {
         discount_amount: Number(discountAmount),
         discount_value: Number(formData.discount_value),
         shipping_cost: Number(shippingCost),
+        shipping_tax_rate: Number(formData.shipping_tax_rate),
         total_amount: Number(total),
         paid_amount: invoice?.paid_amount || 0,
         balance_due:
@@ -368,60 +389,28 @@ export default function EditInvoice() {
         invoice_type: formData.invoice_type || null
       };
 
-      console.log('Submitting invoice update:', submitData);
-
       const userRole = JSON.parse(localStorage.getItem('user') || '{}')?.role;
-      console.log('User role:', userRole);
 
-      try {
-        if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
-          const eligibilityRes = await axiosInstance.post(`http://147.79.115.89:3000/api/checkCustomerEligibility`, {
-            company_id: selectedCompany?.company_id,
-            customer_id: parseInt(formData.customer_id),
-            invoice_total: total,
-            operation_type: 'create'
-          });
+      if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
+        const eligibilityRes = await axiosInstance.post(`http://147.79.115.89:3000/api/checkCustomerEligibility`, {
+          company_id: selectedCompany?.company_id,
+          customer_id: parseInt(formData.customer_id),
+          invoice_total: total,
+          operation_type: 'create'
+        });
 
-          console.log('Eligibility response:', eligibilityRes.data);
-
-          if (!eligibilityRes.data.eligible) {
-            throw new Error(eligibilityRes.data.reason || 'Customer is not eligible to create more invoices');
-          }
-
-          console.log('Customer is eligible to update invoice');
+        if (!eligibilityRes.data.eligible) {
+          throw new Error(eligibilityRes.data.reason || 'Customer is not eligible to create more invoices');
         }
-
-        console.log('Submitting invoice data:', submitData);
-
-        await axiosInstance.put(`http://147.79.115.89:3000/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
-
-        console.log('Invoice updated:');
-
-      } catch (error: any) {
-        console.error('Invoice update failed:', error);
-        throw new Error(error.response?.data?.reason || error.message || 'Failed to update invoice');
       }
 
-      setFormData(initialFormData);
-      setItems([
-        {
-          product_id: 0,
-          product_name: '',
-          description: '',
-          quantity: 0,
-          unit_price: 0,
-          actual_unit_price: 0,
-          tax_rate: 0,
-          tax_amount: 0,
-          total_price: 0
-        }
-      ]);
+      await axiosInstance.put(`http://147.79.115.89:3000/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
 
-      navigate('/dashboard/invoices', { replace: true });
+      navigate('/dashboard/sales', { state: { activeTab: 'invoices' }, replace: true });
       alert('Invoice updated successfully');
     } catch (error: any) {
       console.error('Error updating invoice:', error);
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to update invoice';
+      const errorMessage = error.response?.data?.reason || error.response?.data?.error || error.message || 'Failed to update invoice';
       setError(errorMessage);
       alert(errorMessage);
     } finally {
@@ -466,7 +455,6 @@ export default function EditInvoice() {
                   className="input"
                   disabled
                   value={formData.invoice_number}
-                  onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
                   placeholder="Enter invoice number"
                   readOnly
                 />
@@ -580,7 +568,6 @@ export default function EditInvoice() {
                   disabled
                   className="input"
                   value={formData.invoice_date}
-                  onChange={(e) => setFormData({ ...formData, invoice_date: e.target.value })}
                 />
               </div>
 
@@ -593,7 +580,6 @@ export default function EditInvoice() {
                   required
                   className="input"
                   value={formData.due_date}
-                  onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
                   disabled
                 />
               </div>
@@ -748,8 +734,8 @@ export default function EditInvoice() {
                                     const taxRate = updatedItems[index].tax_rate || (defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0);
                                     updatedItems[index].tax_rate = taxRate;
                                     const subtotal = Number(updatedItems[index].quantity) * updatedItems[index].unit_price;
-                                    updatedItems[index].tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
                                     updatedItems[index].actual_unit_price = Number(((updatedItems[index].unit_price * 100) / (100 + taxRate)).toFixed(2));
+                                    updatedItems[index].tax_amount = Number((updatedItems[index].actual_unit_price * taxRate / 100).toFixed(2));
                                     updatedItems[index].total_price = Number(subtotal.toFixed(2));
 
                                     // Auto-add new item row if this is the last row
@@ -893,22 +879,6 @@ export default function EditInvoice() {
                     placeholder="Terms and conditions..."
                   />
                 </div>
-                <div>
-                  <label className='block text-sm font-medium text-gray-700 mb-1'>
-                    Attachment
-                  </label>
-                  <input
-                    type="file"
-                    className="input"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  // onChange={(e) => {
-                  //   if (e.target.files && e.target.files.length > 0) {
-                  //     const file = e.target.files[0];
-                  //     setFormData({ ...formData, attachment: file });
-                  //   }
-                  // }}
-                  />
-                </div>
               </div>
 
               <div className="space-y-4">
@@ -942,14 +912,28 @@ export default function EditInvoice() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span>Shipping Cost:</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="input w-24 text-right"
-                        value={formData.shipping_cost}
-                        onChange={(e) => setFormData({ ...formData, shipping_cost: parseFloat(e.target.value) || 0 })}
-                      />
+                      <div className="flex items-center space-x-2">
+                        <select
+                          className="input w-24"
+                          value={formData.shipping_tax_rate}
+                          onChange={(e) => setFormData({ ...formData, shipping_tax_rate: parseFloat(e.target.value) || 0 })}
+                        >
+                          {taxRates.map((tax) => (
+                            <option key={tax.tax_rate_id} value={parseFloat(tax.rate)}>
+                              {tax.name} ({tax.rate}%)
+                            </option>
+                          ))}
+                          <option value={0}>0% No Tax</option>
+                        </select>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="input w-24 text-right"
+                          value={formData.shipping_cost}
+                          onChange={(e) => setFormData({ ...formData, shipping_cost: parseFloat(e.target.value) || 0 })}
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span>Tax:</span>
