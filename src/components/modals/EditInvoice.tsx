@@ -115,6 +115,7 @@ export default function EditInvoice() {
     shipping_date: invoice?.shipping_date ? invoice.shipping_date.split('T')[0] : '',
     tracking_number: invoice?.tracking_number || '',
     status: invoice?.status,
+    paid_amount: invoice?.paid_amount || 0,
     invoice_type:
       invoice?.status === 'proforma'
         ? 'proforma'
@@ -147,7 +148,7 @@ export default function EditInvoice() {
         const taxRate = Number(item.tax_rate) || 0;
         const unitPrice = Number(item.unit_price) || 0;
         const actualUnitPrice = Number((unitPrice / (1 + taxRate / 100)).toFixed(2));
-        const taxAmountPerUnit = Number((actualUnitPrice * taxRate / 100).toFixed(2));
+        const taxAmountPerUnit = Number((unitPrice - actualUnitPrice).toFixed(2));
 
         return {
           ...item,
@@ -272,7 +273,7 @@ export default function EditInvoice() {
       const quantity = Number(item.quantity) || 0;
       const subtotal = quantity * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
-      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100).toFixed(2));
+      item.tax_amount = Number((item.unit_price - item.actual_unit_price).toFixed(2));
       item.total_price = Number(subtotal.toFixed(2));
     }
 
@@ -317,7 +318,7 @@ export default function EditInvoice() {
     }
 
     const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
-    const balanceDue = Number((total - Number(invoice?.paid_amount || 0)).toFixed(2));
+    const balanceDue = Number((total - Number(formData.paid_amount || 0)).toFixed(2));
 
     return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total, balanceDue };
   };
@@ -362,7 +363,7 @@ export default function EditInvoice() {
         shipping_cost: Number(shippingCost),
         shipping_tax_rate: Number(formData.shipping_tax_rate),
         total_amount: Number(total),
-        paid_amount: invoice?.paid_amount || 0,
+        paid_amount: Number(formData.paid_amount),
         balance_due:
           formData.invoice_type === "proforma" && formData.status === "proforma"
             ? 0
@@ -945,9 +946,15 @@ export default function EditInvoice() {
                       <span>Rs. {total.toFixed(2)}</span>
                     </div>
                     <hr />
-                    <div className="flex justify-between text-green-500">
+                    <div className="flex justify-between text-green-500 items-center">
                       <span>Paid Amount:</span>
-                      <span>Rs. {Number(invoice?.paid_amount || 0).toFixed(2)}</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="input w-32 text-right text-green-600 font-medium"
+                        value={formData.paid_amount}
+                        onChange={(e) => setFormData({ ...formData, paid_amount: parseFloat(e.target.value) || 0 })}
+                      />
                     </div>
                     <div className="flex justify-between text-red-500">
                       <span>Balance Due:</span>

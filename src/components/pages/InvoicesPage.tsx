@@ -481,9 +481,22 @@ export default function InvoicesPage() {
 
     const createSummarySection = () => {
       // Calculate subtotal from exclusive item totals
-      const exclusiveSubtotal = targetItems.reduce((acc, item) => {
+      const exclusiveSubtotal = Number(targetItems.reduce((acc, item) => {
         return acc + ((Number(item.quantity) || 0) * (Number(item.actual_unit_price) || 0));
-      }, 0);
+      }, 0).toFixed(2));
+
+      // Calculate total tax from items using (UnitPrice - ActualUnitPrice) * Qty
+      // This ensures we calculate based on the difference between inclusive and exclusive prices per unit
+      const calculatedTax = Number(targetItems.reduce((acc, item) => {
+        const quantity = Number(item.quantity) || 0;
+        const unitPrice = Number(item.unit_price) || 0;
+        const actualUnitPrice = Number(item.actual_unit_price) || 0;
+        const unitTax = unitPrice - actualUnitPrice;
+        return acc + (quantity * unitTax);
+      }, 0).toFixed(2));
+
+      const calculatedTotal = Number((exclusiveSubtotal + Number(targetInvoice.shipping_cost || 0) + calculatedTax - Number(targetInvoice.discount_amount || 0)).toFixed(2));
+      const calculatedBalanceDue = Number((calculatedTotal - Number(targetInvoice.paid_amount || 0)).toFixed(2));
 
       return {
         columns: [
@@ -523,11 +536,11 @@ export default function InvoicesPage() {
                 ],
                 [
                   { text: 'Tax:', fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 10, 6] },
-                  { text: `Rs. ${formatCurrency(targetInvoice.tax_amount)}`, fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 0, 6] }
+                  { text: `Rs. ${formatCurrency(calculatedTax)}`, fontSize: 9, alignment: 'right', border: [false, false, false, true], borderColor: ['', '', '', '#e5e7eb'], margin: [0, 3, 0, 6] }
                 ],
                 [
                   { text: 'TOTAL:', fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
-                  { text: `Rs. ${formatCurrency(targetInvoice.total_amount)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
+                  { text: `Rs. ${formatCurrency(calculatedTotal)}`, fontSize: 11, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                 ],
                 [
                   { text: 'Paid:', fontSize: 9, alignment: 'right', color: '#059669', border: [false, false, false, false], margin: [0, 3, 10, 3] },
@@ -535,7 +548,7 @@ export default function InvoicesPage() {
                 ],
                 [
                   { text: 'BALANCE DUE:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 10, 6] },
-                  { text: `Rs. ${formatCurrency(targetInvoice.balance_due)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
+                  { text: `Rs. ${formatCurrency(calculatedBalanceDue)}`, fontSize: 10, bold: true, alignment: 'right', margin: [0, 6, 0, 6] }
                 ]
               ]
             },
