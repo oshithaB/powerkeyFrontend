@@ -5,6 +5,7 @@ import { X, Plus, Trash2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSocket } from '../../contexts/SocketContext';
+import InvoiceEditPaymentModal from './InvoiceEditPaymentModal';
 
 interface InvoiceItem {
   id?: number;
@@ -78,6 +79,9 @@ export default function EditInvoice() {
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState<number | null>(null);
   const [customerFilter, setCustomerFilter] = useState('');
   const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
+  const [payments, setPayments] = useState<any[]>([]);
+  const [isEditPaymentModalOpen, setIsEditPaymentModalOpen] = useState(false);
+  const [selectedPaymentToEdit, setSelectedPaymentToEdit] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { invoice, items: initialItems } = location.state || {};
@@ -165,10 +169,10 @@ export default function EditInvoice() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`http://147.79.115.89:3000/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`http://147.79.115.89:3000/api/employees/`),
-        axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/employees/`),
+        axiosInstance.get(`/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/tax-rates/${selectedCompany?.company_id}`)
       ]);
 
       setCustomers(Array.isArray(customersRes.data) ? customersRes.data : []);
@@ -206,9 +210,20 @@ export default function EditInvoice() {
     };
   }, [invoice.id]);
 
+  const fetchPayments = async () => {
+    if (!selectedCompany?.company_id || !invoice?.id) return;
+    try {
+      const response = await axiosInstance.get(`/getInvoicePayments/${selectedCompany.company_id}/${invoice.id}`);
+      setPayments(response.data);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+    }
+  };
+
   useEffect(() => {
     if (selectedCompany) {
       fetchData();
+      fetchPayments();
       setFormData(prev => ({
         ...prev,
         notes: invoice?.notes || selectedCompany.notes || '',
@@ -393,7 +408,7 @@ export default function EditInvoice() {
       const userRole = JSON.parse(localStorage.getItem('user') || '{}')?.role;
 
       if (userRole !== 'admin' && submitData.status === 'opened' && initialFormData.invoice_type === 'proforma') {
-        const eligibilityRes = await axiosInstance.post(`http://147.79.115.89:3000/api/checkCustomerEligibility`, {
+        const eligibilityRes = await axiosInstance.post(`/checkCustomerEligibility`, {
           company_id: selectedCompany?.company_id,
           customer_id: parseInt(formData.customer_id),
           invoice_total: total,
@@ -405,7 +420,9 @@ export default function EditInvoice() {
         }
       }
 
-      await axiosInstance.put(`http://147.79.115.89:3000/api/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
+
+
+      await axiosInstance.put(`/updateInvoice/${selectedCompany?.company_id}/${invoice.id}`, submitData);
 
       navigate('/dashboard/sales', { state: { activeTab: 'invoices' }, replace: true });
       alert('Invoice updated successfully');
@@ -947,13 +964,18 @@ export default function EditInvoice() {
                     </div>
                     <hr />
                     <div className="flex justify-between text-green-500 items-center">
-                      <span>Paid Amount:</span>
+                      <div className="flex flex-col items-start">
+                        <span>Paid Amount:</span>
+                        {payments.length > 0 && <span className="text-xs text-gray-500">(Edit via history)</span>}
+                      </div>
                       <input
                         type="number"
                         step="0.01"
-                        className="input w-32 text-right text-green-600 font-medium"
+                        className={`input w-32 text-right text-green-600 font-medium ${payments.length > 0 ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                         value={formData.paid_amount}
                         onChange={(e) => setFormData({ ...formData, paid_amount: parseFloat(e.target.value) || 0 })}
+                        disabled={payments.length > 0}
+                        title={payments.length > 0 ? "Edit specific payments in the history table below to update total" : ""}
                       />
                     </div>
                     <div className="flex justify-between text-red-500">
@@ -965,7 +987,52 @@ export default function EditInvoice() {
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
+            {/* Payments History Section */}
+            {payments.length > 0 && (
+              <div className="mt-8">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Payment History</h4>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border border-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Reference</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Notes</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payments.map((payment) => (
+                        <tr key={payment.id} className="border-t">
+                          <td className="px-4 py-2 text-sm">{new Date(payment.payment_date).toLocaleDateString()}</td>
+                          <td className="px-4 py-2 text-sm">Rs. {Number(payment.payment_amount).toLocaleString()}</td>
+                          <td className="px-4 py-2 text-sm">{payment.payment_method}</td>
+                          <td className="px-4 py-2 text-sm">{payment.deposit_to}</td>
+                          <td className="px-4 py-2 text-sm">{payment.notes || '-'}</td>
+                          <td className="px-4 py-2 text-sm">
+                            <button
+                              type="button"
+                              className="text-primary-600 hover:text-primary-800 font-medium"
+                              onClick={() => {
+                                setSelectedPaymentToEdit(payment);
+                                setIsEditPaymentModalOpen(true);
+                              }}
+                            >
+                              Edit
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+
+            <div className="flex justify-end space-x-2 pt-6 border-t">
               <button
                 type="button"
                 onClick={() => navigate("/dashboard/sales", { state: { activeTab: 'invoices' } })}
@@ -978,12 +1045,43 @@ export default function EditInvoice() {
                 disabled={loading}
                 className="btn btn-primary btn-md"
               >
-                {loading ? 'Updating...' : 'Update Invoice'}
+                {loading ? 'Saving...' : 'Update Invoice'}
               </button>
             </div>
           </form>
+
+          {selectedPaymentToEdit && (
+            <InvoiceEditPaymentModal
+              isOpen={isEditPaymentModalOpen}
+              onClose={() => {
+                setIsEditPaymentModalOpen(false);
+                setSelectedPaymentToEdit(null);
+              }}
+              payment={selectedPaymentToEdit}
+              onPaymentUpdated={() => {
+                fetchPayments();
+                // Refresh invoice data to update balances?
+                // Ideally we should reload the whole invoice or update local state
+                // Since handle submit uses form data, we might need to refresh that too if we want to show updated balance immediately?
+                // But this page is mainly for editing invoice details.
+                // Balance due is calculated in `calculateTotals`. `paid_amount` is in `formData`.
+                // We should update `formData.paid_amount` so the user sees correct balance.
+                // Let's refetch payments then sum them up.
+                // Actually, `fetchPayments` is async.
+
+                axiosInstance.get(`/getInvoicePayments/${selectedCompany?.company_id}/${invoice.id}`)
+                  .then(res => {
+                    const newPayments = res.data;
+                    setPayments(newPayments);
+                    const totalPaid = newPayments.reduce((sum: number, p: any) => sum + Number(p.payment_amount), 0);
+                    setFormData(prev => ({ ...prev, paid_amount: totalPaid }));
+                  });
+              }}
+            />
+          )}
+
         </div>
       </div>
-    </motion.div>
+    </motion.div >
   );
 }

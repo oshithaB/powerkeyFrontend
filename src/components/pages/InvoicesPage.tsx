@@ -4,6 +4,7 @@ import axiosInstance from '../../axiosInstance';
 import { Plus, Edit, Trash2, DollarSign, Filter, Printer, X, Ban, FileText, RotateCcw, Clock } from 'lucide-react';
 import RefundInvoice from '../modals/RefundInvoice';
 import RefundHistory from '../modals/RefundHistory';
+import InvoicePaymentsHistoryModal from '../modals/InvoicePaymentsHistoryModal';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Bar } from 'react-chartjs-2';
@@ -56,6 +57,7 @@ interface Invoice {
   is_locked?: boolean;
   locked_by?: User | null;
   has_refunds?: boolean;
+  payment_method?: string;
 }
 
 interface InvoiceItem {
@@ -112,6 +114,8 @@ export default function InvoicesPage() {
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [historyInvoice, setHistoryInvoice] = useState<Invoice | null>(null);
   const [lockedInvoices, setLockedInvoices] = useState<{ [key: number]: User }>({});
+  const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
+  const [paymentHistoryInvoice, setPaymentHistoryInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
     if (!selectedCompany?.company_id) {
@@ -125,7 +129,7 @@ export default function InvoicesPage() {
 
   const fetchInvoices = async () => {
     try {
-      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getInvoice/${selectedCompany?.company_id}`);
+      const response = await axiosInstance.get(`/getInvoice/${selectedCompany?.company_id}`);
       setInvoices(response.data);
     } catch (error) {
       console.error('Error fetching invoices:', error);
@@ -137,10 +141,10 @@ export default function InvoicesPage() {
   const fetchData = async () => {
     try {
       const [customersRes, employeesRes, productsRes, taxRatesRes] = await Promise.all([
-        axiosInstance.get(`http://147.79.115.89:3000/api/getCustomers/${selectedCompany?.company_id}`),
-        axiosInstance.get(`http://147.79.115.89:3000/api/employees`),
-        axiosInstance.get(`http://147.79.115.89:3000/api/getProducts/${selectedCompany?.company_id}`),
-        axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`)
+        axiosInstance.get(`/getCustomers/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/employees`),
+        axiosInstance.get(`/getProducts/${selectedCompany?.company_id}`),
+        axiosInstance.get(`/tax-rates/${selectedCompany?.company_id}`)
       ]);
       setCustomers(customersRes.data);
       setEmployees(employeesRes.data);
@@ -204,7 +208,7 @@ export default function InvoicesPage() {
 
   const fetchInvoiceItems = async (invoiceId: number) => {
     try {
-      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getInvoiceItems/${selectedCompany?.company_id}/${invoiceId}`);
+      const response = await axiosInstance.get(`/getInvoiceItems/${selectedCompany?.company_id}/${invoiceId}`);
       const items = Array.isArray(response.data) ? response.data : [];
       return items.map(item => ({
         id: item.id,
@@ -237,7 +241,7 @@ export default function InvoicesPage() {
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this invoice?')) {
       try {
-        await axiosInstance.delete(`http://147.79.115.89:3000/api/deleteInvoice/${selectedCompany?.company_id}/${id}`);
+        await axiosInstance.delete(`/deleteInvoice/${selectedCompany?.company_id}/${id}`);
         fetchInvoices();
       } catch (error) {
         console.error('Error deleting invoice:', error);
@@ -250,7 +254,7 @@ export default function InvoicesPage() {
 
     if (window.confirm('Are you sure you want to cancel this invoice? This will reverse stock, payments, and customer balance.')) {
       try {
-        await axiosInstance.post(`http://147.79.115.89:3000/api/invoice/cancelInvoice/${selectedCompany?.company_id}`, {
+        await axiosInstance.post(`/invoice/cancelInvoice/${selectedCompany?.company_id}`, {
           invoiceId: invoice.id,
           companyId: selectedCompany?.company_id
         });
@@ -279,6 +283,11 @@ export default function InvoicesPage() {
   const handleRefundHistory = (invoice: Invoice) => {
     setHistoryInvoice(invoice);
     setShowHistoryModal(true);
+  };
+
+  const handleEditPayments = (invoice: Invoice) => {
+    setPaymentHistoryInvoice(invoice);
+    setShowPaymentHistoryModal(true);
   };
 
 
@@ -1040,6 +1049,14 @@ export default function InvoicesPage() {
                             <Printer className="h-4 w-4" />
                           </button>
                           <button
+                            onClick={() => handleEditPayments(invoice)}
+                            className="text-purple-600 hover:text-purple-900"
+                            style={{ display: invoice.status === 'cancelled' || invoice.status === 'opened' || invoice.status === 'sent' || invoice.status === 'overdue' || invoice.status === 'proforma' ? 'none' : undefined }}
+                            title="Edit Payments"
+                          >
+                            <DollarSign className="h-4 w-4" />
+                          </button>
+                          <button
                             onClick={() => handleDownload(invoice)}
                             className="text-blue-600 hover:text-blue-900"
                             title="Download PDF"
@@ -1112,6 +1129,20 @@ export default function InvoicesPage() {
         }}
         invoice={historyInvoice}
       />
+
+      {paymentHistoryInvoice && (
+        <InvoicePaymentsHistoryModal
+          isOpen={showPaymentHistoryModal}
+          onClose={() => {
+            setShowPaymentHistoryModal(false);
+            setPaymentHistoryInvoice(null);
+          }}
+          invoice={paymentHistoryInvoice}
+          onPaymentsUpdated={() => {
+            fetchInvoices();
+          }}
+        />
+      )}
     </div>
   );
 }
