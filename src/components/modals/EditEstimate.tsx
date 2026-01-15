@@ -116,7 +116,6 @@ export default function EditEstimate() {
     shipping_date: estimate?.shipping_date ? estimate.shipping_date.split('T')[0] : '',
     tracking_number: estimate?.tracking_number || '',
     shipping_tax_rate: estimate?.shipping_tax_rate || 0,
-    paid_amount: estimate?.paid_amount || 0,
   };
 
   const [formData, setFormData] = useState(initialFormData);
@@ -141,7 +140,7 @@ export default function EditEstimate() {
         const taxRate = Number(item.tax_rate) || 0;
         const unitPrice = Number(item.unit_price) || 0;
         const actualUnitPrice = Number((unitPrice / (1 + taxRate / 100)).toFixed(2));
-        const taxAmountPerUnit = Number((unitPrice - actualUnitPrice).toFixed(2));
+        const taxAmountPerUnit = Number((actualUnitPrice * taxRate / 100).toFixed(2));
 
         return {
           ...item,
@@ -301,7 +300,7 @@ export default function EditEstimate() {
       const quantity = Number(item.quantity) || 0;
       const subtotal = quantity * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
-      item.tax_amount = Number((item.unit_price - item.actual_unit_price).toFixed(2));
+      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100).toFixed(2));
       item.total_price = Number(subtotal.toFixed(2));
     }
 
@@ -346,7 +345,7 @@ export default function EditEstimate() {
     }
 
     const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
-    const balanceDue = Number((total - Number(formData.paid_amount || 0)).toFixed(2));
+    const balanceDue = Number((total - Number(estimate?.paid_amount || 0)).toFixed(2));
 
     return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total, balanceDue };
   };
@@ -388,7 +387,6 @@ export default function EditEstimate() {
         discount_value: Number(formData.discount_value),
         shipping_cost: Number(shippingCost),
         shipping_tax_rate: Number(formData.shipping_tax_rate),
-        paid_amount: Number(formData.paid_amount),
         total_amount: Number(total),
         status: estimate.status || 'draft',
         is_active: estimate.is_active !== undefined ? estimate.is_active : true,
@@ -441,8 +439,7 @@ export default function EditEstimate() {
     }
   };
 
-  const { subtotal, totalTax, discountAmount, shippingCost, total, balanceDue } = calculateTotals();
-
+  const { subtotal, totalTax, discountAmount, shippingCost, total } = calculateTotals();
 
   return (
     <motion.div
@@ -736,9 +733,9 @@ export default function EditEstimate() {
                                     const defaultTaxRate = taxRates.find(tax => tax.is_default === 1);
                                     const taxRate = updatedItems[index].tax_rate || (defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0);
                                     updatedItems[index].tax_rate = taxRate;
-                                    const subtotal = Number(updatedItems[index].quantity || 0) * updatedItems[index].unit_price;
-                                    updatedItems[index].actual_unit_price = Number((updatedItems[index].unit_price / (1 + taxRate / 100)).toFixed(2));
-                                    updatedItems[index].tax_amount = Number((updatedItems[index].unit_price - updatedItems[index].actual_unit_price).toFixed(2));
+                                    const subtotal = Number(updatedItems[index].quantity) * updatedItems[index].unit_price;
+                                    updatedItems[index].tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
+                                    updatedItems[index].actual_unit_price = Number(((updatedItems[index].unit_price * 100) / (100 + updatedItems[index].tax_rate)).toFixed(2));
                                     updatedItems[index].total_price = Number(subtotal.toFixed(2));
 
                                     // Auto-add new item row if this is the last row
@@ -944,21 +941,6 @@ export default function EditEstimate() {
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total:</span>
                       <span>Rs. {total.toFixed(2)}</span>
-                    </div>
-                    <hr />
-                    <div className="flex justify-between text-green-500 items-center">
-                      <span>Paid Amount:</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="input w-32 text-right text-green-600 font-medium"
-                        value={formData.paid_amount}
-                        onChange={(e) => setFormData({ ...formData, paid_amount: parseFloat(e.target.value) || 0 })}
-                      />
-                    </div>
-                    <div className="flex justify-between text-red-500">
-                      <span>Balance Due:</span>
-                      <span>Rs. {balanceDue.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
