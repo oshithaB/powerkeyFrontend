@@ -82,6 +82,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     shipping_date: '',
     tracking_number: '',
     invoice_type: 'invoice' as 'invoice' | 'proforma',
+    paid_amount: 0,
   };
 
   const [newCustomerForm, setNewCustomerForm] = useState({
@@ -252,17 +253,29 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         head_note: estimate.head_note || ''
       });
 
-      setItems(itemsRes.data.map((item: any) => ({
-        product_id: item.product_id || 0,
-        product_name: item.product_name || '',
-        description: item.description || '',
-        quantity: Number(item.quantity) || 1,
-        unit_price: Number(item.unit_price) || 0,
-        actual_unit_price: Number(item.actual_unit_price) || Number(item.unit_price) || 0,
-        tax_rate: Number(item.tax_rate) || 0,
-        tax_amount: Number(item.tax_amount) || 0,
-        total_price: Number(item.total_price) || 0
-      })));
+      setItems(itemsRes.data.map((item: any) => {
+        const quantity = Number(item.quantity) || 1;
+        const unit_price = Number(item.unit_price) || 0;
+        const tax_rate = Number(item.tax_rate) || 0;
+
+        // Recalculate derived values to ensure consistency with invoice logic
+        const actual_unit_price = Number((unit_price / (1 + tax_rate / 100)).toFixed(2));
+        const tax_amount = Number((unit_price - actual_unit_price).toFixed(2));
+        const subtotal = quantity * unit_price;
+        const total_price = Number(subtotal.toFixed(2));
+
+        return {
+          product_id: item.product_id || 0,
+          product_name: item.product_name || '',
+          description: item.description || '',
+          quantity,
+          unit_price,
+          actual_unit_price,
+          tax_rate,
+          tax_amount,
+          total_price
+        };
+      }));
 
       // setShowEstimateSelection(false);
       // setShowEstimateSidebar(false);
@@ -335,7 +348,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
       // FIX: tax_amount should only be based on item price, not global shipping cost
       const subtotal = Number(item.quantity || 0) * item.unit_price;
       item.actual_unit_price = Number((item.unit_price / (1 + item.tax_rate / 100)).toFixed(2));
-      item.tax_amount = Number((item.actual_unit_price * item.tax_rate / 100).toFixed(2));
+      item.tax_amount = Number((item.unit_price - item.actual_unit_price).toFixed(2));
       item.total_price = Number((subtotal).toFixed(2));
     }
 
@@ -427,6 +440,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         discount_amount: Number(discountAmount),
         shipping_cost: Number(shippingCost),
         shipping_tax_rate: Number(formData.shipping_tax_rate),
+        paid_amount: Number(formData.paid_amount),
         total_amount: Number(total),
         status: currentInvoiceType === 'proforma' ? 'proforma' : 'opened',
         items: validItems.map(item => ({
@@ -967,8 +981,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                                     const taxRate = updatedItems[index].tax_rate || (defaultTaxRate ? parseFloat(defaultTaxRate.rate) : 0);
                                     updatedItems[index].tax_rate = taxRate;
                                     const subtotal = (Number(updatedItems[index].quantity) || 0) * updatedItems[index].unit_price;
-                                    updatedItems[index].tax_amount = Number((item.actual_unit_price * taxRate / 100).toFixed(2));
-                                    updatedItems[index].actual_unit_price = Number(((updatedItems[index].unit_price * 100) / (100 + updatedItems[index].tax_rate)).toFixed(2));
+                                    updatedItems[index].actual_unit_price = Number((updatedItems[index].unit_price / (1 + taxRate / 100)).toFixed(2));
+                                    updatedItems[index].tax_amount = Number((updatedItems[index].unit_price - updatedItems[index].actual_unit_price).toFixed(2));
                                     updatedItems[index].total_price = Number(subtotal.toFixed(2));
 
                                     // Auto-add new item row if this is the last row
@@ -1202,6 +1216,17 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span>Total:</span>
                       <span>Rs. {total.toFixed(2)}</span>
+                    </div>
+                    <hr />
+                    <div className="flex justify-between text-green-500 items-center">
+                      <span>Paid Amount:</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="input w-32 text-right text-green-600 font-medium"
+                        value={formData.paid_amount}
+                        onChange={(e) => setFormData({ ...formData, paid_amount: parseFloat(e.target.value) || 0 })}
+                      />
                     </div>
                   </div>
                 </div>
@@ -1667,7 +1692,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
             </div>
           )}
         </div>
-      </div>
-    </motion.div>
+      </div >
+    </motion.div >
   );
 }
