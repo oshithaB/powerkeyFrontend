@@ -195,9 +195,7 @@ const InvoiceReceivePaymentModal: React.FC = () => {
         const response = await axiosInstance.get('http://147.79.115.89:3000/api/getPaymentMethods');
         const methods = response.data.map((method: { name: string }) => method.name);
         setPaymentMethods(methods);
-        if (methods.length > 0 && !payment.payment_method) {
-          setPayment((prev) => ({ ...prev, payment_method: methods[0] }));
-        }
+
       } catch (error) {
         console.error('Error fetching payment methods:', error);
         setPaymentMethods([]);
