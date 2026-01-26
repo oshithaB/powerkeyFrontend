@@ -20,6 +20,14 @@ interface Order {
   location: string;
   ship_via?: string;
   total_amount: number | null | string;
+  subtotal: number;
+  tax_amount: number;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  discount_amount: number;
+  shipping_cost: number;
+  notes: string;
+  terms: string;
   status: string;
   created_at: string;
 }
@@ -37,6 +45,8 @@ interface OrderItem {
   class: string;
   received: boolean;
   closed: boolean;
+  tax_rate: number;
+  tax_amount: number;
   isEditing?: boolean;
 }
 
@@ -86,12 +96,21 @@ export default function PurchaseOrdersPage() {
     location: '',
     ship_via: '',
     total_amount: null,
+    subtotal: 0,
+    tax_amount: 0,
+    discount_type: 'fixed',
+    discount_value: 0,
+    discount_amount: 0,
+    shipping_cost: 0,
+    notes: '',
+    terms: '',
     status: 'open',
     created_at: new Date().toISOString(),
   });
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [taxRates, setTaxRates] = useState<any[]>([]); // Add taxRates state
   const [orderCount, setOrderCount] = useState(0);
   const [vendorFilter, setVendorFilter] = useState('');
   const [vendorSuggestions, setVendorSuggestions] = useState<Vendor[]>([]);
@@ -131,6 +150,7 @@ export default function PurchaseOrdersPage() {
       fetchEmployees();
       fetchOrderCount();
       fetchProducts();
+      fetchTaxRates(); // Fetch tax rates
     }
   }, [selectedCompany]);
 
@@ -204,6 +224,17 @@ export default function PurchaseOrdersPage() {
       setEmployees(response.data);
     } catch (error) {
       console.error('Error fetching employees:', error);
+    }
+  };
+
+
+
+  const fetchTaxRates = async () => {
+    try {
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`);
+      setTaxRates(response.data);
+    } catch (error) {
+      console.error('Error fetching tax rates:', error);
     }
   };
 
@@ -354,6 +385,8 @@ export default function PurchaseOrdersPage() {
       class: '',
       received: false,
       closed: false,
+      tax_rate: 0,
+      tax_amount: 0,
       isEditing: true,
     };
     setOrderItems([...orderItems, newItem]);
@@ -375,12 +408,25 @@ export default function PurchaseOrdersPage() {
         updatedItems[index].description = product.description || '';
         updatedItems[index].rate = product.cost_price || 0;
         updatedItems[index].product_id = product.id;
+        // Default tax rate? Maybe 0 for POs usually
       }
     }
 
-    if (field === 'qty' || field === 'rate') {
+    if (field === 'qty' || field === 'rate' || field === 'tax_rate') {
       const item = updatedItems[index];
-      item.amount = Number((item.qty * item.rate).toFixed(2));
+      const qty = Number(item.qty) || 0;
+      const rate = Number(item.rate) || 0;
+      const taxRate = Number(item.tax_rate) || 0;
+
+      const subtotal = qty * rate;
+      const taxAmount = (subtotal * taxRate) / 100;
+
+      item.tax_amount = Number(taxAmount.toFixed(2));
+      item.amount = Number(subtotal.toFixed(2)); // keeping amount as exclusive subtotal for now, or inclusive? 
+      // Usually PO line amount is Qty * Rate. Tax is calculated separately on the total or shown as a column.
+      // Re-reading logic in Invoices: "Total" column is Qty * ActualUnitPrice. 
+      // Here, let's keep "Amount" as Qty * Rate (Subtotal). 
+      // And we handle tax in the final calculation.
     }
 
     setOrderItems(updatedItems);
@@ -390,16 +436,38 @@ export default function PurchaseOrdersPage() {
     setOrderItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const calculateTotal = () => {
-    return Number(orderItems.reduce((sum, item) => sum + Number(item.amount), 0).toFixed(2));
+  const calculateTotals = () => {
+    const subtotal = orderItems.reduce((sum, item) => sum + (Number(item.qty) * Number(item.rate)), 0);
+    const taxTotal = orderItems.reduce((sum, item) => sum + ((Number(item.qty) * Number(item.rate) * (Number(item.tax_rate) || 0)) / 100), 0);
+
+    let discountAmount = 0;
+    if (order.discount_type === 'percentage') {
+      discountAmount = (subtotal * (order.discount_value || 0)) / 100;
+    } else {
+      discountAmount = Number(order.discount_value) || 0;
+    }
+
+    const shipping = Number(order.shipping_cost) || 0;
+    const total = subtotal + taxTotal + shipping - discountAmount;
+
+    return {
+      subtotal: Number(subtotal.toFixed(2)),
+      taxTotal: Number(taxTotal.toFixed(2)),
+      discountAmount: Number(discountAmount.toFixed(2)),
+      total: Number(total.toFixed(2))
+    };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const totals = calculateTotals();
       const orderData = {
         ...order,
-        total_amount: calculateTotal(),
+        subtotal: totals.subtotal,
+        tax_amount: totals.taxTotal,
+        discount_amount: totals.discountAmount,
+        total_amount: totals.total,
         company_id: selectedCompany?.company_id,
       };
       const response = await axiosInstance.post(`http://147.79.115.89:3000/api/orders/${selectedCompany?.company_id}`, orderData);
@@ -617,6 +685,9 @@ export default function PurchaseOrdersPage() {
                           Amount
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tax
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -624,6 +695,7 @@ export default function PurchaseOrdersPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {orderItems.map((item, index) => (
                         <tr key={item.id} className="hover:bg-gray-50">
+                          {/* ... Name, SKU, Desc ... */}
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             {item.isEditing ? (
                               <>
@@ -748,6 +820,23 @@ export default function PurchaseOrdersPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             Rs. {Number(item.amount).toFixed(2)}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {item.isEditing ? (
+                              <div className="flex items-center">
+                                <input
+                                  type="number"
+                                  value={item.tax_rate}
+                                  onChange={(e) => updateItem(item.id, 'tax_rate', parseFloat(e.target.value) || 0)}
+                                  className="input w-20 text-right"
+                                  min="0"
+                                  step="0.01"
+                                />
+                                <span className="ml-1">%</span>
+                              </div>
+                            ) : (
+                              `${item.tax_rate}%`
+                            )}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             {item.isEditing ? (
                               <div className="flex space-x-2">
@@ -776,10 +865,82 @@ export default function PurchaseOrdersPage() {
               </div>
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="space-y-2">
-                    <div className="flex justify-between font-bold text-lg border-t pt-2">
-                      <span>Total:</span>
-                      <span>Rs. {calculateTotal().toFixed(2)}</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea
+                          rows={3}
+                          value={order.notes || ''}
+                          onChange={(e) => setOrder({ ...order, notes: e.target.value })}
+                          className="input w-full mt-1"
+                          placeholder="Add notes for the vendor..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Terms</label>
+                        <textarea
+                          rows={3}
+                          value={order.terms || ''}
+                          onChange={(e) => setOrder({ ...order, terms: e.target.value })}
+                          className="input w-full mt-1"
+                          placeholder="Add terms and conditions..."
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Subtotal:</span>
+                        <span className="font-medium">Rs. {calculateTotals().subtotal.toFixed(2)}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Discount:</span>
+                        <div className="flex space-x-2">
+                          <select
+                            value={order.discount_type || 'fixed'}
+                            onChange={(e) => setOrder({ ...order, discount_type: e.target.value as 'fixed' | 'percentage' })}
+                            className="input w-24 h-8 text-xs"
+                          >
+                            <option value="fixed">Fixed</option>
+                            <option value="percentage">%</option>
+                          </select>
+                          <input
+                            type="number"
+                            value={order.discount_value || 0}
+                            onChange={(e) => setOrder({ ...order, discount_value: parseFloat(e.target.value) || 0 })}
+                            className="input w-24 h-8 text-xs text-right"
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                      {order.discount_value > 0 && (
+                        <div className="flex justify-between text-xs text-red-600">
+                          <span></span>
+                          <span>- Rs. {calculateTotals().discountAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Shipping:</span>
+                        <input
+                          type="number"
+                          value={order.shipping_cost || 0}
+                          onChange={(e) => setOrder({ ...order, shipping_cost: parseFloat(e.target.value) || 0 })}
+                          className="input w-24 h-8 text-xs text-right"
+                          min="0"
+                        />
+                      </div>
+
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Tax:</span>
+                        <span className="font-medium">Rs. {calculateTotals().taxTotal.toFixed(2)}</span>
+                      </div>
+
+                      <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                        <span>Total:</span>
+                        <span>Rs. {calculateTotals().total.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

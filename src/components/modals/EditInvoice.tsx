@@ -392,6 +392,7 @@ export default function EditInvoice() {
         shipping_date: formData.shipping_date || null,
         tracking_number: formData.tracking_number || null,
         items: items.map(item => ({
+          id: item.id,
           product_id: parseInt(item.product_id as any) || null,
           product_name: item.product_name || null,
           description: item.description,

@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
-import { X, Plus, Trash2, Printer } from 'lucide-react';
+import { X, Plus, Trash2 } from 'lucide-react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
-import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
-
-(pdfMake as any).vfs = pdfFonts;
 
 interface Order {
   id: number;
@@ -24,6 +20,14 @@ interface Order {
   location: string;
   ship_via?: string;
   total_amount: number | null | string;
+  subtotal: number;
+  tax_amount: number;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  discount_amount: number;
+  shipping_cost: number;
+  notes: string;
+  terms: string;
   status: string;
   prev_status?: string;
   created_at: string;
@@ -42,6 +46,8 @@ interface OrderItem {
   class: string;
   received: boolean;
   closed: boolean;
+  tax_rate: number;
+  tax_amount: number;
   isEditing?: boolean;
 }
 
@@ -74,13 +80,23 @@ export default function EditOrdersPage() {
     class: null,
     location: '',
     ship_via: '',
+
     total_amount: null,
+    subtotal: 0,
+    tax_amount: 0,
+    discount_type: 'fixed',
+    discount_value: 0,
+    discount_amount: 0,
+    shipping_cost: 0,
+    notes: '',
+    terms: '',
     status: 'open',
     created_at: new Date().toISOString(),
   });
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [taxRates, setTaxRates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [vendorFilter, setVendorFilter] = useState('');
   const [vendorSuggestions, setVendorSuggestions] = useState<Vendor[]>([]);
@@ -104,8 +120,10 @@ export default function EditOrdersPage() {
           fetchOrderDetails(),
           fetchOrderItems(),
           fetchVendors(),
+
           fetchEmployees(),
           fetchProducts(),
+          fetchTaxRates(),
         ]);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -157,6 +175,14 @@ export default function EditOrdersPage() {
         order_date: orderData.order_date ? orderData.order_date.split('T')[0] : new Date().toISOString().split('T')[0],
         category: orderData.category || '',
         prev_status: orderData.status || 'open',
+        subtotal: Number(orderData.subtotal) || 0,
+        tax_amount: Number(orderData.tax_amount) || 0,
+        discount_type: orderData.discount_type || 'fixed',
+        discount_value: Number(orderData.discount_value) || 0,
+        discount_amount: Number(orderData.discount_amount) || 0,
+        shipping_cost: Number(orderData.shipping_cost) || 0,
+        notes: orderData.notes || '',
+        terms: orderData.terms || '',
       });
       if (orderData.supplier) {
         setVendorFilter(orderData.supplier);
@@ -209,6 +235,15 @@ export default function EditOrdersPage() {
     }
   };
 
+  const fetchTaxRates = async () => {
+    try {
+      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/tax-rates/${selectedCompany?.company_id}`);
+      setTaxRates(response.data);
+    } catch (error) {
+      console.error('Error fetching tax rates:', error);
+    }
+  };
+
   const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (name === 'vendor_id') {
@@ -240,6 +275,8 @@ export default function EditOrdersPage() {
       class: '',
       received: false,
       closed: false,
+      tax_rate: 0,
+      tax_amount: 0,
       isEditing: true,
     };
     setOrderItems([...orderItems, newItem]);
@@ -262,9 +299,17 @@ export default function EditOrdersPage() {
       }
     }
 
-    if (field === 'qty' || field === 'rate') {
+    if (field === 'qty' || field === 'rate' || field === 'tax_rate') {
       const item = updatedItems[index];
-      item.amount = Number((item.qty * item.rate).toFixed(2));
+      const qty = Number(item.qty) || 0;
+      const rate = Number(item.rate) || 0;
+      const taxRate = Number(item.tax_rate) || 0;
+
+      const subtotal = qty * rate;
+      const taxAmount = (subtotal * taxRate) / 100;
+
+      item.tax_amount = Number(taxAmount.toFixed(2));
+      item.amount = Number(subtotal.toFixed(2));
     }
 
     setOrderItems(updatedItems);
@@ -274,32 +319,44 @@ export default function EditOrdersPage() {
     setOrderItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const calculateTotal = () => {
-    return Number(orderItems.reduce((sum, item) => sum + Number(item.amount), 0).toFixed(2));
+  const calculateTotals = () => {
+    const subtotal = orderItems.reduce((sum, item) => sum + (Number(item.qty) * Number(item.rate)), 0);
+    const taxTotal = orderItems.reduce((sum, item) => sum + ((Number(item.qty) * Number(item.rate) * (Number(item.tax_rate) || 0)) / 100), 0);
+
+    let discountAmount = 0;
+    if (order.discount_type === 'percentage') {
+      discountAmount = (subtotal * (order.discount_value || 0)) / 100;
+    } else {
+      discountAmount = Number(order.discount_value) || 0;
+    }
+
+    const shipping = Number(order.shipping_cost) || 0;
+    const total = subtotal + taxTotal + shipping - discountAmount;
+
+    return {
+      subtotal: Number(subtotal.toFixed(2)),
+      taxTotal: Number(taxTotal.toFixed(2)),
+      discountAmount: Number(discountAmount.toFixed(2)),
+      total: Number(total.toFixed(2))
+    };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const totals = calculateTotals();
       const orderData = {
         ...order,
-        total_amount: calculateTotal(),
+        subtotal: totals.subtotal,
+        tax_amount: totals.taxTotal,
+        discount_amount: totals.discountAmount,
+        total_amount: totals.total,
         company_id: selectedCompany?.company_id,
         items: orderItems,
       };
 
       // Update the order
       await axiosInstance.put(`http://147.79.115.89:3000/api/orders/${selectedCompany?.company_id}/${orderId}`, orderData);
-
-      // Delete existing order items and create new ones
-      // await axiosInstance.delete(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}/${orderId}`);
-
-      // for (const item of orderItems) {
-      //   await axiosInstance.post(`http://147.79.115.89:3000/api/order-items/${selectedCompany?.company_id}`, {
-      //     ...item,
-      //     order_id: parseInt(orderId!),
-      //   });
-      // }
 
       navigate('/dashboard/purchases');
     } catch (error: any) {
@@ -485,33 +542,52 @@ export default function EditOrdersPage() {
       };
     };
 
-    const createSummarySection = () => ({
-      columns: [
-        {
-          width: '55%',
-          text: ''
-        },
-        {
-          width: '45%',
-          table: {
-            widths: ['*', 'auto'],
-            body: [
-              [
-                { text: 'TOTAL:', fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
-                { text: `Rs. ${calculateTotal().toFixed(2)}`, fontSize: 11, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
-              ]
-            ]
+    const createSummarySection = () => {
+      const totals = calculateTotals();
+      return {
+        columns: [
+          {
+            width: '55%',
+            text: ''
           },
-          layout: {
-            paddingLeft: () => 10,
-            paddingRight: () => 10,
-            paddingTop: () => 0,
-            paddingBottom: () => 0
+          {
+            width: '45%',
+            table: {
+              widths: ['*', 'auto'],
+              body: [
+                [
+                  { text: 'Subtotal:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
+                  { text: `Rs. ${totals.subtotal.toFixed(2)}`, fontSize: 10, alignment: 'right', margin: [0, 2, 0, 2] }
+                ],
+                [
+                  { text: 'Discount:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
+                  { text: `- Rs. ${totals.discountAmount.toFixed(2)}`, fontSize: 10, alignment: 'right', color: '#dc2626', margin: [0, 2, 0, 2] }
+                ],
+                [
+                  { text: 'Shipping:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
+                  { text: `Rs. ${order.shipping_cost}`, fontSize: 10, alignment: 'right', margin: [0, 2, 0, 2] }
+                ],
+                [
+                  { text: 'Tax:', fontSize: 10, bold: true, alignment: 'right', margin: [0, 2, 10, 2] },
+                  { text: `Rs. ${totals.taxTotal.toFixed(2)}`, fontSize: 10, alignment: 'right', margin: [0, 2, 0, 2] }
+                ],
+                [
+                  { text: 'TOTAL:', fontSize: 12, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 10, 6] },
+                  { text: `Rs. ${totals.total.toFixed(2)}`, fontSize: 12, bold: true, fillColor: '#1f2937', color: '#ffffff', alignment: 'right', margin: [0, 6, 0, 6] }
+                ]
+              ]
+            },
+            layout: {
+              paddingLeft: () => 10,
+              paddingRight: () => 10,
+              paddingTop: () => 2,
+              paddingBottom: () => 2
+            }
           }
-        }
-      ],
-      margin: [0, 0, 0, 18]
-    });
+        ],
+        margin: [0, 0, 0, 18]
+      };
+    };
     const createSignatureSection = () => ({
       columns: [
         {
@@ -799,6 +875,9 @@ export default function EditOrdersPage() {
                           Amount
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tax
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -955,6 +1034,29 @@ export default function EditOrdersPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             Rs. {Number(item.amount).toFixed(2)}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {item.isEditing ? (
+                              <div className="flex items-center">
+                                <input
+                                  type="number"
+                                  value={item.tax_rate}
+                                  onChange={(e) => updateItem(item.id, 'tax_rate', parseFloat(e.target.value) || 0)}
+                                  className="input w-20 text-right"
+                                  min="0"
+                                  step="0.01"
+                                  disabled={order.prev_status === 'closed'}
+                                />
+                                <span className="ml-1">%</span>
+                              </div>
+                            ) : (
+                              <div
+                                onClick={() => updateItem(item.id, 'isEditing', true)}
+                                className="cursor-pointer hover:bg-gray-100 p-2 rounded"
+                              >
+                                {item.tax_rate}%
+                              </div>
+                            )}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             {item.isEditing ? (
                               <div className="flex space-x-2">
@@ -991,10 +1093,82 @@ export default function EditOrdersPage() {
               </div>
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="space-y-2">
-                    <div className="flex justify-between font-bold text-lg border-t pt-2">
-                      <span>Total:</span>
-                      <span>Rs. {calculateTotal().toFixed(2)}</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Notes</label>
+                        <textarea
+                          rows={3}
+                          value={order.notes || ''}
+                          onChange={(e) => setOrder({ ...order, notes: e.target.value })}
+                          className="input w-full mt-1"
+                          placeholder="Add notes for the vendor..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Terms</label>
+                        <textarea
+                          rows={3}
+                          value={order.terms || ''}
+                          onChange={(e) => setOrder({ ...order, terms: e.target.value })}
+                          className="input w-full mt-1"
+                          placeholder="Add terms and conditions..."
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Subtotal:</span>
+                        <span className="font-medium">Rs. {calculateTotals().subtotal.toFixed(2)}</span>
+                      </div>
+
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Discount:</span>
+                        <div className="flex space-x-2">
+                          <select
+                            value={order.discount_type || 'fixed'}
+                            onChange={(e) => setOrder({ ...order, discount_type: e.target.value as 'fixed' | 'percentage' })}
+                            className="input w-24 h-8 text-xs"
+                          >
+                            <option value="fixed">Fixed</option>
+                            <option value="percentage">%</option>
+                          </select>
+                          <input
+                            type="number"
+                            value={order.discount_value || 0}
+                            onChange={(e) => setOrder({ ...order, discount_value: parseFloat(e.target.value) || 0 })}
+                            className="input w-24 h-8 text-xs text-right"
+                            min="0"
+                          />
+                        </div>
+                      </div>
+                      {order.discount_value > 0 && (
+                        <div className="flex justify-between text-xs text-red-600">
+                          <span></span>
+                          <span>- Rs. {calculateTotals().discountAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Shipping:</span>
+                        <input
+                          type="number"
+                          value={order.shipping_cost || 0}
+                          onChange={(e) => setOrder({ ...order, shipping_cost: parseFloat(e.target.value) || 0 })}
+                          className="input w-24 h-8 text-xs text-right"
+                          min="0"
+                        />
+                      </div>
+
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Tax:</span>
+                        <span className="font-medium">Rs. {calculateTotals().taxTotal.toFixed(2)}</span>
+                      </div>
+
+                      <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                        <span>Total:</span>
+                        <span>Rs. {calculateTotals().total.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1002,14 +1176,7 @@ export default function EditOrdersPage() {
             </div>
 
             <div className="flex justify-end space-x-2">
-              <button
-                type="button"
-                onClick={handleDownloadPDF}
-                className="btn btn-secondary btn-md flex items-center"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Download PDF
-              </button>
+
               <button
                 type="button"
                 onClick={() => navigate(-1)}
