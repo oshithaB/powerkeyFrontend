@@ -4,6 +4,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axiosInstance from '../../axiosInstance';
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+
+(pdfMake as any).vfs = pdfFonts;
 
 interface Order {
   id: number;
