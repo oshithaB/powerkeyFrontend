@@ -256,14 +256,15 @@ const StockTakeWorksheet: React.FC = () => {
   };
 
   // Calculate variance between system count and manual count
-  const getVariance = (systemCount: number, manualCount: number | null) => {
-    if (manualCount === null) return 0;
-    return manualCount - systemCount;
+  const getVariance = (systemCount: number, manualCount: number | null | undefined) => {
+    if (manualCount == null) return 0;
+    return Number(manualCount) - Number(systemCount || 0);
   };
 
   // Calculate shrinkage value (variance * cost price)
   const getShrinkageValue = (variance: number, costPrice: number) => {
-    return variance * costPrice;
+    if (!variance || isNaN(variance)) return 0;
+    return variance * Number(costPrice || 0);
   };
 
   // Get variance color based on difference
