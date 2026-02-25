@@ -12,7 +12,7 @@ interface StockTakeData {
   product_name: string;
   description: string;
   quantity_on_hand: number;
-  manual_count: number;
+  manual_count: number | null;
   reorder_level: number;
   category_name: string;
   preferred_vendor: string;
@@ -30,7 +30,7 @@ const StockTakeWorksheet: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [tempManualCount, setTempManualCount] = useState<number>(0);
+  const [tempManualCount, setTempManualCount] = useState<number | null>(null);
   const navigate = useNavigate();
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -103,14 +103,14 @@ const StockTakeWorksheet: React.FC = () => {
 
   const handleManualCountSave = async (productId: number) => {
     console.log('Saving manual count for productId:', productId);
-    await updateManualCount(productId, tempManualCount);
+    await updateManualCount(productId, tempManualCount as number); // The backend now handles null
     setEditingId(null);
-    setTempManualCount(0);
+    setTempManualCount(null);
   };
 
   const handleManualCountCancel = () => {
     setEditingId(null);
-    setTempManualCount(0);
+    setTempManualCount(null);
   };
 
   const handleManualCountKeyPress = (e: React.KeyboardEvent, productId: number) => {
@@ -256,7 +256,8 @@ const StockTakeWorksheet: React.FC = () => {
   };
 
   // Calculate variance between system count and manual count
-  const getVariance = (systemCount: number, manualCount: number) => {
+  const getVariance = (systemCount: number, manualCount: number | null) => {
+    if (manualCount === null) return 0;
     return manualCount - systemCount;
   };
 
@@ -494,8 +495,8 @@ const StockTakeWorksheet: React.FC = () => {
                                 <div className="flex items-center gap-1">
                                   <input
                                     type="number"
-                                    value={tempManualCount}
-                                    onChange={(e) => setTempManualCount(parseInt(e.target.value) || 0)}
+                                    value={tempManualCount ?? ''}
+                                    onChange={(e) => setTempManualCount(e.target.value === '' ? null : parseInt(e.target.value))}
                                     onKeyDown={(e) => handleManualCountKeyPress(e, item.id)}
                                     className="w-16 px-1 py-1 text-right border rounded focus:outline-none focus:border-blue-500"
                                     autoFocus
@@ -519,7 +520,7 @@ const StockTakeWorksheet: React.FC = () => {
                                   onClick={() => handleManualCountEdit(item)}
                                   title="Click to edit"
                                 >
-                                  {item.manual_count}
+                                  {item.manual_count === null ? '---' : item.manual_count}
                                 </span>
                               )}
                             </td>
@@ -674,7 +675,7 @@ const StockTakeWorksheet: React.FC = () => {
                             {item.quantity_on_hand}
                           </td>
                           <td className="p-2 border-b text-right font-medium">
-                            {item.manual_count}
+                            {item.manual_count === null ? '---' : item.manual_count}
                           </td>
                           <td className="p-2 border-b text-right font-bold">
                             {variance > 0 ? '+' : ''}{variance}
