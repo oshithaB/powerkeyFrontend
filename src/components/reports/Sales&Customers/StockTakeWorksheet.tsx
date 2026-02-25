@@ -257,26 +257,26 @@ const StockTakeWorksheet: React.FC = () => {
 
   // Calculate variance between system count and manual count
   const getVariance = (systemCount: number, manualCount: number | null | undefined) => {
-    if (manualCount == null) return 0;
+    if (manualCount == null) return null;
     return Number(manualCount) - Number(systemCount || 0);
   };
 
   // Calculate shrinkage value (variance * cost price)
-  const getShrinkageValue = (variance: number, costPrice: number) => {
-    if (!variance || isNaN(variance)) return 0;
+  const getShrinkageValue = (variance: number | null, costPrice: number) => {
+    if (variance == null) return null;
     return variance * Number(costPrice || 0);
   };
 
   // Get variance color based on difference
-  const getVarianceColor = (variance: number) => {
-    if (variance === 0) return 'text-green-600';
+  const getVarianceColor = (variance: number | null) => {
+    if (variance == null || variance === 0) return 'text-green-600';
     if (variance > 0) return 'text-blue-600';
     return 'text-red-600';
   };
 
   // Get shrinkage color based on variance
-  const getShrinkageColor = (variance: number) => {
-    if (variance === 0) return 'text-green-600';
+  const getShrinkageColor = (variance: number | null) => {
+    if (variance == null || variance === 0) return 'text-green-600';
     if (variance > 0) return 'text-blue-600';
     return 'text-red-600';
   };
@@ -526,10 +526,10 @@ const StockTakeWorksheet: React.FC = () => {
                               )}
                             </td>
                             <td className={`p-2 border-b text-right font-bold ${getVarianceColor(variance)}`}>
-                              {variance > 0 ? '+' : ''}{variance}
+                              {variance === null ? '---' : `${variance > 0 ? '+' : ''}${variance}`}
                             </td>
                             <td className={`p-2 border-b text-right font-bold ${getShrinkageColor(variance)}`}>
-                              {shrinkageValue > 0 ? '+' : ''}{shrinkageValue.toFixed(2)}
+                              {shrinkageValue === null ? '---' : `${shrinkageValue > 0 ? '+' : ''}${shrinkageValue.toFixed(2)}`}
                             </td>
                             <td className="p-2 border-b text-right">
                               {item.reorder_level}
@@ -679,10 +679,10 @@ const StockTakeWorksheet: React.FC = () => {
                             {item.manual_count === null ? '---' : item.manual_count}
                           </td>
                           <td className="p-2 border-b text-right font-bold">
-                            {variance > 0 ? '+' : ''}{variance}
+                            {variance === null ? '---' : `${variance > 0 ? '+' : ''}${variance}`}
                           </td>
                           <td className="p-2 border-b text-right font-bold">
-                            {shrinkageValue > 0 ? '+' : ''}{shrinkageValue.toFixed(2)}
+                            {shrinkageValue === null ? '---' : `${shrinkageValue > 0 ? '+' : ''}${shrinkageValue.toFixed(2)}`}
                           </td>
                           <td className="p-2 border-b text-right">
                             {item.reorder_level}
