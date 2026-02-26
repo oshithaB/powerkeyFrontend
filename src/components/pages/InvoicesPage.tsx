@@ -63,6 +63,7 @@ interface Invoice {
 interface InvoiceItem {
   id?: number;
   product_id: number;
+  sku?: string;
   description: string;
   quantity: number;
   unit_price: number;
@@ -213,6 +214,7 @@ export default function InvoicesPage() {
       return items.map(item => ({
         id: item.id,
         product_id: item.product_id || 0,
+        sku: item.sku || '',
         product_name: item.product_name || '',
         description: item.description || '',
         quantity: Number(item.quantity) || 1,
@@ -447,6 +449,7 @@ export default function InvoicesPage() {
       const tableBody: any[][] = [
         [
           { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+          { text: 'SKU', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
           { text: 'Product', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
           { text: 'Description', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
           { text: 'Qty', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [4, 5, 4, 5] },
@@ -461,6 +464,7 @@ export default function InvoicesPage() {
 
         tableBody.push([
           { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+          { text: item.sku || '-', fontSize: 9, margin: [3, 4, 3, 4] },
           { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9, margin: [3, 4, 3, 4] },
           { text: item.description || '-', fontSize: 8.5, color: '#4b5563', margin: [3, 4, 3, 4] },
           { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
@@ -472,7 +476,7 @@ export default function InvoicesPage() {
       return {
         table: {
           headerRows: 1,
-          widths: [30, 'auto', '*', 35, 65, 75],
+          widths: [25, 55, 110, '*', 30, 65, 70],
           body: tableBody
         },
         layout: {
