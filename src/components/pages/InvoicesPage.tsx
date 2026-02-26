@@ -449,7 +449,6 @@ export default function InvoicesPage() {
       const tableBody: any[][] = [
         [
           { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
-          { text: 'SKU', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
           { text: 'Product', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
           { text: 'Description', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
           { text: 'Qty', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [4, 5, 4, 5] },
@@ -464,10 +463,15 @@ export default function InvoicesPage() {
 
         tableBody.push([
           { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
-          { text: item.sku || '-', fontSize: 9, margin: [3, 4, 3, 4] },
           { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9, margin: [3, 4, 3, 4] },
           { text: item.description || '-', fontSize: 8.5, color: '#4b5563', margin: [3, 4, 3, 4] },
-          { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+          {
+            stack: [
+              { text: item.quantity.toString(), fontSize: 9, alignment: 'center' },
+              { text: item.sku || '', fontSize: 7, color: '#6b7280', alignment: 'center' }
+            ],
+            margin: [3, 4, 3, 4]
+          },
           { text: `Rs. ${formatCurrency(item.actual_unit_price)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
           { text: `Rs. ${formatCurrency(exclusiveTotal)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
         ]);
@@ -476,7 +480,7 @@ export default function InvoicesPage() {
       return {
         table: {
           headerRows: 1,
-          widths: [25, 55, 110, '*', 30, 65, 70],
+          widths: [25, 110, '*', 50, 65, 70],
           body: tableBody
         },
         layout: {
