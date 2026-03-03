@@ -26,6 +26,7 @@ export default function ManualStockAdjustmentModal({
     const { selectedCompany } = useCompany();
     const [newQuantity, setNewQuantity] = useState<string>('');
     const [reason, setReason] = useState<string>('');
+    const [isDirectCorrection, setIsDirectCorrection] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -33,9 +34,18 @@ export default function ManualStockAdjustmentModal({
         if (product) {
             setNewQuantity(product.quantity_on_hand.toString());
             setReason('Manual Adjustment');
+            setIsDirectCorrection(false);
             setError(null);
         }
     }, [product]);
+
+    useEffect(() => {
+        if (isDirectCorrection) {
+            setReason('Direct Correction');
+        } else {
+            setReason('Manual Adjustment');
+        }
+    }, [isDirectCorrection]);
 
     if (!isOpen || !product) return null;
 
@@ -135,6 +145,19 @@ export default function ManualStockAdjustmentModal({
                                         )}
                                     </div>
 
+                                    <div className="flex items-center space-x-2 py-2">
+                                        <input
+                                            type="checkbox"
+                                            id="directCorrection"
+                                            checked={isDirectCorrection}
+                                            onChange={(e) => setIsDirectCorrection(e.target.checked)}
+                                            className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
+                                        />
+                                        <label htmlFor="directCorrection" className="text-sm font-medium text-gray-900 cursor-pointer">
+                                            Direct Correction <span className="text-xs text-gray-500 font-normal">(Exclude from inventory shrinkage)</span>
+                                        </label>
+                                    </div>
+
                                     <div>
                                         <label htmlFor="reason" className="block text-sm font-medium leading-6 text-gray-900">
                                             Reason
@@ -145,10 +168,11 @@ export default function ManualStockAdjustmentModal({
                                                 name="reason"
                                                 id="reason"
                                                 required
+                                                disabled={isDirectCorrection}
                                                 value={reason}
                                                 onChange={(e) => setReason(e.target.value)}
                                                 placeholder="e.g. Manual Adjustment, Damaged Goods"
-                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6"
+                                                className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 ${isDirectCorrection ? 'bg-gray-100 italic' : ''}`}
                                             />
                                         </div>
                                     </div>

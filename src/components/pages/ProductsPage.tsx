@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useCompany } from '../../contexts/CompanyContext';
 import axios from 'axios';
 import axiosInstance from '../../axiosInstance';
-import { Plus, Search, Edit, Trash2, Package, AlertTriangle, X } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, AlertTriangle, X, Scale } from 'lucide-react';
+import ManualStockAdjustmentModal from '../modals/ManualStockAdjustmentModal';
 
 interface Product {
   id: number;
@@ -79,6 +80,8 @@ export default function ProductsPage() {
   const [vendorFilter, setVendorFilter] = useState('');
   const [vendorSuggestions, setVendorSuggestions] = useState<Vendor[]>([]);
   const [selectedVendorId, setSelectedVendorId] = useState('');
+  const [showAdjustmentModal, setShowAdjustmentModal] = useState(false);
+  const [selectedAdjustmentProduct, setSelectedAdjustmentProduct] = useState<Product | null>(null);
 
   const [productFormData, setProductFormData] = useState({
     sku: '',
@@ -636,14 +639,26 @@ export default function ProductsPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
+                        onClick={() => {
+                          setSelectedAdjustmentProduct(product);
+                          setShowAdjustmentModal(true);
+                        }}
+                        className="text-gray-600 hover:text-gray-900"
+                        title="Adjust Stock"
+                      >
+                        <Scale className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => handleEditProduct(product)}
                         className="text-primary-600 hover:text-primary-900"
+                        title="Edit Product"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteProduct(product.id)}
                         className="text-red-600 hover:text-red-900"
+                        title="Delete Product"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -1320,6 +1335,17 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      {/* Stock Adjustment Modal */}
+      <ManualStockAdjustmentModal
+        isOpen={showAdjustmentModal}
+        onClose={() => {
+          setShowAdjustmentModal(false);
+          setSelectedAdjustmentProduct(null);
+        }}
+        onSuccess={fetchProducts}
+        product={selectedAdjustmentProduct}
+      />
     </div>
   );
 }
