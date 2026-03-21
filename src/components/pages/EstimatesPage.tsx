@@ -277,8 +277,6 @@ export default function EstimatesPage() {
 
     if (!estimate || !items) return;
 
-    const ITEMS_PER_PAGE = 20;
-
     let logoDataUrl = '';
     if (selectedCompany?.company_logo) {
       logoDataUrl = await getImageDataUrl(`http://147.79.115.89:3000${selectedCompany.company_logo}`);
@@ -530,29 +528,13 @@ export default function EstimatesPage() {
 
     const content: any[] = [];
 
-    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+    const headerContent = createHeader(true);
+    headerContent.forEach(item => content.push(item));
 
-    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-      const isFirstPage = pageIndex === 0;
-      const isLastPage = pageIndex === totalPages - 1;
-      const startIndex = pageIndex * ITEMS_PER_PAGE;
-      const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, items.length);
-      const pageItems = items.slice(startIndex, endIndex);
+    content.push(createItemsTable(items, 0));
 
-      const headerContent = createHeader(isFirstPage);
-      headerContent.forEach(item => content.push(item));
-
-      content.push(createItemsTable(pageItems, startIndex));
-
-      if (isLastPage) {
-        content.push(createSummarySection());
-        content.push(createSignatureSection());
-      }
-
-      if (!isLastPage) {
-        content.push({ text: '', pageBreak: 'after' });
-      }
-    }
+    content.push(createSummarySection());
+    content.push(createSignatureSection());
 
     const docDefinition: any = {
       pageSize: 'A4',

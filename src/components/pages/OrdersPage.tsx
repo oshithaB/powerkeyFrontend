@@ -117,8 +117,6 @@ export default function OrdersPage() {
 
     const handleDownloadPDF = async (order: Order) => {
         const orderSpecificItems = orderItems.filter(item => item.order_id === order.id);
-        const ITEMS_PER_PAGE = 20;
-
         let logoDataUrl = '';
         if (selectedCompany?.company_logo) {
             logoDataUrl = await getImageDataUrl(`http://147.79.115.89:3000${selectedCompany.company_logo}`);
@@ -345,29 +343,14 @@ export default function OrdersPage() {
         });
 
         const content: any[] = [];
-        const totalPages = Math.ceil(orderSpecificItems.length / ITEMS_PER_PAGE);
 
-        for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-            const isFirstPage = pageIndex === 0;
-            const isLastPage = pageIndex === totalPages - 1;
-            const startIndex = pageIndex * ITEMS_PER_PAGE;
-            const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, orderSpecificItems.length);
-            const pageItems = orderSpecificItems.slice(startIndex, endIndex);
+        const headerContent = createHeader(true);
+        headerContent.forEach(item => content.push(item));
 
-            const headerContent = createHeader(isFirstPage);
-            headerContent.forEach(item => content.push(item));
+        content.push(createItemsTable(orderSpecificItems, 0));
 
-            content.push(createItemsTable(pageItems, startIndex));
-
-            if (isLastPage) {
-                content.push(createSummarySection());
-                content.push(createSignatureSection());
-            }
-
-            if (!isLastPage) {
-                content.push({ text: '', pageBreak: 'after' });
-            }
-        }
+        content.push(createSummarySection());
+        content.push(createSignatureSection());
 
         const docDefinition: any = {
             pageSize: 'A4',
