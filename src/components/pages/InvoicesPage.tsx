@@ -90,6 +90,13 @@ export default function InvoicesPage() {
   const navigate = useNavigate();
   const { selectedCompany } = useCompany();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [summaryData, setSummaryData] = useState({
+    overdue: 0, balanceDue: 0, partiallyPaid: 0, paid: 0, cancelled: 0
+  });
+  const [limit] = useState(100);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -118,26 +125,95 @@ export default function InvoicesPage() {
   const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
   const [paymentHistoryInvoice, setPaymentHistoryInvoice] = useState<Invoice | null>(null);
 
+  const fetchSummary = async () => {
+    try {
+      if (!selectedCompany?.company_id) return;
+      const response = await axiosInstance.get(`/getInvoiceSummary/${selectedCompany?.company_id}`);
+      setSummaryData(response.data);
+    } catch (error) {
+      console.error('Error fetching invoice summary:', error);
+    }
+  };
+
+  const fetchInvoices = async (isLoadMore = false) => {
+    try {
+      if (!isLoadMore) setLoading(true);
+      else setIsFetchingMore(true);
+
+      const currentOffset = isLoadMore ? offset : 0;
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        offset: currentOffset.toString(),
+        search: searchTerm,
+        status: filters.status,
+        customer: customerFilter,
+        dateFrom: filters.dateFrom,
+        dateTo: filters.dateTo
+      });
+
+      const response = await axiosInstance.get(`/getInvoice/${selectedCompany?.company_id}?${params.toString()}`);
+
+      const fetchedInvoices = response.data.invoices;
+      const totalCount = response.data.totalCount;
+
+      if (isLoadMore) {
+        setInvoices(prev => {
+          const newValues = fetchedInvoices.filter((inv: Invoice) => !prev.some(p => p.id === inv.id));
+          return [...prev, ...newValues];
+        });
+      } else {
+        setInvoices(fetchedInvoices);
+      }
+
+      setOffset(currentOffset + limit);
+      setHasMore(currentOffset + limit < totalCount);
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    } finally {
+      if (!isLoadMore) setLoading(false);
+      setIsFetchingMore(false);
+    }
+  };
+
   useEffect(() => {
     if (!selectedCompany?.company_id) {
       console.log('No company selected, redirecting to /companies');
       navigate('/companies');
       return;
     }
-    fetchInvoices();
+    fetchInvoices(false);
     fetchData();
+    fetchSummary();
   }, [selectedCompany, navigate]);
 
-  const fetchInvoices = async () => {
-    try {
-      const response = await axiosInstance.get(`/getInvoice/${selectedCompany?.company_id}`);
-      setInvoices(response.data);
-    } catch (error) {
-      console.error('Error fetching invoices:', error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (selectedCompany?.company_id && !loading) {
+      fetchInvoices(false);
     }
-  };
+  }, [searchTerm, customerFilter, filters.status, filters.dateFrom, filters.dateTo]);
+
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !isFetchingMore && !loading) {
+          fetchInvoices(true);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasMore, isFetchingMore, loading, offset]);
 
   const fetchData = async () => {
     try {
@@ -244,7 +320,8 @@ export default function InvoicesPage() {
     if (window.confirm('Are you sure you want to delete this invoice?')) {
       try {
         await axiosInstance.delete(`/deleteInvoice/${selectedCompany?.company_id}/${id}`);
-        fetchInvoices();
+        fetchInvoices(false);
+        fetchSummary();
       } catch (error) {
         console.error('Error deleting invoice:', error);
       }
@@ -261,7 +338,8 @@ export default function InvoicesPage() {
           companyId: selectedCompany?.company_id
         });
         alert('Invoice cancelled successfully');
-        fetchInvoices();
+        fetchInvoices(false);
+        fetchSummary();
       } catch (error: any) {
         console.error('Error cancelling invoice:', error);
         alert(error.response?.data?.error || 'Failed to cancel invoice');
@@ -349,8 +427,12 @@ export default function InvoicesPage() {
                 width: '*',
                 stack: [
                   { text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE', fontSize: 28, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
-                  { text: targetInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937' }
-                ]
+                  { text: targetInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
+                  { text: selectedCompany?.name || 'Company Name', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 2] },
+                  { text: selectedCompany?.address || '', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
+                  selectedCompany?.contact_number ? { text: `Phone: ${selectedCompany.contact_number}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null,
+                  (selectedCompany?.email || selectedCompany?.email_address) ? { text: `Email: ${selectedCompany.email || selectedCompany.email_address}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null
+                ].filter(Boolean)
               },
               logoDataUrl ? {
                 image: logoDataUrl,
@@ -733,60 +815,12 @@ export default function InvoicesPage() {
     }
   };
 
-  const filteredInvoices = invoices.filter((invoice) => {
-    const matchesSearchTerm =
-      invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      'Unknown Customer'.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus = filters.status
-      ? invoice.status === filters.status
-      : true;
-
-    const matchesCustomer = customerFilter
-      ? invoice.customer_name?.toLowerCase().includes(customerFilter.toLowerCase()) ||
-      'Unknown Customer'.toLowerCase().includes(customerFilter.toLowerCase())
-      : true;
-
-    const invoiceDate = new Date(invoice.invoice_date).getTime();
-    const matchesDate =
-      (!filters.dateFrom || invoiceDate >= new Date(filters.dateFrom).getTime()) &&
-      (!filters.dateTo || invoiceDate <= new Date(filters.dateTo).getTime());
-
-    return matchesSearchTerm && matchesStatus && matchesCustomer && matchesDate;
-  });
-
-  const overdueData = invoices
-    .filter(invoice => invoice.status === 'overdue')
-    .reduce((acc, invoice) => acc + (Number(invoice.balance_due) || 0), 0);
-
-  const balanceDueData = invoices
-    .filter(invoice => invoice.status === 'partially_paid' || invoice.status === 'opened' || invoice.status === 'sent')
-    .reduce((acc, invoice) => {
-      const amount = invoice.status === 'partially_paid'
-        ? (Number(invoice.balance_due) || 0)
-        : (Number(invoice.total_amount) || 0);
-      return acc + amount;
-    }, 0);
-
-  const partially_paidData = invoices
-    .filter(invoices => invoices.status === 'partially_paid')
-    .reduce((acc, invoice) => acc + (Number(invoice.paid_amount)), 0);
-
-  const paidData = invoices
-    .filter(invoices => invoices.status === 'paid')
-    .reduce((acc, invoice) => acc + (Number(invoice.paid_amount)), 0);
-
-  const cancelledData = invoices
-    .filter(invoice => invoice.status === 'cancelled')
-    .reduce((acc, invoice) => acc + (Number(invoice.total_amount) || 0), 0);
-
   const chartData = {
     labels: ['Overdue', 'Balance Due', 'Partially Paid', 'Paid', 'Cancelled'],
     datasets: [
       {
         label: 'Amount (LKR)',
-        data: [overdueData, balanceDueData, partially_paidData, paidData, cancelledData],
+        data: [summaryData.overdue, summaryData.balanceDue, summaryData.partiallyPaid, summaryData.paid, summaryData.cancelled],
         backgroundColor: ['#dc2626', '#6b7280', '#f4f871', '#10b981', '#f87171'],
         borderColor: ['#dc2626', '#6b7280', '#f4f871', '#10b981', '#f87171'],
         borderWidth: 1,
@@ -955,7 +989,7 @@ export default function InvoicesPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredInvoices.map((invoice) => (
+              {invoices.map((invoice) => (
                 <React.Fragment key={invoice.id}>
                   {invoice.is_locked ? (
                     <tr className="bg-gray-100">
@@ -1097,6 +1131,8 @@ export default function InvoicesPage() {
               ))}
             </tbody>
           </table>
+          {isFetchingMore && <div className="text-center py-4 text-gray-500">Loading more...</div>}
+          <div ref={observerTarget} style={{ height: '20px' }} />
         </div>
       </div>
 
@@ -1108,7 +1144,8 @@ export default function InvoicesPage() {
         }}
         invoice={refundInvoice}
         onSuccess={() => {
-          fetchInvoices();
+          fetchInvoices(false);
+          fetchSummary();
         }}
       />
       <RefundHistory
@@ -1129,7 +1166,8 @@ export default function InvoicesPage() {
           }}
           invoice={paymentHistoryInvoice}
           onPaymentsUpdated={() => {
-            fetchInvoices();
+            fetchInvoices(false);
+            fetchSummary();
           }}
         />
       )}

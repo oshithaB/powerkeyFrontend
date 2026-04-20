@@ -62,6 +62,10 @@ interface User {
 export default function EstimatesPage() {
   const { selectedCompany } = useCompany();
   const [estimates, setEstimates] = useState<Estimate[]>([]);
+  const [limit] = useState(100);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -80,23 +84,79 @@ export default function EstimatesPage() {
 
 
   useEffect(() => {
-    fetchEstimates();
-    fetchData();
+    if (selectedCompany?.company_id) {
+      fetchEstimates(false);
+      fetchData();
+    }
   }, [selectedCompany]);
 
-  const fetchEstimates = async () => {
+  const fetchEstimates = async (isLoadMore = false) => {
     try {
-      console.log('Fetching requests for company estimates sent.');
-      const response = await axiosInstance.get(`http://147.79.115.89:3000/api/getEstimates/${selectedCompany?.company_id}`);
-      setEstimates(response.data);
-      console.log('Fetched estimates:', response.data);
-      console.log(estimates);
+      if (!isLoadMore) setLoading(true);
+      else setIsFetchingMore(true);
+
+      const currentOffset = isLoadMore ? offset : 0;
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+        offset: currentOffset.toString(),
+        search: searchTerm,
+        status: statusFilter,
+        customer: customerFilter,
+        date: dateFilter
+      });
+
+      const response = await axiosInstance.get(`/getEstimates/${selectedCompany?.company_id}?${params.toString()}`);
+
+      const fetchedEstimates = response.data.estimates;
+      const totalCount = response.data.totalCount;
+
+      if (isLoadMore) {
+        setEstimates(prev => {
+          const newValues = fetchedEstimates.filter((est: Estimate) => !prev.some(p => p.id === est.id));
+          return [...prev, ...newValues];
+        });
+      } else {
+        setEstimates(fetchedEstimates);
+      }
+
+      setOffset(currentOffset + limit);
+      setHasMore(currentOffset + limit < totalCount);
     } catch (error) {
       console.error('Error fetching estimates:', error);
     } finally {
-      setLoading(false);
+      if (!isLoadMore) setLoading(false);
+      setIsFetchingMore(false);
     }
   };
+
+  useEffect(() => {
+    if (selectedCompany?.company_id && !loading) {
+      fetchEstimates(false);
+    }
+  }, [searchTerm, statusFilter, dateFilter, customerFilter]);
+
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !isFetchingMore && !loading) {
+          fetchEstimates(true);
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasMore, isFetchingMore, loading, offset]);
 
   const fetchData = async () => {
     try {
@@ -134,9 +194,7 @@ export default function EstimatesPage() {
     // Listen for expired estimates
     socket.on('expired_estimates_closed', (data) => {
       console.log('Expired estimates event received:', data);
-
-      // Re-fetch the estimates from backend
-      fetchEstimates();
+      fetchEstimates(false);
     });
 
     return () => {
@@ -298,8 +356,12 @@ export default function EstimatesPage() {
                 width: '*',
                 stack: [
                   { text: selectedCompany?.is_taxable ? 'TAX ESTIMATE' : 'ESTIMATE', fontSize: 28, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
-                  { text: estimate.estimate_number, fontSize: 16, bold: true, color: '#1f2937' }
-                ]
+                  { text: estimate.estimate_number, fontSize: 16, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
+                  { text: selectedCompany?.name || 'Company Name', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 2] },
+                  { text: selectedCompany?.address || '', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
+                  selectedCompany?.contact_number ? { text: `Phone: ${selectedCompany.contact_number}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null,
+                  (selectedCompany?.email || selectedCompany?.email_address) ? { text: `Email: ${selectedCompany.email || selectedCompany.email_address}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null
+                ].filter(Boolean)
               },
               logoDataUrl ? {
                 image: logoDataUrl,
@@ -619,15 +681,7 @@ export default function EstimatesPage() {
     }
   }, [customerFilter, customers]);
 
-  const filteredEstimates = estimates.filter(estimate =>
-    (estimate.estimate_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      estimate.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      estimate.billing_address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      estimate.shipping_address?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (statusFilter === '' || estimate.status === statusFilter) &&
-    (dateFilter === '' || estimate.estimate_date === dateFilter) &&
-    (customerFilter === '' || estimate.customer_name?.toLowerCase() === customerFilter.toLowerCase())
-  );
+
 
   if (loading) {
     return (
@@ -757,7 +811,7 @@ export default function EstimatesPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredEstimates.map((estimate) => (
+              {estimates.map((estimate) => (
                 <React.Fragment key={estimate.id}>
                   {estimate.is_locked ? (
                     <tr className="bg-gray-100">
@@ -873,6 +927,8 @@ export default function EstimatesPage() {
               ))}
             </tbody>
           </table>
+          {isFetchingMore && <div className="text-center py-4 text-gray-500">Loading more...</div>}
+          <div ref={observerTarget} style={{ height: '20px' }} />
         </div>
       </div>
 
