@@ -429,6 +429,7 @@ export default function InvoicesPage() {
                   { text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE', fontSize: 28, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
                   { text: targetInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
                   { text: selectedCompany?.name || 'Company Name', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 2] },
+                  selectedCompany?.registration_number ? { text: `Reg. No: ${selectedCompany.registration_number}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null,
                   { text: selectedCompany?.address || '', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
                   selectedCompany?.contact_number ? { text: `Phone: ${selectedCompany.contact_number}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null,
                   (selectedCompany?.email || selectedCompany?.email_address) ? { text: `Email: ${selectedCompany.email || selectedCompany.email_address}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null
