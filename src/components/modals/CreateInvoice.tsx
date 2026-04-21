@@ -227,7 +227,8 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         axiosInstance.get(`http://147.79.115.89:3000/api/estimatesItems/${selectedCompany?.company_id}/${estimateId}`)
       ]);
 
-      const estimate = estimateRes.data.find((e: any) => e.id === parseInt(estimateId));
+      const estimatesArray = Array.isArray(estimateRes.data) ? estimateRes.data : (estimateRes.data.estimates || []);
+      const estimate = estimatesArray.find((e: any) => e.id === parseInt(estimateId));
       if (!estimate) {
         throw new Error('Selected estimate not found');
       }
