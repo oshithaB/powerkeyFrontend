@@ -137,8 +137,7 @@ export default function InvoicesPage() {
 
   const fetchInvoices = async (isLoadMore = false) => {
     try {
-      if (!isLoadMore) setLoading(true);
-      else setIsFetchingMore(true);
+      if (isLoadMore) setIsFetchingMore(true);
 
       const currentOffset = isLoadMore ? offset : 0;
       const params = new URLSearchParams({
@@ -181,6 +180,7 @@ export default function InvoicesPage() {
       navigate('/companies');
       return;
     }
+    setLoading(true);
     fetchInvoices(false);
     fetchData();
     fetchSummary();

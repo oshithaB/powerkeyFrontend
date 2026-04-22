@@ -85,6 +85,7 @@ export default function EstimatesPage() {
 
   useEffect(() => {
     if (selectedCompany?.company_id) {
+      setLoading(true);
       fetchEstimates(false);
       fetchData();
     }
@@ -92,8 +93,7 @@ export default function EstimatesPage() {
 
   const fetchEstimates = async (isLoadMore = false) => {
     try {
-      if (!isLoadMore) setLoading(true);
-      else setIsFetchingMore(true);
+      if (isLoadMore) setIsFetchingMore(true);
 
       const currentOffset = isLoadMore ? offset : 0;
       const params = new URLSearchParams({
