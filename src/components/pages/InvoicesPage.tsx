@@ -491,7 +491,7 @@ export default function InvoicesPage() {
                   [
                     {
                       stack: [
-                        { text: `Supplier's TIN: ${selectedCompany?.tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] },
+                        { text: `Supplier's TIN: ${selectedCompany?.tax_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] },
                         { text: `Supplier's Name: ${selectedCompany?.name || 'Company Name'}`, fontSize: 9, margin: [0, 0, 0, 1], bold: true },
                         { text: `Address: ${selectedCompany?.address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 4] },
                         { text: `Telephone No: ${selectedCompany?.contact_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] }
@@ -500,7 +500,7 @@ export default function InvoicesPage() {
                     },
                     {
                       stack: [
-                        { text: `Purchaser's TIN: ${targetInvoice.customer_tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] },
+                        { text: `Purchaser's TIN: ${targetInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] },
                         { text: `Purchaser's Name: ${targetInvoice.customer_name || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1], bold: true },
                         { text: `Address: ${targetInvoice.customer_billing_address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 4] },
                         { text: `Telephone No: ${targetInvoice.customer_phone || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] }
