@@ -463,66 +463,64 @@ export default function InvoicesPage() {
           return [
             {
               columns: [
-                { width: 110, text: '' },
+                { width: 90, text: '' },
                 {
                   width: '*',
                   text: 'TAX INVOICE',
-                  fontSize: 28,
+                  fontSize: 22,
                   bold: true,
-                  color: '#9EDFE8',
+                  color: '#000000',
                   alignment: 'center'
                 },
                 logoDataUrl ? {
                   image: logoDataUrl,
-                  width: 110,
+                  width: 90,
                   alignment: 'right'
-                } : { text: '', width: 110 }
+                } : { text: '', width: 90 }
               ],
-              margin: [0, 0, 0, 15]
+              margin: [0, 0, 0, 2]
             },
             {
               table: {
                 widths: ['50%', '50%'],
                 body: [
                   [
-                    { text: `Date of Invoice: ${formatDate(targetInvoice.invoice_date)}`, margin: [5, 5, 5, 5], fontSize: 9 },
-                    { text: `Tax Invoice No.: ${targetInvoice.invoice_number}`, margin: [5, 5, 5, 5], fontSize: 9 }
+                    { text: `Date of Invoice: ${formatDate(targetInvoice.invoice_date)}`, margin: [3, 2, 3, 2], fontSize: 9 },
+                    { text: `Tax Invoice No.: ${targetInvoice.invoice_number}`, margin: [3, 2, 3, 2], fontSize: 9 }
                   ],
                   [
                     {
                       stack: [
-                        { text: `Supplier's TIN: ${selectedCompany?.tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
-                        { text: `Supplier's VAT: ${selectedCompany?.tax_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
-                        { text: `Supplier's Name: ${selectedCompany?.name || 'Company Name'}`, fontSize: 9, margin: [0, 0, 0, 2], bold: true },
-                        { text: `Address: ${selectedCompany?.address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 15] },
-                        { text: `Telephone No: ${selectedCompany?.contact_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] }
+                        { text: `Supplier's TIN: ${selectedCompany?.tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] },
+                        { text: `Supplier's Name: ${selectedCompany?.name || 'Company Name'}`, fontSize: 9, margin: [0, 0, 0, 1], bold: true },
+                        { text: `Address: ${selectedCompany?.address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 4] },
+                        { text: `Telephone No: ${selectedCompany?.contact_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] }
                       ],
-                      margin: [5, 5, 5, 5]
+                      margin: [3, 2, 3, 2]
                     },
                     {
                       stack: [
-                        { text: `Purchaser's TIN: ${targetInvoice.customer_tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
-                        { text: `Purchaser's VAT: ${targetInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
-                        { text: `Purchaser's Name: ${targetInvoice.customer_name || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2], bold: true },
-                        { text: `Address: ${targetInvoice.customer_billing_address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 15] },
-                        { text: `Telephone No: ${targetInvoice.customer_phone || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] }
+                        { text: `Purchaser's TIN: ${targetInvoice.customer_tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] },
+                        { text: `Purchaser's Name: ${targetInvoice.customer_name || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1], bold: true },
+                        { text: `Address: ${targetInvoice.customer_billing_address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 4] },
+                        { text: `Telephone No: ${targetInvoice.customer_phone || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 1] }
                       ],
-                      margin: [5, 5, 5, 5]
+                      margin: [3, 2, 3, 2]
                     }
                   ],
                   [
-                    { text: `Date of Delivery: ${targetInvoice.shipping_date ? formatDate(targetInvoice.shipping_date) : '-'}`, margin: [5, 5, 5, 5], fontSize: 9 },
-                    { text: `Place of Supply: ${targetInvoice.shipping_address || '-'}`, margin: [5, 5, 5, 5], fontSize: 9 }
+                    { text: `Date of Delivery: ${targetInvoice.shipping_date ? formatDate(targetInvoice.shipping_date) : '-'}`, margin: [3, 2, 3, 2], fontSize: 9 },
+                    { text: `Place of Supply: ${targetInvoice.shipping_address || '-'}`, margin: [3, 2, 3, 2], fontSize: 9 }
                   ],
                   [
-                    { text: `Additional Information:\n${targetInvoice.notes || '-'}`, colSpan: 2, margin: [5, 5, 5, 20], fontSize: 9 },
+                    { text: `Additional Information:\n${targetInvoice.notes || '-'}`, colSpan: 2, margin: [3, 2, 3, 4], fontSize: 9 },
                     {}
                   ]
                 ]
               },
               layout: 'noBorders'
             },
-            { text: '', margin: [0, 0, 0, 10] }
+            { text: '', margin: [0, 0, 0, 6] }
           ];
         }
 
@@ -643,11 +641,11 @@ export default function InvoicesPage() {
       const isGazette = targetInvoice.invoice_type === 'tax_invoice';
 
       const headRow = isGazette ? [
-        { text: 'Reference', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [0, 5, 0, 5] },
-        { text: 'Description of Goods or Services', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
-        { text: 'Quantity', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [2, 5, 2, 5] },
-        { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [2, 5, 2, 5] },
-        { text: 'Amount Excluding VAT (Rs.)', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [2, 5, 2, 5] }
+        { text: 'Reference', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [0, 2, 0, 2] },
+        { text: 'Description of Goods or Services', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 2, 4, 2] },
+        { text: 'Quantity', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [2, 2, 2, 2] },
+        { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [2, 2, 2, 2] },
+        { text: 'Amount Excluding VAT (Rs.)', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [2, 2, 2, 2] }
       ] : [
         { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
         { text: 'Product', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
@@ -664,17 +662,17 @@ export default function InvoicesPage() {
 
         if (isGazette) {
           tableBody.push([
-            { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+            { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [2, 1, 2, 1] },
             {
-              stack: [
+              text: [
                 { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9 },
-                item.description ? { text: item.description, fontSize: 8.5, color: '#4b5563' } : null
+                item.description ? { text: '\n' + item.description, fontSize: 8.5, color: '#4b5563' } : null
               ].filter(Boolean),
-              margin: [3, 4, 3, 4]
+              margin: [2, 1, 2, 1]
             },
-            { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
-            { text: formatCurrency(item.actual_unit_price), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
-            { text: formatCurrency(exclusiveTotal), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] }
+            { text: Number(item.quantity).toString(), fontSize: 9, alignment: 'center', margin: [2, 1, 2, 1] },
+            { text: formatCurrency(item.actual_unit_price), fontSize: 9, alignment: 'right', margin: [2, 1, 2, 1] },
+            { text: formatCurrency(exclusiveTotal), fontSize: 9, alignment: 'right', margin: [2, 1, 2, 1] }
           ]);
         } else {
           tableBody.push([
@@ -688,8 +686,8 @@ export default function InvoicesPage() {
               ].filter(Boolean),
               margin: [3, 4, 3, 4]
             },
-            { text: formatCurrency(item.actual_unit_price), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
-            { text: formatCurrency(exclusiveTotal), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] }
+            { text: formatCurrency(item.actual_unit_price), fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] },
+            { text: formatCurrency(exclusiveTotal), fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
           ]);
         }
       });
@@ -711,19 +709,19 @@ export default function InvoicesPage() {
         }
 
         tableBody.push([
-          { colSpan: 4, text: 'Total Value of Supply:', bold: true, fontSize: 9, margin: [4, 5, 4, 5] },
+          { colSpan: 4, text: 'Total Value of Supply:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
           {}, {}, {},
-          { text: formatCurrency(exclusiveSubtotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 5, 2, 5] }
+          { text: formatCurrency(exclusiveSubtotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
         ]);
         tableBody.push([
-          { colSpan: 4, text: `VAT Amount (Total Value of Supply @ ${displayTaxStr})`, bold: true, fontSize: 9, margin: [4, 5, 4, 5] },
+          { colSpan: 4, text: `VAT Amount (Total Value of Supply @ ${displayTaxStr}):`, bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
           {}, {}, {},
-          { text: formatCurrency(calculatedTax), bold: true, fontSize: 9, alignment: 'right', margin: [2, 5, 2, 5] }
+          { text: formatCurrency(calculatedTax), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
         ]);
         tableBody.push([
-          { colSpan: 4, text: 'Total Amount including VAT:', bold: true, fontSize: 9, margin: [4, 5, 4, 5] },
+          { colSpan: 4, text: 'Total Amount including VAT:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
           {}, {}, {},
-          { text: formatCurrency(calculatedTotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 5, 2, 5] }
+          { text: formatCurrency(calculatedTotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
         ]);
       }
 
@@ -737,10 +735,10 @@ export default function InvoicesPage() {
           hLineWidth: (i: number, node: any) => (i === 0 || i === node.table.body.length ? 0 : 1),
           vLineWidth: () => 0,
           hLineColor: () => '#e5e7eb',
-          paddingTop: () => 6,
-          paddingBottom: () => 6
+          paddingTop: () => isGazette ? 3 : 6,
+          paddingBottom: () => isGazette ? 3 : 6
         },
-        margin: [0, 0, 0, 20]
+        margin: [0, 0, 0, isGazette ? 5 : 20]
       };
     };
 
@@ -766,19 +764,8 @@ export default function InvoicesPage() {
       if (targetInvoice.invoice_type === 'tax_invoice') {
         return [
           { text: '', margin: [0, 0, 0, 10] },
-          {
-            table: {
-              widths: ['100%'],
-              body: [
-                [
-                  { text: `Total Amount in words:\n${amountToWords(calculatedTotal)}`, margin: [4, 5, 4, 5], fontSize: 9 }
-                ],
-                [
-                  { text: `Mode of Payment:\n${targetInvoice.payment_method || 'N/A'}`, margin: [4, 5, 4, 5], fontSize: 9 }
-                ]
-              ]
-            }
-          }
+          { text: `Total Amount in words: ${amountToWords(calculatedTotal)}`, margin: [0, 2, 0, 2], fontSize: 9, bold: true },
+          { text: `Mode of Payment: ${targetInvoice.payment_method || 'N/A'}`, margin: [0, 2, 0, 2], fontSize: 9, bold: true }
         ];
       }
 
