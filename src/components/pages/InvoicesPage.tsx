@@ -61,7 +61,7 @@ interface Invoice {
   invoice_type?: string;
   shipping_date?: string | null;
   shipping_address?: string | null;
-  locked_by?: number | null;
+  locked_by?: User | null;
 }
 
 const numberToWordsHelper = (num: number): string => {
