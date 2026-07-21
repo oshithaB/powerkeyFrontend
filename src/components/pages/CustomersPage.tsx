@@ -32,6 +32,7 @@ interface Customer {
   sales_tax_registration: string;
   opening_balance: number;
   as_of_date: string;
+  tin: string;
   created_at: string;
 }
 
@@ -68,7 +69,8 @@ export default function CustomersPage() {
     invoice_language: '',
     sales_tax_registration: '',
     opening_balance: 0,
-    as_of_date: ''
+    as_of_date: '',
+    tin: ''
   });
 
   useEffect(() => {
@@ -108,8 +110,9 @@ export default function CustomersPage() {
       fetchCustomers();
       setShowModal(false);
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving customer:', error);
+      alert(error.response?.data?.message || 'Failed to save customer');
     }
   };
 
@@ -141,7 +144,8 @@ export default function CustomersPage() {
       invoice_language: customer.invoice_language || '',
       sales_tax_registration: customer.sales_tax_registration || '',
       opening_balance: customer.opening_balance || 0,
-      as_of_date: customer.as_of_date || ''
+      as_of_date: customer.as_of_date || '',
+      tin: customer.tin || ''
     });
     setShowModal(true);
   };
@@ -184,7 +188,8 @@ export default function CustomersPage() {
       invoice_language: '',
       sales_tax_registration: '',
       opening_balance: 0,
-      as_of_date: ''
+      as_of_date: '',
+      tin: ''
     });
     setEditingCustomer(null);
   };
@@ -756,6 +761,18 @@ export default function CustomersPage() {
                       className="input"
                       value={formData.as_of_date}
                       onChange={(e) => setFormData({ ...formData, as_of_date: e.target.value })}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor='tin' className='block text-sm font-medium text-gray-700 mb-1'>TIN</label>
+                    <input
+                      type="text"
+                      id="tin"
+                      className="input"
+                      placeholder="Enter TIN Number"
+                      value={formData.tin}
+                      onChange={(e) => setFormData({ ...formData, tin: e.target.value })}
                     />
                   </div>
                 </div>

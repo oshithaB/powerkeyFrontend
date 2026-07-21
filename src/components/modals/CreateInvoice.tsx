@@ -81,7 +81,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     ship_via: '',
     shipping_date: '',
     tracking_number: '',
-    invoice_type: 'invoice' as 'invoice' | 'proforma',
+    invoice_type: 'invoice' as 'invoice' | 'proforma' | 'tax_invoice',
     paid_amount: 0,
   };
 
@@ -397,7 +397,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total };
   };
 
-  const handleSubmit = async (e: React.FormEvent, invoiceType?: 'invoice' | 'proforma') => {
+  const handleSubmit = async (e: React.FormEvent, invoiceType?: 'invoice' | 'proforma' | 'tax_invoice') => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -444,6 +444,7 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
         paid_amount: Number(formData.paid_amount),
         total_amount: Number(total),
         status: currentInvoiceType === 'proforma' ? 'proforma' : 'opened',
+        invoice_type: currentInvoiceType,
         items: validItems.map(item => ({
           ...item,
           product_id: parseInt(item.product_id as any) || null,
@@ -1265,10 +1266,10 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                   </button>
                 </div>
                 {showInvoiceTypeDropdown && (
-                  <div className="absolute left-10 mt-1 bg-white rounded-md shadow-lg z-10 w-auto min-w-max">
+                  <div className="absolute left-10 mt-1 bg-white rounded-md shadow-lg z-10 w-auto min-w-max flex flex-col">
                     <button
                       type="button"
-                      className="btn btn-primary btn-md px-3 rounded"
+                      className="btn btn-primary btn-md px-3 rounded-b-none"
                       onClick={(e) => {
                         e.preventDefault();
                         setShowInvoiceTypeDropdown(false);
@@ -1276,6 +1277,17 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
                       }}
                     >
                       Create Proforma Invoice
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-md px-3 rounded-t-none border-t border-blue-500"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowInvoiceTypeDropdown(false);
+                        handleSubmit(e, 'tax_invoice');
+                      }}
+                    >
+                      Create Tax Invoice (Gazette)
                     </button>
                   </div>
                 )}

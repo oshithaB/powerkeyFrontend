@@ -18,6 +18,7 @@ interface Company {
   registration_number: string;
   terms_and_conditions: string;
   notes: string;
+  tin?: string;
   opening_balance?: string;
 }
 
@@ -43,6 +44,7 @@ export default function CompanySelection() {
     registration_number: '',
     is_taxable: 'Not Taxable',
     tax_number: '',
+    tin: '',
     notes: '',
     terms_and_conditions: '',
     opening_balance: '0',
@@ -98,6 +100,7 @@ export default function CompanySelection() {
           registration_number: company.registration_number,
           terms_and_conditions: company.terms_and_conditions,
           notes: company.notes,
+          tin: company.tin,
           opening_balance: company.opening_balance,
         };
 
@@ -121,6 +124,7 @@ export default function CompanySelection() {
       registration_number: company.registration_number || '',
       is_taxable: company.is_taxable ? 'Taxable' : 'Not Taxable',
       tax_number: company.tax_number || '',
+      tin: company.tin || '',
       notes: company.notes || '',
       terms_and_conditions: company.terms_and_conditions || '',
       opening_balance: company.opening_balance || '0',
@@ -223,6 +227,7 @@ export default function CompanySelection() {
       registration_number: '',
       is_taxable: 'Not Taxable',
       tax_number: '',
+      tin: '',
       notes: '',
       terms_and_conditions: '',
       opening_balance: '0',
@@ -508,17 +513,32 @@ export default function CompanySelection() {
                 {formData.is_taxable === 'Taxable' && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Tax Number
+                      VAT Number
                     </label>
                     <input
                       type="text"
                       className="input"
                       value={formData.tax_number}
                       onChange={(e) => setFormData({ ...formData, tax_number: e.target.value })}
-                      placeholder="Enter tax number"
+                      placeholder="Enter VAT number"
                     />
                   </div>
                 )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    TIN Number (Gazette)
+                  </label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={formData.tin}
+                    onChange={(e) => setFormData({ ...formData, tin: e.target.value })}
+                    placeholder="Enter TIN number"
+                  />
+                </div>
               </div>
 
               {formData.is_taxable === 'Taxable' && (

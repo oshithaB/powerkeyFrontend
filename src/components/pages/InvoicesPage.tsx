@@ -36,6 +36,7 @@ interface Invoice {
   customer_billing_address?: string;
   customer_shipping_address?: string;
   customer_tax_number?: string | null;
+  customer_tin?: string | null;
   employee_id: number;
   employee_name?: string;
   estimate_id?: number;
@@ -55,10 +56,47 @@ interface Invoice {
   terms: string;
   created_at: string;
   is_locked?: boolean;
-  locked_by?: User | null;
   has_refunds?: boolean;
   payment_method?: string;
+  invoice_type?: string;
+  shipping_date?: string | null;
+  shipping_address?: string | null;
+  locked_by?: number | null;
 }
+
+const numberToWordsHelper = (num: number): string => {
+  const a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+  const b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+  if ((num = num || 0) === 0) return '';
+
+  const n = ('000000000' + num).slice(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+  if (!n) return '';
+
+  let str = '';
+  str += (Number(n[1]) != 0) ? (a[Number(n[1])] || b[n[1][0] as any] + (n[1][1] !== '0' ? ' ' + a[n[1][1] as any] : '')) + 'crore ' : '';
+  str += (Number(n[2]) != 0) ? (a[Number(n[2])] || b[n[2][0] as any] + (n[2][1] !== '0' ? ' ' + a[n[2][1] as any] : '')) + 'lakh ' : '';
+  str += (Number(n[3]) != 0) ? (a[Number(n[3])] || b[n[3][0] as any] + (n[3][1] !== '0' ? ' ' + a[n[3][1] as any] : '')) + 'thousand ' : '';
+  str += (Number(n[4]) != 0) ? (a[Number(n[4])] + 'hundred ') : '';
+  str += (Number(n[5]) != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0] as any] + (n[5][1] !== '0' ? ' ' + a[n[5][1] as any] : '')) : '';
+
+  return str.trim();
+};
+
+const amountToWords = (amount: number): string => {
+  const rupees = Math.floor(amount);
+  const cents = Math.round((amount - rupees) * 100);
+
+  const rupeesText = numberToWordsHelper(rupees) || 'zero';
+  let str = `${rupeesText} rupees`;
+
+  if (cents > 0) {
+    const centsText = numberToWordsHelper(cents);
+    str += ` and ${centsText} cents`;
+  }
+
+  return (str.charAt(0).toUpperCase() + str.slice(1) + ' only').replace(/\s+/g, ' ');
+};
 
 interface InvoiceItem {
   id?: number;
@@ -71,6 +109,7 @@ interface InvoiceItem {
   tax_rate: number;
   tax_amount: number;
   total_price: number;
+  unit_type?: string | null;
 }
 
 interface User {
@@ -420,13 +459,87 @@ export default function InvoicesPage() {
 
     const createHeader = (isFirstPage: boolean) => {
       if (isFirstPage) {
+        if (targetInvoice.invoice_type === 'tax_invoice') {
+          return [
+            {
+              columns: [
+                { width: 110, text: '' },
+                {
+                  width: '*',
+                  text: 'TAX INVOICE',
+                  fontSize: 28,
+                  bold: true,
+                  color: '#9EDFE8',
+                  alignment: 'center'
+                },
+                logoDataUrl ? {
+                  image: logoDataUrl,
+                  width: 110,
+                  alignment: 'right'
+                } : { text: '', width: 110 }
+              ],
+              margin: [0, 0, 0, 15]
+            },
+            {
+              table: {
+                widths: ['50%', '50%'],
+                body: [
+                  [
+                    { text: `Date of Invoice: ${formatDate(targetInvoice.invoice_date)}`, margin: [5, 5, 5, 5], fontSize: 9 },
+                    { text: `Tax Invoice No.: ${targetInvoice.invoice_number}`, margin: [5, 5, 5, 5], fontSize: 9 }
+                  ],
+                  [
+                    {
+                      stack: [
+                        { text: `Supplier's TIN: ${selectedCompany?.tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
+                        { text: `Supplier's VAT: ${selectedCompany?.tax_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
+                        { text: `Supplier's Name: ${selectedCompany?.name || 'Company Name'}`, fontSize: 9, margin: [0, 0, 0, 2], bold: true },
+                        { text: `Address: ${selectedCompany?.address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 15] },
+                        { text: `Telephone No: ${selectedCompany?.contact_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] }
+                      ],
+                      margin: [5, 5, 5, 5]
+                    },
+                    {
+                      stack: [
+                        { text: `Purchaser's TIN: ${targetInvoice.customer_tin || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
+                        { text: `Purchaser's VAT: ${targetInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] },
+                        { text: `Purchaser's Name: ${targetInvoice.customer_name || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2], bold: true },
+                        { text: `Address: ${targetInvoice.customer_billing_address || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 15] },
+                        { text: `Telephone No: ${targetInvoice.customer_phone || 'N/A'}`, fontSize: 9, margin: [0, 0, 0, 2] }
+                      ],
+                      margin: [5, 5, 5, 5]
+                    }
+                  ],
+                  [
+                    { text: `Date of Delivery: ${targetInvoice.shipping_date ? formatDate(targetInvoice.shipping_date) : '-'}`, margin: [5, 5, 5, 5], fontSize: 9 },
+                    { text: `Place of Supply: ${targetInvoice.shipping_address || '-'}`, margin: [5, 5, 5, 5], fontSize: 9 }
+                  ],
+                  [
+                    { text: `Additional Information:\n${targetInvoice.notes || '-'}`, colSpan: 2, margin: [5, 5, 5, 20], fontSize: 9 },
+                    {}
+                  ]
+                ]
+              },
+              layout: 'noBorders'
+            },
+            { text: '', margin: [0, 0, 0, 10] }
+          ];
+        }
+
         return [
+          {
+            text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE',
+            fontSize: 28,
+            bold: true,
+            color: '#9EDFE8',
+            alignment: 'center',
+            margin: [0, 0, 0, 15]
+          },
           {
             columns: [
               {
                 width: '*',
                 stack: [
-                  { text: selectedCompany?.is_taxable ? 'TAX INVOICE' : 'INVOICE', fontSize: 28, bold: true, color: '#9EDFE8', margin: [0, 0, 0, 4] },
                   { text: targetInvoice.invoice_number, fontSize: 16, bold: true, color: '#1f2937', margin: [0, 0, 0, 6] },
                   { text: selectedCompany?.name || 'Company Name', fontSize: 10, bold: true, color: '#1f2937', margin: [0, 0, 0, 2] },
                   selectedCompany?.registration_number ? { text: `Reg. No: ${selectedCompany.registration_number}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] } : null,
@@ -453,8 +566,8 @@ export default function InvoicesPage() {
                   { text: targetInvoice.customer_billing_address || 'N/A', fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
                   { text: `Phone: ${targetInvoice.customer_phone || 'N/A'}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
                   { text: `Email: ${targetInvoice.customer_email || 'N/A'}`, fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 2] },
-                  { text: `VAT No: ${targetInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, color: '#4b5563' }
-                ]
+                  { text: `VAT No: ${targetInvoice.customer_tax_number || 'N/A'}`, fontSize: 9, color: '#4b5563' },
+                ].filter(Boolean)
               },
               {
                 width: '4%',
@@ -490,7 +603,7 @@ export default function InvoicesPage() {
                         [
                           { text: 'Company VAT:', fontSize: 9, bold: true, border: [false, false, false, false] },
                           { text: selectedCompany?.tax_number || 'N/A', fontSize: 9, alignment: 'right', border: [false, false, false, false] }
-                        ]
+                        ],
                       ]
                     },
                     layout: 'noBorders'
@@ -527,53 +640,107 @@ export default function InvoicesPage() {
 
 
     const createItemsTable = (items: InvoiceItem[], startIndex: number) => {
-      const tableBody: any[][] = [
-        [
-          { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
-          { text: 'Product', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
-          { text: 'Description', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
-          { text: 'Qty', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [4, 5, 4, 5] },
-          { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] },
-          { text: 'Total', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] }
-        ]
+      const isGazette = targetInvoice.invoice_type === 'tax_invoice';
+
+      const headRow = isGazette ? [
+        { text: 'Reference', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [0, 5, 0, 5] },
+        { text: 'Description of Goods or Services', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+        { text: 'Quantity', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [2, 5, 2, 5] },
+        { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [2, 5, 2, 5] },
+        { text: 'Amount Excluding VAT (Rs.)', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [2, 5, 2, 5] }
+      ] : [
+        { text: '#', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+        { text: 'Product', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+        { text: 'Description', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', margin: [4, 5, 4, 5] },
+        { text: 'Qty', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'center', margin: [4, 5, 4, 5] },
+        { text: 'Unit Price', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] },
+        { text: 'Total', fontSize: 10, bold: true, fillColor: '#9EDFE8', color: '#1f2937', alignment: 'right', margin: [4, 5, 4, 5] }
       ];
 
+      const tableBody: any[][] = [headRow];
+
       items.forEach((item, index) => {
-        // Calculate exclusive total: Qty * Actual Unit Price
         const exclusiveTotal = (Number(item.quantity) || 0) * (Number(item.actual_unit_price) || 0);
 
-        tableBody.push([
-          { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
-          { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9, margin: [3, 4, 3, 4] },
-          { text: item.description || '-', fontSize: 8.5, color: '#4b5563', margin: [3, 4, 3, 4] },
-          {
-            stack: [
-              { text: item.quantity.toString(), fontSize: 9, alignment: 'center' },
-              { text: item.sku || '', fontSize: 7, color: '#6b7280', alignment: 'center' }
-            ],
-            margin: [3, 4, 3, 4]
-          },
-          { text: `Rs. ${formatCurrency(item.actual_unit_price)}`, fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
-          { text: `Rs. ${formatCurrency(exclusiveTotal)}`, fontSize: 9, bold: true, alignment: 'right', margin: [3, 4, 3, 4] }
-        ]);
+        if (isGazette) {
+          tableBody.push([
+            { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+            {
+              stack: [
+                { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9 },
+                item.description ? { text: item.description, fontSize: 8.5, color: '#4b5563' } : null
+              ].filter(Boolean),
+              margin: [3, 4, 3, 4]
+            },
+            { text: item.quantity.toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+            { text: formatCurrency(item.actual_unit_price), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+            { text: formatCurrency(exclusiveTotal), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] }
+          ]);
+        } else {
+          tableBody.push([
+            { text: (startIndex + index + 1).toString(), fontSize: 9, alignment: 'center', margin: [3, 4, 3, 4] },
+            { text: products.find((p) => p.id === item.product_id)?.name || 'N/A', fontSize: 9, margin: [3, 4, 3, 4] },
+            { text: item.description || '-', fontSize: 8.5, color: '#4b5563', margin: [3, 4, 3, 4] },
+            {
+              stack: [
+                { text: item.quantity.toString(), fontSize: 9, alignment: 'center' },
+                item.unit_type ? { text: item.unit_type, fontSize: 7, color: '#6b7280', alignment: 'center' } : null
+              ].filter(Boolean),
+              margin: [3, 4, 3, 4]
+            },
+            { text: formatCurrency(item.actual_unit_price), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] },
+            { text: formatCurrency(exclusiveTotal), fontSize: 9, alignment: 'right', margin: [3, 4, 3, 4] }
+          ]);
+        }
       });
+
+      if (isGazette && startIndex + items.length === targetItems.length) {
+        // Calculate totals dynamically for the table footer
+        const exclusiveSubtotal = Number(targetItems.reduce((acc, item) => acc + ((Number(item.quantity) || 0) * (Number(item.actual_unit_price) || 0)), 0).toFixed(2));
+        const calculatedTax = Number(targetItems.reduce((acc, item) => {
+          const qty = Number(item.quantity) || 0;
+          const uPrice = Number(item.unit_price) || 0;
+          const actualUPrice = Number(item.actual_unit_price) || 0;
+          return acc + (qty * (uPrice - actualUPrice));
+        }, 0).toFixed(2));
+        const calculatedTotal = Number((exclusiveSubtotal + Number(targetInvoice.shipping_cost || 0) + calculatedTax - Number(targetInvoice.discount_amount || 0)).toFixed(2));
+
+        let displayTaxStr = '18%';
+        if (exclusiveSubtotal > 0 && calculatedTax > 0) {
+          displayTaxStr = `${Math.round((calculatedTax / exclusiveSubtotal) * 100)}%`;
+        }
+
+        tableBody.push([
+          { colSpan: 4, text: 'Total Value of Supply:', bold: true, fontSize: 9, margin: [4, 5, 4, 5] },
+          {}, {}, {},
+          { text: formatCurrency(exclusiveSubtotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 5, 2, 5] }
+        ]);
+        tableBody.push([
+          { colSpan: 4, text: `VAT Amount (Total Value of Supply @ ${displayTaxStr})`, bold: true, fontSize: 9, margin: [4, 5, 4, 5] },
+          {}, {}, {},
+          { text: formatCurrency(calculatedTax), bold: true, fontSize: 9, alignment: 'right', margin: [2, 5, 2, 5] }
+        ]);
+        tableBody.push([
+          { colSpan: 4, text: 'Total Amount including VAT:', bold: true, fontSize: 9, margin: [4, 5, 4, 5] },
+          {}, {}, {},
+          { text: formatCurrency(calculatedTotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 5, 2, 5] }
+        ]);
+      }
 
       return {
         table: {
           headerRows: 1,
-          widths: [25, 110, '*', 50, 65, 70],
+          widths: isGazette ? ['auto', '*', 'auto', 'auto', 'auto'] : ['auto', '25%', '*', 'auto', 'auto', 'auto'],
           body: tableBody
         },
         layout: {
-          hLineWidth: (i: number, node: any) => 0.5,
+          hLineWidth: (i: number, node: any) => (i === 0 || i === node.table.body.length ? 0 : 1),
           vLineWidth: () => 0,
-          hLineColor: (i: number) => '#e5e7eb',
-          paddingLeft: () => 0,
-          paddingRight: () => 0,
-          paddingTop: () => 0,
-          paddingBottom: () => 0
+          hLineColor: () => '#e5e7eb',
+          paddingTop: () => 6,
+          paddingBottom: () => 6
         },
-        margin: [0, 0, 0, 12]
+        margin: [0, 0, 0, 20]
       };
     };
 
@@ -596,11 +763,36 @@ export default function InvoicesPage() {
       const calculatedTotal = Number((exclusiveSubtotal + Number(targetInvoice.shipping_cost || 0) + calculatedTax - Number(targetInvoice.discount_amount || 0)).toFixed(2));
       const calculatedBalanceDue = Number((calculatedTotal - Number(targetInvoice.paid_amount || 0)).toFixed(2));
 
+      if (targetInvoice.invoice_type === 'tax_invoice') {
+        return [
+          { text: '', margin: [0, 0, 0, 10] },
+          {
+            table: {
+              widths: ['100%'],
+              body: [
+                [
+                  { text: `Total Amount in words:\n${amountToWords(calculatedTotal)}`, margin: [4, 5, 4, 5], fontSize: 9 }
+                ],
+                [
+                  { text: `Mode of Payment:\n${targetInvoice.payment_method || 'N/A'}`, margin: [4, 5, 4, 5], fontSize: 9 }
+                ]
+              ]
+            }
+          }
+        ];
+      }
+
       return {
         columns: [
           {
             width: '55%',
             stack: [
+              (targetInvoice.invoice_type === 'tax_invoice') ? {
+                stack: [
+                  { text: 'Total Amount In Words', fontSize: 10, bold: true, margin: [0, 0, 0, 4] },
+                  { text: amountToWords(calculatedTotal), fontSize: 9, color: '#4b5563', margin: [0, 0, 0, 10] }
+                ]
+              } : {},
               targetInvoice.notes ? {
                 stack: [
                   { text: 'Notes', fontSize: 10, bold: true, margin: [0, 0, 0, 4] },

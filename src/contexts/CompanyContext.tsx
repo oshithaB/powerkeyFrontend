@@ -17,6 +17,9 @@ interface Company {
   current_invoice_number?: number;
   current_estimate_number?: number;
   invoice_separators?: boolean;
+  gazette_q4?: string;
+  current_tax_invoice_number?: number;
+  tin?: string;
 }
 
 
