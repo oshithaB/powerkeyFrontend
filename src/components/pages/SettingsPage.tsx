@@ -10,9 +10,7 @@ export default function SettingsPage() {
     invoice_prefix: '',
     current_invoice_number: '',
     current_estimate_number: '',
-    invoice_separators: true,
-    gazette_q4: 'HQ01',
-    current_tax_invoice_number: ''
+    invoice_separators: true
   });
 
   useEffect(() => {
@@ -21,9 +19,7 @@ export default function SettingsPage() {
         invoice_prefix: selectedCompany.invoice_prefix || '',
         current_invoice_number: selectedCompany.current_invoice_number?.toString() || '',
         current_estimate_number: selectedCompany.current_estimate_number?.toString() || '',
-        invoice_separators: (selectedCompany.invoice_separators !== undefined && selectedCompany.invoice_separators !== false && Number(selectedCompany.invoice_separators) !== 0),
-        gazette_q4: selectedCompany.gazette_q4 || 'HQ01',
-        current_tax_invoice_number: selectedCompany.current_tax_invoice_number?.toString() || ''
+        invoice_separators: (selectedCompany.invoice_separators !== undefined && selectedCompany.invoice_separators !== false && Number(selectedCompany.invoice_separators) !== 0)
       });
     }
   }, [selectedCompany]);
@@ -37,8 +33,6 @@ export default function SettingsPage() {
       data.append('current_invoice_number', formData.current_invoice_number);
       data.append('current_estimate_number', formData.current_estimate_number);
       data.append('invoice_separators', formData.invoice_separators ? '1' : '0');
-      data.append('gazette_q4', formData.gazette_q4);
-      data.append('current_tax_invoice_number', formData.current_tax_invoice_number);
 
       await axiosInstance.put(`http://147.79.115.89:3000/api/company/update/${selectedCompany.company_id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -190,22 +184,7 @@ export default function SettingsPage() {
                         <span className="text-sm font-medium">{selectedCompany?.current_estimate_number || '0'}</span>
                       )}
                     </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Gazette Q4 Block</label>
-                      {isEditing ? (
-                        <input type="text" value={formData.gazette_q4} onChange={(e) => setFormData({ ...formData, gazette_q4: e.target.value })} className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-blue-500" placeholder="e.g. HQ01" />
-                      ) : (
-                        <span className="text-sm font-medium">{selectedCompany?.gazette_q4 || 'HQ01'}</span>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Tax Inv. Current Seq</label>
-                      {isEditing ? (
-                        <input type="number" value={formData.current_tax_invoice_number} onChange={(e) => setFormData({ ...formData, current_tax_invoice_number: e.target.value })} className="w-full px-2 py-1 text-sm border rounded focus:ring-1 focus:ring-blue-500" placeholder="e.g. 0" />
-                      ) : (
-                        <span className="text-sm font-medium">{selectedCompany?.current_tax_invoice_number || '0'}</span>
-                      )}
-                    </div>
+
                   </div>
                 </div>
               </div>

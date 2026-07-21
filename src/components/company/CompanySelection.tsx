@@ -48,6 +48,8 @@ export default function CompanySelection() {
     notes: '',
     terms_and_conditions: '',
     opening_balance: '0',
+    gazette_q4: 'HQ01',
+    current_tax_invoice_number: '0',
     tax_rates: [] as TaxRate[]
   });
   const [logo, setLogo] = useState<File | null>(null);
@@ -128,6 +130,8 @@ export default function CompanySelection() {
       notes: company.notes || '',
       terms_and_conditions: company.terms_and_conditions || '',
       opening_balance: company.opening_balance || '0',
+      gazette_q4: company.gazette_q4 || 'HQ01',
+      current_tax_invoice_number: company.current_tax_invoice_number?.toString() || '0',
       tax_rates: taxRates
     });
     setLogoPreview(company.company_logo ? `http://147.79.115.89:3000${company.company_logo}` : '');
@@ -231,6 +235,8 @@ export default function CompanySelection() {
       notes: '',
       terms_and_conditions: '',
       opening_balance: '0',
+      gazette_q4: 'HQ01',
+      current_tax_invoice_number: '0',
       tax_rates: []
     });
   };
@@ -526,7 +532,7 @@ export default function CompanySelection() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     TIN Number (Gazette)
@@ -537,6 +543,30 @@ export default function CompanySelection() {
                     value={formData.tin}
                     onChange={(e) => setFormData({ ...formData, tin: e.target.value })}
                     placeholder="Enter TIN number"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Gazette Q4 Block
+                  </label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={formData.gazette_q4}
+                    onChange={(e) => setFormData({ ...formData, gazette_q4: e.target.value })}
+                    placeholder="e.g. HQ01"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tax Inv. Current Seq
+                  </label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={formData.current_tax_invoice_number}
+                    onChange={(e) => setFormData({ ...formData, current_tax_invoice_number: e.target.value })}
+                    placeholder="e.g. 0"
                   />
                 </div>
               </div>
