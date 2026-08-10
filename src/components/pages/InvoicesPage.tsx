@@ -723,6 +723,18 @@ export default function InvoicesPage() {
           {}, {}, {},
           { text: formatCurrency(calculatedTotal), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
         ]);
+
+        const calculatedBalanceDue = Number((calculatedTotal - Number(targetInvoice.paid_amount || 0)).toFixed(2));
+        tableBody.push([
+          { colSpan: 4, text: 'Paid Amount:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
+          {}, {}, {},
+          { text: formatCurrency(targetInvoice.paid_amount || 0), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
+        ]);
+        tableBody.push([
+          { colSpan: 4, text: 'Due Amount:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
+          {}, {}, {},
+          { text: formatCurrency(calculatedBalanceDue), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
+        ]);
       }
 
       return {
@@ -762,11 +774,18 @@ export default function InvoicesPage() {
       const calculatedBalanceDue = Number((calculatedTotal - Number(targetInvoice.paid_amount || 0)).toFixed(2));
 
       if (targetInvoice.invoice_type === 'tax_invoice') {
-        return [
+        const summaryLines: any[] = [
           { text: '', margin: [0, 0, 0, 10] },
           { text: `Total Amount in words: ${amountToWords(calculatedTotal)}`, margin: [0, 2, 0, 2], fontSize: 9, bold: true },
           { text: `Mode of Payment: ${targetInvoice.payment_method || 'N/A'}`, margin: [0, 2, 0, 2], fontSize: 9, bold: true }
         ];
+
+        if (targetInvoice.terms) {
+          summaryLines.push({ text: 'Terms & Conditions', margin: [0, 10, 0, 4], fontSize: 9, bold: true });
+          summaryLines.push({ text: targetInvoice.terms, margin: [0, 0, 0, 2], fontSize: 9 });
+        }
+
+        return summaryLines;
       }
 
       return {
