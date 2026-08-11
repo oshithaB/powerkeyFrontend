@@ -718,6 +718,23 @@ export default function InvoicesPage() {
           {}, {}, {},
           { text: formatCurrency(calculatedTax), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
         ]);
+
+        if (Number(targetInvoice.discount_amount) > 0) {
+          tableBody.push([
+            { colSpan: 4, text: 'Discount:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
+            {}, {}, {},
+            { text: `-${formatCurrency(targetInvoice.discount_amount)}`, bold: true, fontSize: 9, alignment: 'right', color: '#dc2626', margin: [2, 3, 2, 3] }
+          ]);
+        }
+
+        if (Number(targetInvoice.shipping_cost) > 0) {
+          tableBody.push([
+            { colSpan: 4, text: 'Shipping:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
+            {}, {}, {},
+            { text: formatCurrency(targetInvoice.shipping_cost), bold: true, fontSize: 9, alignment: 'right', margin: [2, 3, 2, 3] }
+          ]);
+        }
+
         tableBody.push([
           { colSpan: 4, text: 'Total Amount including VAT:', bold: true, fontSize: 9, margin: [4, 3, 4, 3], alignment: 'right' },
           {}, {}, {},
