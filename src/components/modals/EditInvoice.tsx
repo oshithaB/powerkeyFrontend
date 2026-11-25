@@ -93,7 +93,8 @@ export default function EditInvoice() {
     }
 
     if (invoice.discount_type === 'percentage') {
-      return invoice.subtotal > 0 ? Number(((invoice.discount_amount / invoice.subtotal) * 100).toFixed(2)) : 0;
+      const gross = Number(invoice.total_amount || 0) + Number(invoice.discount_amount || 0);
+      return gross > 0 ? Number(((invoice.discount_amount / gross) * 100).toFixed(2)) : 0;
     } else {
       return invoice.discount_amount;
     }
@@ -324,15 +325,19 @@ export default function EditInvoice() {
     const subtotal = Number(items.reduce((sum, item) => sum + (Number(item.quantity || 0) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(items.reduce((sum, item) => sum + (Number(item.quantity || 0) * item.tax_amount), 0).toFixed(2));
 
+    // Gross total before discount (items incl. tax + shipping incl. tax)
+    const grossTotal = Number((subtotal + totalShippingWithTax + totalTax).toFixed(2));
+
     let discountAmount = 0;
     const discountValue = Number(formData.discount_value) || 0;
     if (formData.discount_type === 'percentage') {
-      discountAmount = Number(((subtotal * discountValue) / 100).toFixed(2));
+      // Percentage discount is applied directly to the final (gross) amount
+      discountAmount = Number(((grossTotal * discountValue) / 100).toFixed(2));
     } else {
       discountAmount = Number(discountValue.toFixed(2));
     }
 
-    const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
+    const total = Number((grossTotal - discountAmount).toFixed(2));
     const balanceDue = Number((total - Number(formData.paid_amount || 0)).toFixed(2));
 
     return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total, balanceDue };

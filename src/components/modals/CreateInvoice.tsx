@@ -385,14 +385,18 @@ export default function InvoiceModal({ invoice, onSave }: InvoiceModalProps) {
     const subtotal = Number(currentItems.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.actual_unit_price), 0).toFixed(2));
     const totalTax = Number(currentItems.reduce((sum, item) => sum + ((Number(item.quantity) || 0) * item.tax_amount), 0).toFixed(2));
 
+    // Gross total before discount (items incl. tax + shipping incl. tax)
+    const grossTotal = Number((subtotal + totalShippingWithTax + totalTax).toFixed(2));
+
     let discountAmount = 0;
     if (formData.discount_type === 'percentage') {
-      discountAmount = Number(((subtotal * Number(formData.discount_value)) / 100).toFixed(2));
+      // Percentage discount is applied directly to the final (gross) amount
+      discountAmount = Number(((grossTotal * Number(formData.discount_value)) / 100).toFixed(2));
     } else {
-      discountAmount = Number(formData.discount_value.toFixed(2));
+      discountAmount = Number(Number(formData.discount_value || 0).toFixed(2));
     }
 
-    const total = Number((subtotal + totalShippingWithTax + totalTax - discountAmount).toFixed(2));
+    const total = Number((grossTotal - discountAmount).toFixed(2));
 
     return { subtotal, totalTax, discountAmount, shippingCost: totalShippingWithTax, shippingTaxAmount, total };
   };
